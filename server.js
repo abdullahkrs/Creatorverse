@@ -6,6 +6,16 @@ import { createServer } from 'node:http';
 const root = fileURLToPath(new URL('./dist', import.meta.url));
 const port = Number(process.env.PORT || 3000);
 
+const deployment = {
+  environment: process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV || 'local',
+  branch: process.env.RAILWAY_GIT_BRANCH || 'local',
+  commitSha: process.env.RAILWAY_GIT_COMMIT_SHA || 'local',
+  commitMessage: process.env.RAILWAY_GIT_COMMIT_MESSAGE || '',
+  author: process.env.RAILWAY_GIT_AUTHOR || '',
+  deploymentId: process.env.RAILWAY_DEPLOYMENT_ID || '',
+  publicDomain: process.env.RAILWAY_PUBLIC_DOMAIN || '',
+};
+
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -21,6 +31,7 @@ function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
   });
   response.end(JSON.stringify(payload));
 }
@@ -43,6 +54,16 @@ const server = createServer((request, response) => {
       status: 'ok',
       service: 'creatorverse-web',
       timestamp: new Date().toISOString(),
+      environment: deployment.environment,
+      branch: deployment.branch,
+      commit: deployment.commitSha.slice(0, 12),
+    });
+  }
+
+  if (request.url === '/version') {
+    return sendJson(response, 200, {
+      service: 'creatorverse-web',
+      ...deployment,
     });
   }
 
@@ -63,6 +84,7 @@ const server = createServer((request, response) => {
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
   });
 
   createReadStream(assetPath).pipe(response);
@@ -70,4 +92,5 @@ const server = createServer((request, response) => {
 
 server.listen(port, '0.0.0.0', () => {
   console.log(`Creatorverse listening on 0.0.0.0:${port}`);
+  console.log(`Deployment ${deployment.environment} ${deployment.branch} ${deployment.commitSha.slice(0, 12)}`);
 });
