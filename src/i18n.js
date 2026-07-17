@@ -37,6 +37,25 @@ const ar = {
   Back: 'رجوع',
   Continue: 'متابعة',
   'Launch preview': 'إطلاق المعاينة',
+  'Creator profile connection': 'ربط بروفايل صانع المحتوى',
+  'Build your realm from a real creator profile.': 'ابنِ عالمك انطلاقًا من بروفايل حقيقي لصانع المحتوى.',
+  'Import public YouTube channel identity and statistics. TikTok, X, and Instagram profiles will require the creator to connect their own account through official authorization.': 'استورد هوية قناة YouTube وإحصاءاتها العامة. أما TikTok وX وInstagram فتتطلب من صانع المحتوى ربط حسابه عبر تفويض رسمي.',
+  'YouTube · available': 'YouTube · متاح',
+  'TikTok · OAuth': 'TikTok · ربط رسمي',
+  'X · OAuth': 'X · ربط رسمي',
+  'Instagram · OAuth': 'Instagram · ربط رسمي',
+  'YouTube channel URL': 'رابط قناة YouTube',
+  'Fetch profile': 'جلب البروفايل',
+  'This uses the official YouTube Data API. Add YOUTUBE_API_KEY to Railway Variables to enable it.': 'تستخدم هذه الميزة واجهة YouTube Data API الرسمية. أضف YOUTUBE_API_KEY إلى متغيرات Railway لتفعيلها.',
+  'Creator profile preview': 'معاينة بروفايل صانع المحتوى',
+  'Public identity and statistics will appear here after a successful lookup.': 'ستظهر الهوية والإحصاءات العامة هنا بعد نجاح عملية الجلب.',
+  'Public creator profile': 'بروفايل عام لصانع محتوى',
+  subscribers: 'مشتركون',
+  videos: 'فيديوهات',
+  views: 'مشاهدات',
+  Hidden: 'مخفي',
+  'Open profile': 'فتح البروفايل',
+  'Use for realm': 'استخدمه لإنشاء العالم',
   'Creator content bridge': 'جسر محتوى صانع المحتوى',
   'Bring a public post into your realm.': 'أدخل منشورًا عامًا إلى عالمك.',
   'Paste a public YouTube, TikTok, or X link. Creatorverse fetches basic public metadata only—never passwords, private messages, or follower lists.': 'ألصق رابطًا عامًا من YouTube أو TikTok أو X. يجلب Creatorverse بيانات عامة أساسية فقط، ولا يطلب كلمات مرور أو رسائل خاصة أو قوائم متابعين.',
@@ -77,6 +96,12 @@ const ar = {
   'The platform did not provide public metadata for this post.': 'لم توفر المنصة بيانات عامة لهذا المنشور.',
   'The social platform took too long to respond. Try again.': 'استغرقت المنصة وقتًا طويلًا في الاستجابة. حاول مرة أخرى.',
   'Enter a valid public post URL.': 'أدخل رابط منشور عام صالحًا.',
+  'YouTube profile import is ready, but YOUTUBE_API_KEY must be added in Railway Variables.': 'ميزة استيراد بروفايل YouTube جاهزة، لكن يجب إضافة YOUTUBE_API_KEY إلى متغيرات Railway.',
+  'Use a YouTube channel URL with @handle, /channel/, or /user/.': 'استخدم رابط قناة YouTube يحتوي على @handle أو ‎/channel/‎ أو ‎/user/‎.',
+  'No public YouTube channel was found for this URL.': 'لم يتم العثور على قناة YouTube عامة لهذا الرابط.',
+  'YouTube rejected the profile request. Check the API key and restrictions.': 'رفض YouTube طلب البروفايل. تحقق من مفتاح API والقيود.',
+  'YouTube took too long to respond. Try again.': 'استغرق YouTube وقتًا طويلًا في الاستجابة. حاول مرة أخرى.',
+  'Enter a valid YouTube channel URL.': 'أدخل رابط قناة YouTube صالحًا.',
 };
 
 const placeholders = {
@@ -87,10 +112,7 @@ const placeholders = {
 
 let currentLocale = localStorage.getItem(STORAGE_KEY) || (navigator.language?.startsWith('ar') ? 'ar' : 'en');
 
-export function getLocale() {
-  return currentLocale;
-}
-
+export function getLocale() { return currentLocale; }
 export function setLocale(locale) {
   currentLocale = locale === 'ar' ? 'ar' : 'en';
   localStorage.setItem(STORAGE_KEY, currentLocale);
@@ -115,7 +137,6 @@ export function applyLocale(root = document) {
   document.documentElement.lang = currentLocale;
   document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
   document.body.classList.toggle('rtl', isArabic);
-
   if (!isArabic) return;
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
