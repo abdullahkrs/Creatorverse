@@ -6,138 +6,116 @@ Read this file before every development cycle.
 
 Build a mobile-first creator-community game that turns each creator's audience into a fictional digital realm. Members complete short missions, grow their realm, collaborate with other creator communities, and participate in safe seasonal competition.
 
-## Non-negotiable product boundaries
+## Non-negotiable boundaries
 
 1. The universe is fictional and must not reproduce real countries, borders, governments, political parties, conflicts, flags, or geopolitical events.
 2. All competition remains inside Creatorverse. Never create mechanics that encourage harassment, brigading, mass reporting, misinformation, boycotts, or hostile activity on external platforms.
-3. Never make external follower count the primary source of power. Active participation, retention, collaboration, and skill must matter more.
-4. Do not sell competitive power. Monetization may include cosmetics, creator tools, sponsorships, and commerce integrations, but not pay-to-win mechanics.
-5. Use controlled mission templates. User-created free text requires moderation and must not be necessary for the MVP.
-6. Protect minors by default: no private adult-to-minor messaging, precise location, open file sharing, gambling-like rewards, or unrestricted spending.
-7. Avoid building a general-purpose social network. Creatorverse complements existing social platforms.
+3. External follower count is never the primary source of power. Active participation, retention, collaboration, and skill matter more.
+4. Never sell competitive power. Monetization may include cosmetics, creator tools, sponsorships, and commerce integrations, but not pay-to-win.
+5. Protect minors by default. No private adult-to-minor messaging, precise location, open file sharing, gambling-like rewards, or unrestricted spending.
+6. Avoid building a general-purpose social network. Creatorverse complements existing platforms.
+7. Social integrations must use official APIs, public oEmbed data, or explicit creator authorization. Never request social-media passwords or scrape private data.
 
 ## North star
 
 A creator shares one link, followers join in seconds, complete a meaningful action in under one minute, visibly change the creator's realm, and give the creator a result worth sharing back to social media.
 
-## Current MVP loop
+## Current core loop
 
 Creator creates realm → follower joins → chooses role → completes short mission → realm gains energy → district unlocks → creator shares result.
 
-Every development cycle must improve or validate this loop. Work outside it requires a written decision in `DECISIONS.md`.
+Every development cycle must improve, complete, measure, or validate this loop.
+
+## Five-agent team
+
+Only these five agents are used in normal development:
+
+### 1. Product Lead
+
+Owns scope, priority, creator value, follower value, success metric, and conflict resolution. Rejects feature drift and decides the single task for the cycle.
+
+### 2. Game and UX Agent
+
+Owns gameplay rules, creator workflow, follower workflow, mobile UX, accessibility, RTL/LTR behavior, progression, fairness-by-design, and sharing loops.
+
+### 3. Safety and Fairness Reviewer
+
+Owns fictional-world separation, privacy, minors, content safety, anti-abuse, integration permissions, political-risk review, and no-pay-to-win review. May block release only for a concrete safety, legal-risk, privacy, or fairness failure.
+
+### 4. Full-Stack Engineer
+
+The only agent allowed to change application code in a cycle. Implements the approved vertical slice, keeps architecture simple, and adds secure validation and failure handling.
+
+### 5. QA and Release Agent
+
+Owns acceptance tests, regression checks, mobile and browser review, accessibility basics, security-critical paths, Railway deployment verification, and the release decision.
 
 ## Required reading order
 
 1. `AGENT.md`
-2. `AGENT_ORCHESTRATION.md`
-3. `README.md`
-4. `ROADMAP.md`
-5. `TASK_LOG.md`
-6. `DECISIONS.md`
-7. `BACKLOG.md`
-8. `METRICS.md`
+2. `README.md`
+3. `ROADMAP.md`
+4. `TASK_LOG.md`
+5. `DECISIONS.md`
+6. `BACKLOG.md`
+7. `METRICS.md`
+8. `RAILWAY_AGENT_WORKFLOW.md`
 9. `package.json`
 10. `.github/workflows/ci.yml`
 
-## Agent activation
-
-`AGENT_ORCHESTRATION.md` is the authoritative specialist-team definition. The Cycle Lead must activate only the agents required for the selected task and record them in the cycle handoff. Specialist agents are working perspectives; they do not independently expand scope or create separate product directions.
-
-Every cycle must include:
-
-- Cycle Lead.
-- Product Strategy Agent.
-- One implementation owner.
-- QA and Release Agent.
-- Safety and Trust Agent whenever the task affects users, content, competition, invitations, data, minors, or monetization.
-
-## Development cycle
+## One-cycle workflow
 
 Run exactly one focused cycle:
 
-1. Inspect the current implementation and recent history.
-2. Select one high-value task from the current milestone.
-3. Write a one-sentence outcome and explicit acceptance criteria.
-4. Activate the minimum specialist agents required by `AGENT_ORCHESTRATION.md`.
-5. Record concise product, safety, UX, architecture, data, and QA handoffs where applicable.
-6. Implement the smallest complete vertical slice.
-7. Test the changed behavior and run the full available check suite.
-8. Review mobile usability, accessibility, safety boundaries, fairness, and empty/error states.
-9. Update documentation only when facts, scope, or decisions changed.
-10. Add a concise entry to `TASK_LOG.md`.
-11. Commit once with an intentional conventional commit message.
-12. Stop. Do not begin a second improvement cycle.
+1. Product Lead inspects current implementation and selects one unfinished high-value task.
+2. Product Lead writes one user outcome, one success metric, and explicit acceptance criteria.
+3. Game and UX Agent provides at most five concise requirements.
+4. Safety and Fairness Reviewer provides at most five risks or controls. It says `PASS`, `PASS WITH CONTROLS`, or `BLOCK`.
+5. Full-Stack Engineer implements the smallest complete vertical slice. No other agent writes competing code.
+6. QA and Release Agent runs available checks and records evidence.
+7. Update `TASK_LOG.md` and any document whose facts changed.
+8. Create or update one Pull Request using `.github/pull_request_template.md`.
+9. Wait for GitHub CI and Railway Preview. Add the Preview URL and `/version` result to the PR.
+10. Stop. Do not merge, begin another task, or modify production.
+
+## Branch and Pull Request rules
+
+- Branch name: `feat/<short-task>`, `fix/<short-task>`, or `chore/<short-task>`.
+- One branch and one Pull Request per cycle.
+- Pull Requests target `staging` when that branch exists; otherwise target `main` during prototype setup.
+- Never push development work directly to `main`.
+- Never merge automatically unless the repository owner explicitly requests it.
+- Railway Preview is required for user-visible changes.
 
 ## Anti-loop rules
 
-- Do not rebuild working components because a different architecture seems cleaner.
-- Do not rename or reorganize files without a user-facing or maintenance benefit tied to the selected task.
-- Do not add dependencies when the existing stack can reasonably complete the task.
-- Do not add speculative systems for future scale.
-- Do not repeat work already recorded as complete in `TASK_LOG.md`.
-- Do not create more than one new major concept per cycle.
-- Do not activate the full agent team for a small task.
-- Do not let agents produce conflicting implementations; one implementation owner writes the change.
-- If blocked, document the blocker and implement the best unblocked slice instead.
-
-## Core agent roles
-
-The detailed team, phase activation matrix, handoffs, release gates, and final-product completion criteria are maintained in `AGENT_ORCHESTRATION.md`.
-
-The always-relevant core perspectives are:
-
-### Product Strategy Agent
-
-Protects the north star, validates creator and follower value, chooses the smallest meaningful experiment, and rejects feature drift.
-
-### Creator Success Agent
-
-Ensures creators can establish and operate a realm with low effort and receive results worth sharing back to their existing social channels.
-
-### Community Gameplay Agent
-
-Ensures followers join quickly, understand their role, complete meaningful short actions, see their impact, and have fair reasons to return.
-
-### Game Systems and Economy Agent
-
-Designs fair missions, progression, roles, collaboration, seasonal competition, resources, and non-pay-to-win monetization boundaries.
-
-### Safety and Trust Agent
-
-Checks fictional-world separation, moderation, anti-brigading controls, minors' safety, privacy, abuse paths, and legal-risk flags. This role can block release.
-
-### UX, Accessibility, and Viral Loop Agent
-
-Optimizes mobile onboarding, time-to-first-action, visible contribution, RTL readiness, creator share cards, challenge links, and return triggers without deceptive dark patterns.
-
-### Implementation Owner
-
-The activated Frontend, Backend, Full-Stack, Platform, or DevOps engineer responsible for producing the single coherent code change for the cycle.
-
-### QA and Release Agent
-
-Tests acceptance criteria, regression risks, accessibility basics, mobile widths, permissions, failure states, and release gates. This role can block release.
-
-### Cycle Lead
-
-Synthesizes the activated agents, chooses one task, resolves conflicts in favor of safety and the north star, updates `TASK_LOG.md`, and stops after the cycle.
+- Do not rebuild working components because another architecture looks cleaner.
+- Do not rename or reorganize files without a direct benefit to the selected task.
+- Do not add speculative infrastructure.
+- Do not repeat completed work recorded in `TASK_LOG.md`.
+- Do not introduce more than one major concept per cycle.
+- Do not activate extra agents for a small task.
+- Do not create long design documents for a small implementation.
+- If blocked, document the blocker and implement the best unblocked slice only when it still satisfies the cycle outcome.
 
 ## Definition of done
 
-A task is done only when:
+A cycle is done only when:
 
 - Acceptance criteria are met.
 - `npm run check` passes.
-- The changed path works at mobile width.
-- Interactive controls are keyboard reachable and have understandable labels.
-- Empty, loading, and error states are considered where relevant.
-- Applicable value, loop, safety, fairness, quality, measurement, and operations gates in `AGENT_ORCHESTRATION.md` pass.
+- The changed path works at a mobile width.
+- Interactive controls are keyboard reachable and understandable.
+- Empty, loading, success, and error states are considered where relevant.
+- User-provided text is safely rendered.
+- Applicable ownership and permission checks are enforced server-side.
 - No real-world political or off-platform hostile mechanic is introduced.
-- Documentation reflects material changes.
+- Railway Preview is healthy for user-visible changes.
+- The PR contains test evidence, known risks, Preview URL, and exact next task.
 
 ## Architecture direction
 
-The current repository is a lightweight Vite prototype. Keep mock data local until the first interaction loop is validated. Do not add authentication, a database, real social-platform APIs, payments, real-time multiplayer, or generative AI until a roadmap milestone explicitly requires them.
+The current application is a lightweight Vite and Node prototype deployed as one Railway service. Keep the design simple until the core loop is validated. Add PostgreSQL, authentication, persistence, OAuth integrations, and separate services as focused milestones rather than one large migration.
 
 ## Decision priority
 
