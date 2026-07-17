@@ -147,6 +147,77 @@ async function fetchSocialPreview(rawUrl) {
   }
 }
 
+function parseYouTubeProfile(rawUrl) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(parsed.hostname.toLowerCase())) return null;
+
+  const parts = parsed.pathname.split('/').filter(Boolean);
+  if (parts[0]?.startsWith('@')) return { filter: 'forHandle', value: parts[0] };
+  if (parts[0] === 'channel' && parts[1]) return { filter: 'id', value: parts[1] };
+  if (parts[0] === 'user' && parts[1]) return { filter: 'forUsername', value: parts[1] };
+  return null;
+}
+
+async function fetchYouTubeProfile(rawUrl) {
+  if (!process.env.YOUTUBE_API_KEY) {
+    const error = new Error('YOUTUBE_API_NOT_CONFIGURED');
+    error.statusCode = 503;
+    throw error;
+  }
+  const profileRef = parseYouTubeProfile(rawUrl);
+  if (!profileRef) {
+    const error = new Error('UNSUPPORTED_PROFILE_URL');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const params = new URLSearchParams({
+    part: 'snippet,statistics',
+    key: process.env.YOUTUBE_API_KEY,
+    [profileRef.filter]: profileRef.value,
+  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8_000);
+  try {
+    const upstream = await fetch(`https://www.googleapis.com/youtube/v3/channels?${params}`, { signal: controller.signal });
+    if (!upstream.ok) {
+      const error = new Error('PROFILE_PROVIDER_REJECTED');
+      error.statusCode = 502;
+      throw error;
+    }
+    const data = await upstream.json();
+    const channel = data.items?.[0];
+    if (!channel) {
+      const error = new Error('PROFILE_NOT_FOUND');
+      error.statusCode = 404;
+      throw error;
+    }
+    const snippet = channel.snippet || {};
+    const statistics = channel.statistics || {};
+    return {
+      provider: 'youtube',
+      providerLabel: 'YouTube',
+      sourceUrl: rawUrl,
+      id: channel.id,
+      title: String(snippet.title || '').slice(0, 160),
+      description: String(snippet.description || '').slice(0, 1000),
+      avatarUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.default?.url || '',
+      customUrl: snippet.customUrl || '',
+      country: snippet.country || '',
+      subscriberCount: statistics.hiddenSubscriberCount ? null : Number(statistics.subscriberCount || 0),
+      videoCount: Number(statistics.videoCount || 0),
+      viewCount: Number(statistics.viewCount || 0),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 const server = createServer(async (request, response) => {
   const requestUrl = new URL(request.url || '/', 'http://localhost');
 
@@ -159,6 +230,7 @@ const server = createServer(async (request, response) => {
       environment: metadata.environment,
       branch: metadata.branch,
       commit: metadata.commitSha.slice(0, 12),
+      integrations: { youtubeProfiles: Boolean(process.env.YOUTUBE_API_KEY) },
     });
   }
 
@@ -169,30 +241,32 @@ const server = createServer(async (request, response) => {
   if (requestUrl.pathname === '/api/social/preview' && request.method === 'POST') {
     try {
       const body = await readJsonBody(request);
-      if (typeof body.url !== 'string' || body.url.length > 2_048) {
-        return sendJson(response, 400, { error: 'INVALID_URL' });
-      }
-      const preview = await fetchSocialPreview(body.url.trim());
-      return sendJson(response, 200, { preview });
+      if (typeof body.url !== 'string' || body.url.length > 2_048) return sendJson(response, 400, { error: 'INVALID_URL' });
+      return sendJson(response, 200, { preview: await fetchSocialPreview(body.url.trim()) });
     } catch (error) {
       const statusCode = Number(error.statusCode) || (error.name === 'AbortError' ? 504 : 400);
-      return sendJson(response, statusCode, {
-        error: error.name === 'AbortError' ? 'SOCIAL_PROVIDER_TIMEOUT' : error.message,
-      });
+      return sendJson(response, statusCode, { error: error.name === 'AbortError' ? 'SOCIAL_PROVIDER_TIMEOUT' : error.message });
+    }
+  }
+
+  if (requestUrl.pathname === '/api/social/profile' && request.method === 'POST') {
+    try {
+      const body = await readJsonBody(request);
+      if (typeof body.url !== 'string' || body.url.length > 2_048) return sendJson(response, 400, { error: 'INVALID_URL' });
+      return sendJson(response, 200, { profile: await fetchYouTubeProfile(body.url.trim()) });
+    } catch (error) {
+      const statusCode = Number(error.statusCode) || (error.name === 'AbortError' ? 504 : 400);
+      return sendJson(response, statusCode, { error: error.name === 'AbortError' ? 'PROFILE_PROVIDER_TIMEOUT' : error.message });
     }
   }
 
   if (!existsSync(root)) {
-    return sendJson(response, 503, {
-      error: 'BUILD_NOT_FOUND',
-      message: 'Run npm run build before starting the production server.',
-    });
+    return sendJson(response, 503, { error: 'BUILD_NOT_FOUND', message: 'Run npm run build before starting the production server.' });
   }
 
   const assetPath = resolveAssetPath(request.url || '/');
   const extension = extname(assetPath).toLowerCase();
   const isHtml = extension === '.html';
-
   response.writeHead(200, {
     'Content-Type': contentTypes[extension] || 'application/octet-stream',
     'Cache-Control': isHtml ? 'no-cache' : 'public, max-age=31536000, immutable',
@@ -201,10 +275,7 @@ const server = createServer(async (request, response) => {
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   });
-
   createReadStream(assetPath).pipe(response);
 });
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`Creatorverse listening on 0.0.0.0:${port}`);
-});
+server.listen(port, '0.0.0.0', () => console.log(`Creatorverse listening on 0.0.0.0:${port}`));
