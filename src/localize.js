@@ -15,10 +15,9 @@ function renderLanguageControl() {
 
     control.addEventListener('click', event => {
       const button = event.target.closest('[data-locale]');
-      if (!button) return;
+      if (!button || button.dataset.locale === getLocale()) return;
       setLocale(button.dataset.locale);
-      applyLocale(document);
-      updateSelectedLanguage();
+      window.location.reload();
     });
   }
   updateSelectedLanguage();
