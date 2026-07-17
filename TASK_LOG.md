@@ -1,5 +1,33 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Operational development agents
+
+**Outcome:** Convert the documented specialist roles into reusable operating prompts that can run focused Creatorverse development cycles with explicit handoffs and release decisions.
+
+### Completed
+
+- Added `.github/agents/orchestrator.agent.md` as the single cycle coordinator.
+- Added `.github/agents/product-game.agent.md` for product value, rules, progression, balance, and economy.
+- Added `.github/agents/creator-community-ux.agent.md` for creator workflows, follower experience, mobile UX, RTL readiness, and viral outputs.
+- Added `.github/agents/safety-fairness.agent.md` with release-blocking safety, legal-risk, minors, privacy, anti-abuse, and fairness review.
+- Added `.github/agents/engineering.agent.md` as the only implementation owner in a cycle.
+- Added `.github/agents/qa-release.agent.md` for acceptance evidence, regression, accessibility, measurement, and release decisions.
+- Added `.github/agents/HANDOFF_TEMPLATE.md` so activated agents produce compatible, concise handoffs instead of competing implementations.
+
+### Operating rule
+
+The orchestrator activates only the agents required for one selected vertical slice. One engineering owner changes the code; specialist agents define requirements and review the result. Every cycle ends after verification and a task-log update.
+
+### Validation
+
+- Confirmed every prompt preserves the fictional-world, no-politics, no-external-hostility, no-pay-to-win, and minor-safety boundaries.
+- Confirmed the prompts prioritize the creator-to-follower core loop and prevent speculative infrastructure during concept proof.
+- Confirmed Safety/Fairness and QA can block release.
+
+### Next best task
+
+Run the operational agents on the creator share-result card and invite/challenge loop.
+
 ## 2026-07-18 — Final-product agent orchestration
 
 **Outcome:** Establish a specialist agent system that can guide Creatorverse from prototype through pilot, collaboration, competition, and commercial launch without uncontrolled scope expansion.
