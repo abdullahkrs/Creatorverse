@@ -9,7 +9,7 @@ Goal: prove that the creator-led realm loop is understandable and appealing on m
 - [x] Member role selection
 - [x] Short mission interaction
 - [x] Visible realm progress
-- [ ] Creator onboarding prototype
+- [x] Creator onboarding prototype
 - [ ] Share-result card prototype
 - [ ] Five-user usability test
 
