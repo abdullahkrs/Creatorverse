@@ -1,0 +1,98 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f7f7fb;
+  background: #07080d;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at top right, #231c44 0, #0c0e18 34%, #07080d 70%); }
+button, a { font: inherit; }
+button { cursor: pointer; }
+.shell { width: min(1120px, calc(100% - 32px)); margin-inline: auto; }
+
+.nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; }
+.brand { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.03em; }
+.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: linear-gradient(135deg, #a578ff, #50d6ff); color: #080910; }
+.season, .muted, .safety-note { color: #989bad; }
+.season { font-size: 0.82rem; }
+
+.hero { min-height: 640px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding-block: 72px 104px; }
+.eyebrow { margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 800; color: #75dcff; }
+h1 { max-width: 760px; margin: 0; font-size: clamp(3rem, 7vw, 6.6rem); line-height: 0.92; letter-spacing: -0.075em; }
+.lead { max-width: 650px; margin: 28px 0; color: #b9bbca; font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.65; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.primary, .secondary { min-height: 50px; padding: 0 22px; border-radius: 999px; border: 1px solid transparent; font-weight: 800; }
+.primary { background: #f4f2ff; color: #12131b; }
+.secondary { color: #f4f2ff; background: transparent; border-color: #343746; }
+.safety-note { margin-top: 18px; font-size: 0.78rem; }
+
+.realm-card { position: relative; overflow: hidden; min-height: 430px; padding: 30px; border: 1px solid #353849; border-radius: 32px; background: linear-gradient(160deg, rgba(39, 32, 72, .94), rgba(13, 16, 27, .96)); box-shadow: 0 40px 100px rgba(0,0,0,.42); }
+.realm-orbit { height: 172px; margin-bottom: 22px; border-radius: 24px; position: relative; background: radial-gradient(circle at center, #76d7ff 0 3%, #6d58f7 4% 12%, transparent 13%), radial-gradient(circle, rgba(132,113,255,.3), transparent 60%); }
+.realm-orbit::before, .realm-orbit::after { content: ""; position: absolute; inset: 22px 25%; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; transform: rotate(-18deg); }
+.realm-orbit::after { inset: 46px 14%; transform: rotate(24deg); }
+.realm-orbit span { position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #f3e66f; box-shadow: 0 0 20px #f3e66f; }
+.realm-orbit span:nth-child(1) { top: 34px; left: 28%; }
+.realm-orbit span:nth-child(2) { right: 20%; top: 88px; }
+.realm-orbit span:nth-child(3) { bottom: 24px; left: 42%; }
+.realm-heading { display: flex; justify-content: space-between; gap: 16px; }
+.realm-heading h2 { margin: 3px 0; font-size: 2rem; }
+.realm-heading p { margin: 0; }
+.level { height: fit-content; padding: 8px 11px; border-radius: 10px; background: #282c3c; color: #9ee5ff; font-size: .76rem; font-weight: 800; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 26px 0; }
+.stats div { display: flex; flex-direction: column; gap: 4px; }
+.stats strong { font-size: 1.15rem; }
+.stats span { color: #999cab; font-size: .72rem; }
+.progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; font-size: .8rem; }
+.progress { height: 9px; overflow: hidden; border-radius: 99px; background: #292c3a; }
+.progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #846dff, #6ce0ff); }
+
+.loop { padding-block: 100px; }
+.section-heading { max-width: 720px; margin-bottom: 34px; }
+.section-heading h2 { margin: 0; font-size: clamp(2.1rem, 5vw, 4rem); letter-spacing: -0.055em; }
+.role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.role-card { min-height: 220px; padding: 24px; text-align: left; color: inherit; border: 1px solid #292d3b; border-radius: 24px; background: #10121b; transition: .18s ease; }
+.role-card:hover, .role-card.selected { transform: translateY(-3px); border-color: #7c6bf2; background: #171527; }
+.role-card strong, .role-card span { display: block; }
+.role-card strong { margin: 24px 0 8px; font-size: 1.3rem; }
+.role-card > span:last-child { color: #a5a8b8; line-height: 1.55; }
+.role-icon { display: grid !important; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: #25213d; color: #79ddff; }
+
+.mission { margin-top: 20px; padding: 28px; border: 1px dashed #303443; border-radius: 26px; background: #0d0f17; opacity: .65; }
+.mission.active { opacity: 1; border-style: solid; }
+.mission h3 { margin: 0 0 8px; font-size: 1.6rem; }
+.mission p { color: #a7aaba; }
+.mission-actions { display: flex; gap: 10px; margin-top: 22px; }
+.route { min-height: 45px; padding: 0 18px; border: 1px solid #3a3e4e; border-radius: 13px; color: inherit; background: #181b26; }
+.route:disabled { cursor: not-allowed; opacity: .45; }
+.mission-result { min-height: 24px; margin-top: 18px; color: #8de4b2; }
+
+.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding-bottom: 100px; }
+.principles div { min-height: 230px; padding: 28px; background: #0f1119; border: 1px solid #222633; }
+.principles div:first-child { border-radius: 24px 0 0 24px; }
+.principles div:last-child { border-radius: 0 24px 24px 0; }
+.principles span { color: #696d7d; font-weight: 800; }
+.principles h3 { margin: 52px 0 10px; font-size: 1.3rem; }
+.principles p { color: #9fa2b1; line-height: 1.55; }
+
+@media (max-width: 800px) {
+  .hero { grid-template-columns: 1fr; gap: 42px; padding-block: 50px 76px; }
+  .role-grid, .principles { grid-template-columns: 1fr; }
+  .principles { gap: 12px; }
+  .principles div, .principles div:first-child, .principles div:last-child { border-radius: 22px; }
+  .principles h3 { margin-top: 28px; }
+}
+
+@media (max-width: 520px) {
+  .shell { width: min(100% - 22px, 1120px); }
+  .nav { min-height: 62px; }
+  .season { display: none; }
+  .hero { padding-top: 32px; }
+  h1 { font-size: 3.35rem; }
+  .realm-card { padding: 20px; border-radius: 24px; }
+  .stats { gap: 6px; }
+  .mission-actions { flex-direction: column; }
+}
