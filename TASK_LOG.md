@@ -1,5 +1,32 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Repository prepared for focused agents
+
+**Outcome:** Make the repository directly usable by a small five-agent team with one-task cycles, Railway Preview review, and no conflicting implementations.
+
+### Completed
+
+- Reduced normal development to Product Lead, Game and UX, Safety and Fairness, Full-Stack Engineer, and QA and Release.
+- Updated `AGENT.md` with the fixed team, one-code-owner rule, branch policy, Railway Preview requirement, and stop conditions.
+- Updated the orchestrator prompt to prohibit extra agents and automatic merging.
+- Added `.github/pull_request_template.md` with acceptance, safety, localization, social-integration, CI, and Railway evidence gates.
+- Added `.github/ISSUE_TEMPLATE/agent-cycle.yml` so one issue defines one measurable development cycle.
+- Added `AGENT_QUICKSTART.md` with the exact command to start an agent cycle and the repository-owner review checklist.
+
+### Operating rule
+
+One issue → one branch → one implementation owner → one Pull Request → one Railway Preview → owner review → stop.
+
+### Validation
+
+- Agent instructions require official APIs, public oEmbed, or OAuth for social integrations.
+- User-visible work requires Railway Preview and `/version` verification.
+- Agents cannot merge, change production secrets, or begin a second task.
+
+### Next best task
+
+Validate the current multilingual social post and YouTube profile import on Railway, record results in the Pull Request, and fix only confirmed defects.
+
 ## 2026-07-18 — Social content, creator profiles, and multilingual UI
 
 **Outcome:** Let creators bring public social content and profile identity into Creatorverse while supporting Arabic and English safely.
