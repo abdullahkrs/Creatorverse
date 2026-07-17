@@ -1,5 +1,31 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Railway test deployment setup
+
+**Outcome:** Make the current Creatorverse prototype deployable as a single public Railway service for usability testing.
+
+### Completed
+
+- Added a production `start` command and Node 22 runtime requirement.
+- Added a dependency-free Node server that serves the Vite `dist` output.
+- Added SPA fallback so direct and refreshed routes return the application.
+- Added `/health` for Railway deployment health checks.
+- Added baseline response security headers.
+- Added `railway.json` with Railpack build, start, healthcheck, watch, and restart settings.
+- Added `RAILWAY_DEPLOYMENT.md` with dashboard setup and verification instructions.
+- Kept the test deployment database-free; no secrets or variables are required yet.
+
+### Validation
+
+- The production server binds to Railway's injected `PORT` on `0.0.0.0`.
+- The health endpoint returns HTTP 200 without requiring the Vite application build.
+- Missing build output returns a controlled 503 response instead of a process crash.
+- Railway configuration uses the current root repository structure.
+
+### Next best task
+
+Deploy the feature branch to Railway, verify the test checklist, then complete the creator share-result card and invitation loop.
+
 ## 2026-07-18 — Operational development agents
 
 **Outcome:** Convert the documented specialist roles into reusable operating prompts that can run focused Creatorverse development cycles with explicit handoffs and release decisions.
