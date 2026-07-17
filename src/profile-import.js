@@ -18,7 +18,10 @@ function escapeHtml(value) {
 
 function compactNumber(value) {
   if (value === null || value === undefined) return 'Hidden';
-  return new Intl.NumberFormat(document.documentElement.lang || 'en', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+  return new Intl.NumberFormat(document.documentElement.lang || 'en', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 function template() {
@@ -69,14 +72,16 @@ function template() {
   `;
 }
 
-function mount() {
+function renderProfileSection({ replace = false } = {}) {
   const socialSection = document.querySelector('#social-import');
   if (!socialSection) return;
-  let section = document.querySelector('#profile-import');
+  const section = document.querySelector('#profile-import');
   if (!section) {
     socialSection.insertAdjacentHTML('beforebegin', template());
-  } else {
+  } else if (replace) {
     section.outerHTML = template();
+  } else {
+    return;
   }
   bind();
 }
@@ -85,7 +90,7 @@ async function fetchProfile() {
   state.status = 'loading';
   state.error = '';
   state.profile = null;
-  mount();
+  renderProfileSection({ replace: true });
   try {
     const response = await fetch('/api/social/profile', {
       method: 'POST',
@@ -108,7 +113,7 @@ async function fetchProfile() {
     };
     state.error = messages[error.message] || error.message;
   }
-  mount();
+  renderProfileSection({ replace: true });
   document.querySelector('#profile-import')?.scrollIntoView({ block: 'center' });
 }
 
@@ -125,13 +130,24 @@ function bind() {
       const name = document.querySelector('[data-field="name"]');
       const handle = document.querySelector('[data-field="creator"]');
       const tagline = document.querySelector('[data-field="tagline"]');
-      if (name) { name.value = state.profile.title.slice(0, 28); name.dispatchEvent(new Event('input', { bubbles: true })); }
-      if (handle) { handle.value = state.profile.customUrl || state.profile.title; handle.dispatchEvent(new Event('input', { bubbles: true })); }
-      if (tagline) { tagline.value = state.profile.description.slice(0, 90); tagline.dispatchEvent(new Event('input', { bubbles: true })); }
+      if (name) {
+        name.value = state.profile.title.slice(0, 28);
+        name.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (handle) {
+        handle.value = state.profile.customUrl || state.profile.title;
+        handle.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (tagline) {
+        tagline.value = state.profile.description.slice(0, 90);
+        tagline.dispatchEvent(new Event('input', { bubbles: true }));
+      }
     });
   });
 }
 
-const observer = new MutationObserver(() => queueMicrotask(mount));
+const observer = new MutationObserver(() => {
+  if (!document.querySelector('#profile-import')) queueMicrotask(() => renderProfileSection());
+});
 observer.observe(document.querySelector('#app'), { childList: true, subtree: true });
-mount();
+renderProfileSection();
