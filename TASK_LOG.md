@@ -1,5 +1,37 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Social content, creator profiles, and multilingual UI
+
+**Outcome:** Let creators bring public social content and profile identity into Creatorverse while supporting Arabic and English safely.
+
+### Completed
+
+- Added public post preview for YouTube, TikTok, and X through allowlisted official oEmbed endpoints.
+- Added a server-side URL allowlist, HTTPS-only validation, request size limit, and upstream timeout.
+- Added YouTube creator profile lookup through the official YouTube Data API.
+- Added public profile identity, avatar, description, subscribers, videos, and views when publicly available.
+- Added a direct path from imported YouTube profile data into creator realm onboarding.
+- Added Arabic and English interface support with persisted language choice and automatic RTL/LTR direction.
+- Added localized social import and creator profile screens.
+- Kept imported data transient in the current prototype; no social credentials, private messages, or follower lists are collected.
+
+### Railway requirement
+
+- Add `YOUTUBE_API_KEY` to Railway Variables to enable YouTube profile lookup.
+- Public post previews require no stored social credentials.
+- TikTok, X, and Instagram profile data remain deferred to official creator-authorized OAuth connections.
+
+### Validation
+
+- Profile and post requests are sent only from the Railway server, not directly from the browser to arbitrary hosts.
+- Unsupported domains and non-HTTPS URLs are rejected.
+- All imported text is escaped before rendering.
+- Profile component rendering was reviewed to prevent repeated mutation loops.
+
+### Next best task
+
+Verify the automatic Railway deployment, test one public URL per supported post provider, add a restricted YouTube API key, and test Arabic/English switching on mobile.
+
 ## 2026-07-18 — Railway test deployment setup
 
 **Outcome:** Make the current Creatorverse prototype deployable as a single public Railway service for usability testing.
@@ -43,89 +75,3 @@ Deploy the feature branch to Railway, verify the test checklist, then complete t
 ### Operating rule
 
 The orchestrator activates only the agents required for one selected vertical slice. One engineering owner changes the code; specialist agents define requirements and review the result. Every cycle ends after verification and a task-log update.
-
-### Validation
-
-- Confirmed every prompt preserves the fictional-world, no-politics, no-external-hostility, no-pay-to-win, and minor-safety boundaries.
-- Confirmed the prompts prioritize the creator-to-follower core loop and prevent speculative infrastructure during concept proof.
-- Confirmed Safety/Fairness and QA can block release.
-
-### Next best task
-
-Run the operational agents on the creator share-result card and invite/challenge loop.
-
-## 2026-07-18 — Final-product agent orchestration
-
-**Outcome:** Establish a specialist agent system that can guide Creatorverse from prototype through pilot, collaboration, competition, and commercial launch without uncontrolled scope expansion.
-
-### Activated agents
-
-- Cycle Lead
-- Product Strategy Agent
-- Safety and Trust Agent
-- Platform Architecture perspective
-- QA and Release Agent
-
-### Completed
-
-- Added `AGENT_ORCHESTRATION.md` with 18 specialist agent roles.
-- Defined ownership, constraints, success signals, and release authority for each agent.
-- Added phase-specific activation for concept proof, single-creator pilot, collaboration, safe competition, and commercial launch.
-- Added mandatory agent handoffs and value, loop, safety, fairness, quality, measurement, and operations release gates.
-- Defined commercial first-release completion criteria.
-- Updated `AGENT.md` so the orchestration document is mandatory reading and only relevant agents are activated per cycle.
-- Preserved one implementation owner and one focused vertical slice per cycle to prevent conflicting changes and endless redesign.
-
-### Validation
-
-- Reviewed agent coverage across product, creator success, community gameplay, game systems, UX, trust, legal risk, fairness, engineering, data, growth, monetization, content, operations, and QA.
-- Confirmed Safety and Trust and QA retain release-blocking authority.
-- Confirmed the orchestration retains the fictional-world, no-politics, no-external-hostility, and no-pay-to-win boundaries.
-
-### Next best task
-
-Build the creator share-result card prototype so a completed realm event produces a social-ready result and challenge link.
-
-## 2026-07-18 — Creator onboarding prototype
-
-**Outcome:** Let a creator define a recognizable realm identity and see a live preview before launching it.
-
-### Completed
-
-- Replaced the placeholder creator alert with a three-step onboarding flow.
-- Added realm name, creator handle, and community-promise inputs.
-- Added Cosmic, Wild, and Future visual themes.
-- Added a live realm preview that updates with creator choices.
-- Added a safety acknowledgment before launching the preview.
-- Connected the completed setup to the featured realm experience.
-- Added responsive mobile layouts, validation messaging, and keyboard-native controls.
-
-### Validation
-
-- Reviewed onboarding state transitions and required-field validation.
-- Reviewed mobile stacking for the form and preview.
-- Automated build validation remains configured in GitHub Actions.
-
-### Next best task
-
-Build the creator share-result card prototype so a completed realm event produces a social-ready image and challenge link.
-
-## 2026-07-18 — Initial product foundation
-
-**Outcome:** Establish a runnable mobile-first concept prototype and an agent-controlled development system.
-
-### Completed
-
-- Initialized the repository and documented the product promise.
-- Added a Vite application shell.
-- Built a responsive featured-realm experience.
-- Added role selection for Builder, Explorer, and Guardian.
-- Added a short mission with visible contribution to realm progress.
-- Added foundational safety messaging in the product UI.
-- Defined the operating guide, agent roles, roadmap, backlog, metrics, and product decisions.
-- Added continuous integration for install and production build.
-
-### Validation
-
-- Static implementation reviewed for mobile breakpoints and keyboard-native controls.
-- Automated build validation is configured in GitHub Actions.
