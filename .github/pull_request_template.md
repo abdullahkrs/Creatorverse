@@ -1,71 +1,97 @@
-## Cycle outcome
+## Active cycle
 
-<!-- One sentence describing the user-visible outcome. -->
+- Issue:
+- Task key (`CV-MVP-###`):
+- Current stage: `stage:release`
 
-## Success signal
+## User outcome
 
-<!-- One measurable behavior expected to improve. -->
+<!-- One user-visible outcome only. -->
 
-## Activated five-agent handoff
+## Scope and non-goals
+
+- Included:
+- Excluded:
+
+## Five-agent handoff
 
 ### Product Lead
-- Problem solved:
-- Scope included:
-- Explicitly excluded:
+- Acceptance criteria:
+- Success signal:
 
-### Game and UX
-- Requirement 1:
-- Requirement 2:
-- Requirement 3:
+### Game & UX
+- User flow:
+- Mobile/accessibility notes:
+- Arabic/English and RTL/LTR notes:
+- Loading/empty/error states:
 
-### Safety and Fairness
-- Decision: PASS / PASS WITH CONTROLS / BLOCK
-- Controls or risks:
+### Safety & Fairness
+- Decision: PASS / PASS WITH CONTROLS / BLOCKED
+- Required controls:
 
 ### Full-Stack Engineer
 - Implementation summary:
-- Files changed:
+- Reason for each changed file:
 
-### QA and Release
-- Decision: READY / NOT READY
+### QA & Release
+- Decision: READY / RETURN TO BUILD
 - Evidence:
 
 ## Acceptance criteria
 
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+- [ ] All issue acceptance criteria pass
+- [ ] Exactly one coherent user outcome is implemented
 - [ ] Mobile behavior reviewed
-- [ ] Arabic RTL and English LTR reviewed when user-facing text changed
+- [ ] Keyboard controls and understandable labels reviewed
+- [ ] Arabic and English remain synchronized when text changed
+- [ ] RTL and LTR reviewed when UI changed
 - [ ] Loading, empty, success, and error states reviewed
-- [ ] User-provided content is escaped or safely rendered
-- [ ] Server-side permissions and validation reviewed when API behavior changed
+- [ ] Imported/user content is escaped or safely rendered
+- [ ] API inputs, authorization, rate limits, and secrets reviewed when applicable
 
-## Checks
+## CI and tests
 
 - [ ] `npm run check`
-- [ ] Relevant manual tests completed
-- [ ] `/health` returns `status: ok`
+- [ ] All available automated tests
+- [ ] No required check was disabled, bypassed, or made optional
+- CI failure classification, repairs, and retry count:
 
 ## Railway Preview
 
 - Preview URL:
-- `/version` URL:
-- Environment:
-- Branch:
-- Commit SHA:
+- `/health` URL and result:
+- `/version` URL and result:
+- Preview branch:
+- Preview commit SHA:
+- [ ] `/version` matches this PR commit
 
 ## Social integration review
 
 - [ ] Uses official API, public oEmbed, or explicit OAuth authorization
 - [ ] Does not request social-media passwords
-- [ ] Does not scrape private profiles, messages, or follower lists
-- [ ] Required secrets remain in Railway Variables
+- [ ] Does not scrape accounts, private profiles, messages, or follower lists
+- [ ] Secrets remain server-side in Railway Variables
+- [ ] A safe disabled/error state exists when an external integration is unavailable
 
-## Known risks
+## Known limitations and risks
 
-<!-- State concrete remaining risks. Write "None identified" when appropriate. -->
+<!-- Concrete remaining limitations only. -->
+
+## Rollback
+
+<!-- State the last-known-good or safe revert method. -->
+
+## Release completion
+
+QA completes these after merge:
+
+- [ ] Squash merge completed
+- [ ] Railway production `/health` returns 200
+- [ ] Railway production `/version` matches the merged commit
+- [ ] Active issue closed and workflow labels removed
+- [ ] Feature branch deleted when possible
+- [ ] `TASK_LOG.md` reflects the released facts
 
 ## Next single task
 
-<!-- Exactly one next task. Do not start it in this Pull Request. -->
+<!-- Record only; do not start it in this PR. -->
