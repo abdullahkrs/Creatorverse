@@ -2,7 +2,10 @@ import { applyLocale, getLocale, setLocale } from './i18n.js';
 import './multilingual.css';
 
 function renderLanguageControl() {
-  let control = document.querySelector('.language-control');
+  const host = document.querySelector('.nav-actions');
+  if (!host) return;
+
+  let control = host.querySelector('.language-control');
   if (!control) {
     control = document.createElement('div');
     control.className = 'language-control';
@@ -11,7 +14,7 @@ function renderLanguageControl() {
       <button type="button" data-locale="en">EN</button>
       <button type="button" data-locale="ar">العربية</button>
     `;
-    document.body.append(control);
+    host.prepend(control);
 
     control.addEventListener('click', event => {
       const button = event.target.closest('[data-locale]');
@@ -35,8 +38,9 @@ let applying = false;
 function localizeApplication() {
   if (applying) return;
   applying = true;
-  applyLocale(document);
   renderLanguageControl();
+  applyLocale(document);
+  updateSelectedLanguage();
   applying = false;
 }
 
