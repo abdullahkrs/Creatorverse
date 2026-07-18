@@ -1,0 +1,93 @@
+/* Creatorverse Design Tokens v1 — source of truth for new visible UI. */
+:root {
+  color-scheme: dark;
+
+  /* Layout */
+  --cv-page-max: 80rem;
+  --cv-reading-max: 65ch;
+  --cv-page-pad: 1rem;
+  --cv-sidebar-width: 16rem;
+  --cv-context-width: 20rem;
+
+  /* Spacing: 4px base rhythm */
+  --cv-space-1: 0.25rem;
+  --cv-space-2: 0.5rem;
+  --cv-space-3: 0.75rem;
+  --cv-space-4: 1rem;
+  --cv-space-5: 1.25rem;
+  --cv-space-6: 1.5rem;
+  --cv-space-8: 2rem;
+  --cv-space-10: 2.5rem;
+  --cv-space-12: 3rem;
+  --cv-space-16: 4rem;
+
+  /* Typography */
+  --cv-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --cv-text-xs: 0.75rem;
+  --cv-text-sm: 0.875rem;
+  --cv-text-md: 1rem;
+  --cv-text-lg: 1.125rem;
+  --cv-text-xl: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --cv-text-2xl: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --cv-text-display: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+  --cv-leading-tight: 1.1;
+  --cv-leading-normal: 1.5;
+  --cv-leading-reading: 1.7;
+
+  /* Shape */
+  --cv-radius-sm: 0.5rem;
+  --cv-radius-md: 0.75rem;
+  --cv-radius-lg: 1rem;
+  --cv-radius-xl: 1.5rem;
+  --cv-radius-round: 999px;
+
+  /* Interaction */
+  --cv-target-min: 2.75rem;
+  --cv-focus-width: 0.1875rem;
+  --cv-focus-offset: 0.1875rem;
+  --cv-duration-fast: 120ms;
+  --cv-duration-normal: 200ms;
+  --cv-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Semantic color roles — values may evolve, roles must remain stable. */
+  --cv-color-canvas: #0b0d12;
+  --cv-color-surface: #141821;
+  --cv-color-surface-raised: #1b202b;
+  --cv-color-border: #343b49;
+  --cv-color-text: #f5f7fb;
+  --cv-color-text-muted: #a8afbd;
+  --cv-color-action: #f0d36a;
+  --cv-color-action-text: #171408;
+  --cv-color-focus: #8fd7ff;
+  --cv-color-success: #69d49a;
+  --cv-color-warning: #f0bd68;
+  --cv-color-danger: #ff8f91;
+}
+
+@media (min-width: 40rem) {
+  :root { --cv-page-pad: 1.5rem; }
+}
+
+@media (min-width: 64rem) {
+  :root { --cv-page-pad: 2rem; }
+}
+
+@media (min-width: 80rem) {
+  :root { --cv-page-pad: 2.5rem; }
+}
+
+:focus-visible {
+  outline: var(--cv-focus-width) solid var(--cv-color-focus);
+  outline-offset: var(--cv-focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
