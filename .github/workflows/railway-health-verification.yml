@@ -11,15 +11,6 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
-      environment:
-        description: Environment to verify
-        required: true
-        type: choice
-        default: both
-        options:
-          - both
-          - staging
-          - production
       expected_sha:
         description: Optional commit SHA expected from /version
         required: false
@@ -34,10 +25,6 @@ concurrency:
 
 jobs:
   verify:
-    if: >-
-      github.event_name != 'workflow_dispatch' ||
-      inputs.environment == 'both' ||
-      inputs.environment == matrix.environment
     runs-on: ubuntu-latest
     timeout-minutes: 8
     strategy:
