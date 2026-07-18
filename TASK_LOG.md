@@ -2,6 +2,32 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-18 — CV-QUALITY-001 repository quality pipeline
+
+**Outcome:** Make pull requests reproducibly installable and independently verifiable through real browser, accessibility, localization, and exact isolated Railway Preview gates.
+
+### Completed
+
+- Added and committed `package-lock.json`; CI build and browser jobs use `npm ci` on Node 22.12.
+- Added Playwright Chromium checks and real screenshot/report artifacts at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in English LTR and Arabic RTL.
+- Added axe WCAG A/AA checks, keyboard-path coverage, 44 px target checks, horizontal-overflow checks, 200% text zoom coverage, and reduced-motion validation.
+- Added mission-result Arabic/English key parity and visible-copy bypass checks.
+- Moved Railway Preview selection into a tested Node verifier that accepts only HTTPS isolated PR-environment domains for the current PR and rejects shared Staging, Production, wrong branches, empty or wrong SHAs, and arbitrary Railway hosts.
+- Reused the same verifier after the malformed-path probe so post-request `/health` and `/version` cannot pass with missing commit metadata or a switched candidate.
+- Documented permanent Production, Staging, and PR Environment roles and clarified non-overlapping workflow ownership.
+- Corrected `ROADMAP.md` and `BACKLOG.md` to record the completed share-result prototype and prepared usability protocol without claiming the five sessions were conducted.
+
+### Validation
+
+- Focused local `node --check scripts/verify-railway-preview.mjs`: passed.
+- Focused local `node --test test/railway-preview.test.js`: 3 tests passed.
+- GitHub CI run #108 passed the full locked install, unit/localization/build, exact Preview, Playwright, axe, and artifact gates on the preceding implementation head.
+- The final documentation and Preview-isolation repair head must pass the same GitHub CI and exact Railway PR Environment checks before release review.
+
+### Next best task
+
+Run independent QA on the final unchanged PR head; do not add a product feature to this infrastructure cycle.
+
 ## 2026-07-18 — CV-MVP-003 share-ready mission result
 
 **Outcome:** Replace the plain mission-complete sentence with one compact, bilingual result receipt that explains the follower's contribution and exposes one safe share-or-copy action.
