@@ -28,13 +28,25 @@ html body {
   }
 
   .role-grid {
-    grid-template-columns: repeat(auto-fit, minmax(10ch, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .role-card {
+    flex: 1 1 5rem;
   }
 
   .mission-actions,
   .realm-stats,
   .signal-result-facts {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .mission-actions > *,
+  .realm-stats > *,
+  .signal-result-facts > * {
+    flex: 1 1 7rem;
   }
 
   .mission-heading,
