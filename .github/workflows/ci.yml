@@ -38,7 +38,6 @@ jobs:
       EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       GITHUB_TOKEN: ${{ github.token }}
-      STAGING_URL: https://creatorverse-app-staging.up.railway.app
       PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
     steps:
       - uses: actions/checkout@v4
@@ -59,14 +58,15 @@ jobs:
             cat /tmp/malformed.json 2>/dev/null || true
             exit 1
           fi
-          curl --fail --silent --show-error "$PREVIEW_URL/health" | grep '"status":"ok"'
-          curl --fail --silent --show-error "$PREVIEW_URL/version" -o /tmp/post-version.json
-          EXPECTED_SHA="$EXPECTED_SHA" EXPECTED_REF="$EXPECTED_REF" node - <<'NODE'
-          const fs = require('fs');
-          const version = JSON.parse(fs.readFileSync('/tmp/post-version.json', 'utf8'));
-          const sha = process.env.EXPECTED_SHA;
-          if (!(version.commitSha === sha || version.commitSha?.startsWith(sha) || sha.startsWith(version.commitSha || ''))) process.exit(1);
-          if (version.branch !== process.env.EXPECTED_REF || String(version.environment).toLowerCase() === 'production') process.exit(1);
+          node --input-type=module - <<'NODE'
+          import { verifyCandidate } from './scripts/verify-railway-preview.mjs';
+          const result = await verifyCandidate(process.env.PREVIEW_URL, {
+            expectedSha: process.env.EXPECTED_SHA,
+            expectedRef: process.env.EXPECTED_REF,
+            productionUrl: process.env.PRODUCTION_URL,
+            prNumber: process.env.PR_NUMBER,
+          });
+          console.log(`Post-request identity verified for ${result.version.branch}@${result.version.commitSha}`);
           NODE
 
   browser-quality:
@@ -90,7 +90,6 @@ jobs:
           EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ github.token }}
-          STAGING_URL: https://creatorverse-app-staging.up.railway.app
           PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
         run: node scripts/verify-railway-preview.mjs
       - name: Playwright responsive and accessibility gates
