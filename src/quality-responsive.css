@@ -4,17 +4,17 @@ html body {
 }
 
 @media (max-width: 30rem) {
-  .nav {
+  body .nav {
     flex-wrap: wrap;
     gap: var(--cv-space-2);
     padding-block: var(--cv-space-2);
   }
 
-  .brand span {
+  body .brand span {
     display: none;
   }
 
-  .nav-actions {
+  body .nav-actions {
     min-inline-size: 0;
     flex: 1 1 auto;
     flex-wrap: wrap;
@@ -22,65 +22,65 @@ html body {
     gap: var(--cv-space-1);
   }
 
-  .nav-create,
-  .language-control button {
+  body .nav-create,
+  body .language-control button {
     padding-inline: var(--cv-space-2);
   }
 
-  .role-grid {
+  body .role-grid {
     display: flex;
     flex-wrap: wrap;
   }
 
-  .role-card {
+  body .role-card {
     flex: 1 1 5rem;
   }
 
-  .mission-actions,
-  .realm-stats,
-  .signal-result-facts {
+  body .mission-actions,
+  body .realm-stats,
+  body .signal-result-facts {
     display: flex;
     flex-wrap: wrap;
   }
 
-  .mission-actions > *,
-  .realm-stats > *,
-  .signal-result-facts > * {
+  body .mission-actions > *,
+  body .realm-stats > *,
+  body .signal-result-facts > * {
     flex: 1 1 7rem;
   }
 
-  .mission-heading,
-  .realm-heading {
+  body .mission-heading,
+  body .realm-heading {
     flex-wrap: wrap;
     align-items: start;
   }
 
-  .mission-heading > :first-child,
-  .realm-heading > :first-child {
+  body .mission-heading > :first-child,
+  body .realm-heading > :first-child {
     min-inline-size: 0;
     flex: 1 1 10rem;
   }
 
-  .mission-status,
-  .level {
+  body .mission-status,
+  body .level {
     max-inline-size: 100%;
   }
 
-  .role-copy,
-  .role-copy small,
-  .route,
-  .realm-stats div,
-  .realm-stats dt,
-  .realm-stats dd,
-  .signal-result-facts div,
-  .signal-result-facts dt,
-  .signal-result-facts dd {
+  body .role-copy,
+  body .role-copy small,
+  body .route,
+  body .realm-stats div,
+  body .realm-stats dt,
+  body .realm-stats dd,
+  body .signal-result-facts div,
+  body .signal-result-facts dt,
+  body .signal-result-facts dd {
     min-inline-size: 0;
     overflow-wrap: break-word;
     word-break: normal;
   }
 
-  .role-copy strong {
+  body .role-copy strong {
     min-inline-size: 0;
     overflow-wrap: normal;
     word-break: normal;
