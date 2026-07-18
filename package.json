@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "scripts": {
     "dev": "vite",
@@ -12,9 +12,16 @@
     "start": "node server.js",
     "preview": "vite preview",
     "test": "node --test",
-    "check": "npm run test && npm run build"
+    "test:unit": "node --test test/*.test.js",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test e2e/accessibility.spec.js",
+    "test:i18n": "node scripts/check-i18n.mjs",
+    "test:railway": "node --test test/railway-preview.test.js",
+    "check": "npm run test:unit && npm run test:i18n && npm run build"
   },
   "devDependencies": {
-    "vite": "^7.0.0"
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.61.1",
+    "vite": "7.3.6"
   }
 }
