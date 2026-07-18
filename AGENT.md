@@ -14,7 +14,7 @@ Every cycle must improve, validate, secure, or restore this loop.
 
 ## Mandatory standards
 
-Before changing visible requirements, code, or release state, read `docs/standards/README.md` and every standard mapped to your role. New visible UI must use `src/design-system/tokens.css` before introducing hardcoded visual values.
+Before changing visible requirements, code, workflow state, or release state, read `docs/standards/README.md` and every standard mapped to your role. New visible UI must use `src/design-system/tokens.css` before introducing hardcoded visual values.
 
 The repository standards are release gates, not suggestions. Agents must reject or repair work that:
 
@@ -23,7 +23,8 @@ The repository standards are release gates, not suggestions. Agents must reject 
 - lacks a clear dominant action and original product identity;
 - fails responsive behavior at 320/390/768/1024/1440 widths as applicable;
 - treats Arabic RTL as a simple mirrored English layout;
-- hides essential behavior behind hover or lacks keyboard, focus, reduced-motion, loading, empty, error, and success states.
+- hides essential behavior behind hover or lacks keyboard, focus, reduced-motion, loading, empty, error, and success states;
+- lacks locked installs, real browser evidence, accessibility checks, localization parity, or exact Railway Preview identity where applicable.
 
 A full React/Tailwind migration requires its own focused issue. Libraries are adopted incrementally under `docs/standards/LIBRARY_POLICY.md`.
 
@@ -39,13 +40,22 @@ The valid pipeline is:
 
 Agents must not use private scratch files, duplicate status documents, or a second issue to represent the same cycle.
 
+## Workflow ownership
+
+- Creatorverse Continuity Guard alone repairs disabled automations, duplicate active issues, missing or duplicate stage labels, and stale workflow routing.
+- Product Lead creates and prioritizes a new issue only when no active cycle exists. It does not perform routine stage repair or race specialist transitions.
+- Game & UX moves only `stage:ux` → `stage:safety`.
+- Safety Review moves only `stage:safety` → `stage:build` or records a genuine external blocker.
+- Engineer moves only `stage:build` → `stage:release` after implementation and required checks.
+- QA moves `stage:release` → `stage:build` for reproducible blockers or closes the cycle after merge and production verification.
+
 ## Five agents
 
-1. Product Lead: creates one focused issue only when no `auto:active` issue exists; does not modify code.
+1. Product Lead: creates one focused issue only when no `auto:active` issue exists; does not modify code or routine stage state.
 2. Game & UX Agent: defines flow, professional visual direction, copy budget, responsive behavior, accessibility, Arabic/English parity, RTL/LTR, and all states; does not modify code.
 3. Safety & Fairness Reviewer: defines concrete safeguards and blocks only concrete release risks; does not modify product code.
 4. Full-Stack Engineer: the only primary code author; creates one branch and one PR for the active issue; does not merge.
-5. QA & Release Agent: verifies all functional, safety, deployment, responsive, accessibility, and professional visual-quality gates; returns actionable failures to `stage:build`, squash-merges passing work, and verifies Railway production.
+5. QA & Release Agent: verifies all functional, safety, deployment, responsive, accessibility, professional visual-quality, browser-artifact, and localization gates; returns actionable failures to `stage:build`, squash-merges passing work, and verifies Railway production.
 
 ## Issue contract
 
@@ -82,11 +92,12 @@ The Engineer must:
 4. Use design tokens, semantic HTML, logical CSS properties, and the responsive standard for visible work.
 5. Escape imported content and validate all server inputs.
 6. Add or update relevant automated tests.
-7. Run `npm run check` and all available tests.
-8. Update `TASK_LOG.md` with facts only.
-9. Create or update one dedicated branch and one linked PR.
-10. Include acceptance evidence, responsive screenshots or equivalent evidence, tests, safety notes, Railway Preview expectations, `/health`, `/version`, limitations, and rollback notes.
-11. Move the issue from `stage:build` to `stage:release` and stop.
+7. Use a committed lockfile and `npm ci`; use `npm install` only while intentionally updating the lockfile.
+8. Run `npm run check`, all available unit tests, localization checks, and applicable Playwright/axe tests.
+9. Update `TASK_LOG.md` with facts only.
+10. Create or update one dedicated branch and one linked PR.
+11. Include acceptance evidence, real responsive screenshots, tests, safety notes, Railway Preview expectations, `/health`, `/version`, limitations, and rollback notes.
+12. Move the issue from `stage:build` to `stage:release` and stop.
 
 ## CI failure protocol
 
@@ -96,29 +107,38 @@ Classify failures as code, test, dependency, transient network, configuration, s
 - Keep repairs on the same branch and PR.
 - A transient failure may be retried once without code changes.
 - Integration tests must use mocks in CI when secrets are unavailable.
-- Never commit a secret, disable CodeQL, delete a valid test, weaken branch protection, or use broad `continue-on-error` to force green status.
-- Maximum: three focused repair attempts for the same failure. After that, add exact evidence, label `ci:blocked`, and let Product Lead split or replace the task.
+- Never commit a secret, disable a valid check, delete a valid test, weaken branch protection, or use broad `continue-on-error` to force green status.
+- Maximum: three focused repair attempts for the same failure. After that, add exact evidence, label `ci:blocked`, and let Product Lead close or split an externally blocked cycle while Continuity Guard preserves correct workflow state.
 
 ## QA and release gates
 
 QA may merge only when all applicable checks pass:
 
 - Acceptance criteria.
-- Required GitHub CI checks.
+- Required GitHub CI checks and locked `npm ci` installation.
 - No disabled or bypassed checks.
 - Professional visual-quality requirements in `docs/standards/DESIGN_SYSTEM.md`.
-- Responsive evidence and no unintended horizontal overflow.
-- Mobile behavior, touch targets, keyboard accessibility, and visible focus.
-- Arabic and English parity; composed RTL and LTR.
+- Real Playwright screenshots and no unintended horizontal overflow.
+- Mobile behavior, touch targets, keyboard accessibility, visible focus, and axe critical/serious results.
+- Arabic and English key parity; composed RTL and LTR.
 - Loading, empty, success, and error states.
 - Reduced-motion behavior when motion exists.
 - Safety, privacy, fairness, and secret handling.
-- Railway Preview `/health` returns 200.
-- Railway Preview `/version` matches the PR commit.
+- One exact non-Production Railway Preview `/health` returns 200.
+- The same Preview `/version` matches the PR branch and commit before and after malformed-path verification.
+
+Before reviewing, QA checks the latest `QA-REVIEWED-HEAD:<sha>` marker. If it equals the current head and there is no newer CI, deployment, or review evidence, QA does nothing and posts no duplicate review.
 
 After squash merge, QA must verify Railway production `/health` and `/version` match the merged commit. Then close the issue, remove workflow labels, and delete the branch when possible.
 
 If production verification fails, no new feature may start. Create or restore a critical production-fix cycle and return to the last known good version when a safe rollback path exists.
+
+## Railway environment roles
+
+- Production is permanently linked to `main`.
+- Staging is permanently linked to `main` or a dedicated `staging` branch; do not repoint it to each feature branch.
+- Each pull request is verified through its isolated Railway PR Environment.
+- Production is never a Preview candidate.
 
 ## Priority order
 
@@ -132,8 +152,8 @@ Production outage → security vulnerability → failed deployment → broken co
 - Never combine a broad refactor with a product feature.
 - Do not reopen decisions already recorded in `DECISIONS.md` unless the underlying facts changed.
 - Do not create duplicate task keys.
-- If no meaningful progress occurs for three hours, Product Lead restores the correct stage from issue and PR evidence.
-- If a cycle remains unresolvable after six hours or three focused repairs, preserve useful work, close or split the cycle, and start the highest-value unblocked task.
+- If no meaningful progress occurs for 90 minutes, Continuity Guard restores the correct stage from issue, PR, CI, and Railway evidence.
+- If a cycle remains unresolvable after six hours or three focused repairs, preserve useful work; Product Lead may close or split it only after Continuity Guard records the correct blocked state.
 - Missing external approval, paid account, secret, or permission must not cause hourly retries. Implement a safe fallback or feature-disabled state, record the external blocker, and move to unblocked work.
 - Agents do not wait for user approval.
 
@@ -143,11 +163,11 @@ A cycle is complete only when:
 
 - The issue is closed.
 - The PR is squash-merged.
-- CI passed.
+- CI passed with locked dependencies.
 - Railway production is healthy.
 - Production `/version` matches the merged commit.
-- Arabic and English paths work.
-- Responsive, mobile, keyboard, and basic accessibility checks pass.
+- Arabic and English paths work and localization parity passes.
+- Responsive, mobile, keyboard, Playwright, and accessibility checks pass.
 - Visible UI meets the professional design and copy standards.
 - No concrete security or safety blocker remains.
 - `TASK_LOG.md` is updated.
