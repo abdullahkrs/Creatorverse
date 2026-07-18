@@ -1,5 +1,29 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Static-path and Preview isolation release repair
+
+**Outcome:** Prevent malformed request paths from crashing the Node server and ensure pre-merge verification cannot use the permanent Railway production service.
+
+### Completed
+
+- Extracted static-path decoding and resolution into a testable server helper.
+- Malformed percent-encoded paths now return HTTP 400 with `MALFORMED_PATH` instead of throwing an uncaught exception.
+- Added focused regression coverage for malformed encoding, encoded filenames, SPA fallback, and traversal attempts.
+- Replaced the hard-coded production Preview URL in CI with discovery of a successful GitHub deployment for the exact PR head.
+- CI rejects the permanent production URL, any deployment reporting `environment: production`, a branch mismatch, or a commit mismatch.
+- CI verifies `/health`, `/version`, and the deployed malformed-path response against the isolated Preview.
+
+### Validation
+
+- Focused local `node --test`: 2 server-path tests passed.
+- Local `node --check server.js`: passed.
+- Full `npm run check` and isolated Railway Preview evidence remain required from GitHub CI for the final branch head.
+- Railway PR Environments must be enabled in the Railway project; CI now fails with an explicit configuration message rather than testing production when none is available.
+
+### Next best task
+
+Run independent QA against the isolated Railway PR Environment for Pull Request #1 and merge only after its `/version` matches the reviewed head.
+
 ## 2026-07-18 — Release safety acknowledgement enforced
 
 **Outcome:** Prevent creator onboarding from launching when the required fictional-world safety acknowledgement is unchecked.
