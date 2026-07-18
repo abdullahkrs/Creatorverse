@@ -44,13 +44,20 @@ async function expectTouchTargets(page) {
   }
 }
 
-async function expectVisibleFocus(locator) {
+async function expectVisibleFocus(page, locator) {
   await locator.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Shift+Tab');
   await expect(locator).toBeFocused();
   const focus = await locator.evaluate(node => {
     const style = getComputedStyle(node);
-    return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+    return {
+      focusVisible: node.matches(':focus-visible'),
+      style: style.outlineStyle,
+      width: Number.parseFloat(style.outlineWidth),
+    };
   });
+  expect(focus.focusVisible).toBe(true);
   expect(focus.style).not.toBe('none');
   expect(focus.width).toBeGreaterThan(0);
 }
@@ -71,7 +78,7 @@ for (const locale of ['en', 'ar']) {
       expect(await page.locator('.experience [data-role]:enabled').count()).toBe(3);
       expect(await page.locator('.experience [data-route]:enabled').count()).toBe(0);
       await expect(roles.first()).toBeVisible();
-      await expectVisibleFocus(roles.first());
+      await expectVisibleFocus(page, roles.first());
       await expectNoHorizontalOverflow(page);
       await expectTouchTargets(page);
 
@@ -86,7 +93,7 @@ for (const locale of ['en', 'ar']) {
       await expect(result.locator('[data-result-announcement]')).toHaveAttribute('aria-live', 'polite');
       await expect(resultAction).toBeVisible();
       await resultAction.scrollIntoViewIfNeeded();
-      await expectVisibleFocus(resultAction);
+      await expectVisibleFocus(page, resultAction);
       await expectNoHorizontalOverflow(page);
       await expectTouchTargets(page);
 
@@ -198,10 +205,10 @@ for (const locale of ['en', 'ar']) {
 test('keyboard mission result flow remains predictable', async ({ page }) => {
   await page.goto('/');
   const role = page.locator('[data-role="builder"]');
-  await expectVisibleFocus(role);
+  await expectVisibleFocus(page, role);
   await page.keyboard.press('Enter');
   const route = page.locator('[data-route="sky"]');
-  await expectVisibleFocus(route);
+  await expectVisibleFocus(page, route);
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-mission-result]')).toBeVisible();
   await expect(page.locator('[data-action="mission-result-action"]')).toBeVisible();
