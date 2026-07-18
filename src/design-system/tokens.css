@@ -47,6 +47,7 @@
   --cv-focus-offset: 0.1875rem;
   --cv-duration-fast: 120ms;
   --cv-duration-normal: 200ms;
+  --cv-duration-progress: 400ms;
   --cv-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* Semantic color roles — values may evolve, roles must remain stable. */

@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1580" viewBox="0 0 1600 1580" role="img" aria-labelledby="title desc">
+  <title id="title">Creatorverse mission-result responsive composition evidence</title>
+  <desc id="desc">Equivalent layout evidence for the mission-result field receipt at 320, 390, 768, and 1440 pixel widths in English and Arabic. This is a source-aligned schematic, not a browser screenshot.</desc>
+  <style>
+    text { font-family: Inter, Arial, sans-serif; fill: #f5f7fb; }
+    .canvas { fill: #0b0d12; }
+    .surface { fill: #141821; stroke: #343b49; stroke-width: 2; }
+    .raised { fill: #1b202b; stroke: #343b49; stroke-width: 1; }
+    .action { fill: #f0d36a; }
+    .action-text { fill: #171408; font-weight: 800; }
+    .success { fill: #69d49a; }
+    .muted { fill: #a8afbd; }
+    .small { font-size: 14px; }
+    .label { font-size: 16px; font-weight: 800; }
+    .title { font-size: 25px; font-weight: 800; }
+    .energy { font-size: 34px; font-weight: 900; }
+    .frame-label { font-size: 18px; font-weight: 800; }
+    .note { font-size: 15px; fill: #a8afbd; }
+    .rail-base { fill: #343b49; }
+    .rail-gain { fill: #69d49a; }
+    .node { fill: #f0d36a; stroke: #0b0d12; stroke-width: 4; }
+  </style>
+  <rect class="canvas" width="1600" height="1580"/>
+  <text x="60" y="58" font-size="30" font-weight="900">CV-MVP-003 · Mission result field receipt</text>
+  <text class="note" x="60" y="88">Equivalent composition evidence generated from implemented markup and CSS rules — not a browser screenshot.</text>
+
+  <g transform="translate(60 125)">
+    <text class="frame-label" x="0" y="0">Before · plain completion sentence</text>
+    <rect class="surface" x="0" y="20" width="1480" height="92" rx="12"/>
+    <text class="small success" x="24" y="64">Mission complete. Your action added 3 realm energy.</text>
+    <text class="note" x="24" y="91">No selected route, before/after progress, district receipt, or result action.</text>
+  </g>
+
+  <g transform="translate(60 285)">
+    <text class="frame-label" x="0" y="0">320 × 568 · English LTR · one column</text>
+    <rect class="surface" x="0" y="20" width="320" height="500" rx="12"/>
+    <text class="small muted" x="18" y="56">35-SECOND MISSION</text>
+    <text class="title" x="18" y="88">Signal strengthened</text>
+    <rect class="raised" x="18" y="110" width="150" height="72"/>
+    <text class="energy" x="58" y="151">+3</text><text class="small muted" x="58" y="171">ENERGY</text>
+    <text class="label" x="18" y="220">Signal Harbor</text><text class="label success" x="238" y="220">72 → 75</text>
+    <polygon class="rail-base" points="18,238 282,238 300,250 282,262 18,262"/>
+    <rect class="rail-gain" x="208" y="238" width="10" height="24"/><circle class="node" cx="218" cy="250" r="8"/>
+    <rect class="raised" x="18" y="286" width="137" height="58"/><rect class="raised" x="165" y="286" width="137" height="58"/>
+    <rect class="raised" x="18" y="354" width="137" height="58"/><rect class="raised" x="165" y="354" width="137" height="58"/>
+    <text class="small muted" x="30" y="307">ROLE</text><text class="label" x="30" y="332">Builder</text>
+    <text class="small muted" x="177" y="307">ROUTE</text><text class="label" x="177" y="332">Sky route</text>
+    <text class="small muted" x="30" y="375">ENERGY</text><text class="label" x="30" y="400">+3</text>
+    <text class="small muted" x="177" y="375">DISTRICT</text><text class="label" x="177" y="400">Signal Harbor</text>
+    <rect class="action" x="18" y="432" width="284" height="52" rx="10"/>
+    <text class="action-text" x="114" y="465">Copy result</text>
+    <text class="note" x="18" y="509">Action height: 52 px ≥ 44 px · no fixed content height</text>
+  </g>
+
+  <g transform="translate(440 285)">
+    <text class="frame-label" x="0" y="0">390 × 844 · Arabic RTL · composed order</text>
+    <rect class="surface" x="0" y="20" width="390" height="500" rx="12"/>
+    <text class="small muted" x="230" y="56" direction="rtl">مهمة من 35 ثانية</text>
+    <text class="title" x="202" y="88" direction="rtl">تم تعزيز الإشارة</text>
+    <rect class="raised" x="222" y="110" width="150" height="72"/>
+    <text class="energy" x="262" y="151">+3</text><text class="small muted" x="262" y="171" direction="rtl">الطاقة</text>
+    <text class="label" x="244" y="220" direction="rtl">ميناء الإشارة</text><text class="label success" x="18" y="220">72 → 75</text>
+    <polygon class="rail-base" points="18,238 352,238 372,250 352,262 18,262"/>
+    <rect class="rail-gain" x="262" y="238" width="12" height="24"/><circle class="node" cx="274" cy="250" r="8"/>
+    <rect class="raised" x="18" y="286" width="172" height="58"/><rect class="raised" x="200" y="286" width="172" height="58"/>
+    <rect class="raised" x="18" y="354" width="172" height="58"/><rect class="raised" x="200" y="354" width="172" height="58"/>
+    <text class="small muted" x="326" y="307" direction="rtl">الدور</text><text class="label" x="310" y="332" direction="rtl">البنّاء</text>
+    <text class="small muted" x="144" y="307" direction="rtl">المسار</text><text class="label" x="110" y="332" direction="rtl">المسار السماوي</text>
+    <text class="small muted" x="326" y="375" direction="rtl">الطاقة</text><text class="label" x="330" y="400">+3</text>
+    <text class="small muted" x="144" y="375" direction="rtl">المنطقة</text><text class="label" x="112" y="400" direction="rtl">ميناء الإشارة</text>
+    <rect class="action" x="18" y="432" width="354" height="52" rx="10"/>
+    <text class="action-text" x="143" y="465" direction="rtl">انسخ النتيجة</text>
+    <text class="note" x="18" y="509">LTR numbers stay isolated; neutral rail is not mechanically mirrored.</text>
+  </g>
+
+  <g transform="translate(890 285)">
+    <text class="frame-label" x="0" y="0">390 × 844 · English LTR</text>
+    <rect class="surface" x="0" y="20" width="390" height="500" rx="12"/>
+    <text class="small muted" x="18" y="56">35-SECOND MISSION</text>
+    <text class="title" x="18" y="88">Signal strengthened</text>
+    <rect class="raised" x="18" y="110" width="150" height="72"/>
+    <text class="energy" x="58" y="151">+3</text><text class="small muted" x="58" y="171">ENERGY</text>
+    <text class="label" x="18" y="220">Signal Harbor</text><text class="label success" x="308" y="220">72 → 75</text>
+    <polygon class="rail-base" points="18,238 352,238 372,250 352,262 18,262"/>
+    <rect class="rail-gain" x="262" y="238" width="12" height="24"/><circle class="node" cx="274" cy="250" r="8"/>
+    <rect class="raised" x="18" y="286" width="172" height="58"/><rect class="raised" x="200" y="286" width="172" height="58"/>
+    <rect class="raised" x="18" y="354" width="172" height="58"/><rect class="raised" x="200" y="354" width="172" height="58"/>
+    <text class="small muted" x="30" y="307">ROLE</text><text class="label" x="30" y="332">Builder</text>
+    <text class="small muted" x="212" y="307">ROUTE</text><text class="label" x="212" y="332">Sky route</text>
+    <text class="small muted" x="30" y="375">ENERGY</text><text class="label" x="30" y="400">+3</text>
+    <text class="small muted" x="212" y="375">DISTRICT</text><text class="label" x="212" y="400">Signal Harbor</text>
+    <rect class="action" x="18" y="432" width="354" height="52" rx="10"/>
+    <text class="action-text" x="139" y="465">Share result</text>
+  </g>
+
+  <g transform="translate(60 870)">
+    <text class="frame-label" x="0" y="0">768 × 1024 · English / Arabic · two-region field receipt</text>
+    <rect class="surface" x="0" y="20" width="720" height="300" rx="12"/>
+    <line x1="438" y1="42" x2="438" y2="300" stroke="#343b49" stroke-width="2"/>
+    <text class="small muted" x="22" y="58">35-SECOND MISSION</text><text class="title" x="22" y="92">Signal strengthened</text>
+    <text class="energy" x="338" y="92">+3</text>
+    <text class="label" x="22" y="148">Signal Harbor</text><text class="label success" x="344" y="148">72 → 75</text>
+    <polygon class="rail-base" points="22,166 390,166 410,178 390,190 22,190"/><rect class="rail-gain" x="286" y="166" width="12" height="24"/><circle class="node" cx="298" cy="178" r="8"/>
+    <rect class="raised" x="458" y="44" width="112" height="58"/><rect class="raised" x="582" y="44" width="112" height="58"/>
+    <rect class="raised" x="458" y="114" width="112" height="58"/><rect class="raised" x="582" y="114" width="112" height="58"/>
+    <rect class="action" x="458" y="196" width="236" height="52" rx="10"/><text class="action-text" x="525" y="229">Share result</text>
+    <text class="note" x="22" y="286">At 40rem content pressure, facts/action move beside outcome; no extra marketing content is added.</text>
+  </g>
+
+  <g transform="translate(820 870)">
+    <text class="frame-label" x="0" y="0">768 × 1024 · Arabic RTL</text>
+    <rect class="surface" x="0" y="20" width="720" height="300" rx="12"/>
+    <line x1="282" y1="42" x2="282" y2="300" stroke="#343b49" stroke-width="2"/>
+    <text class="small muted" x="536" y="58" direction="rtl">مهمة من 35 ثانية</text><text class="title" x="493" y="92" direction="rtl">تم تعزيز الإشارة</text>
+    <text class="energy" x="310" y="92">+3</text>
+    <text class="label" x="528" y="148" direction="rtl">ميناء الإشارة</text><text class="label success" x="310" y="148">72 → 75</text>
+    <polygon class="rail-base" points="310,166 678,166 698,178 678,190 310,190"/><rect class="rail-gain" x="574" y="166" width="12" height="24"/><circle class="node" cx="586" cy="178" r="8"/>
+    <rect class="raised" x="26" y="44" width="112" height="58"/><rect class="raised" x="150" y="44" width="112" height="58"/>
+    <rect class="raised" x="26" y="114" width="112" height="58"/><rect class="raised" x="150" y="114" width="112" height="58"/>
+    <rect class="action" x="26" y="196" width="236" height="52" rx="10"/><text class="action-text" x="88" y="229" direction="rtl">شارك النتيجة</text>
+    <text class="note" x="310" y="286">Arabic composes outcome at inline start while numeric progress remains LTR-isolated.</text>
+  </g>
+
+  <g transform="translate(60 1240)">
+    <text class="frame-label" x="0" y="0">1440 × 900 · bounded desktop composition · English and Arabic parity</text>
+    <rect class="surface" x="0" y="20" width="1480" height="230" rx="12"/>
+    <rect class="raised" x="24" y="46" width="690" height="176"/>
+    <text class="small muted" x="48" y="78">35-SECOND MISSION</text><text class="title" x="48" y="112">Signal strengthened</text><text class="energy" x="610" y="112">+3</text>
+    <text class="label" x="48" y="162">Signal Harbor</text><text class="label success" x="610" y="162">72 → 75</text>
+    <polygon class="rail-base" points="48,178 662,178 686,190 662,202 48,202"/><rect class="rail-gain" x="490" y="178" width="18" height="24"/><circle class="node" cx="508" cy="190" r="8"/>
+    <rect class="raised" x="766" y="46" width="690" height="176"/>
+    <text class="small muted" x="1282" y="78" direction="rtl">مهمة من 35 ثانية</text><text class="title" x="1204" y="112" direction="rtl">تم تعزيز الإشارة</text><text class="energy" x="796" y="112">+3</text>
+    <text class="label" x="1270" y="162" direction="rtl">ميناء الإشارة</text><text class="label success" x="796" y="162">72 → 75</text>
+    <polygon class="rail-base" points="796,178 1410,178 1434,190 1410,202 796,202"/><rect class="rail-gain" x="1238" y="178" width="18" height="24"/><circle class="node" cx="1256" cy="190" r="8"/>
+    <text class="note" x="0" y="284">Validation targets encoded in CSS: intrinsic grids, minmax(0,1fr), logical properties, 44 px action, 40rem content breakpoint, reduced-motion override.</text>
+  </g>
+</svg>
