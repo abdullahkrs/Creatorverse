@@ -5,7 +5,9 @@ html body {
 
 @media (max-width: 30rem) {
   .nav {
+    flex-wrap: wrap;
     gap: var(--cv-space-2);
+    padding-block: var(--cv-space-2);
   }
 
   .brand span {
@@ -14,6 +16,9 @@ html body {
 
   .nav-actions {
     min-inline-size: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: var(--cv-space-1);
   }
 
