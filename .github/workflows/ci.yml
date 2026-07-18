@@ -155,22 +155,20 @@ jobs:
           echo "Configure the staging service to deploy $EXPECTED_REF and expose its Railway domain, or enable Railway PR Environments."
           exit 1
 
-      - name: Verify Railway Preview health, version, and malformed-path handling
+      - name: Verify Railway Preview health, version, and malformed-path resilience
         shell: bash
         run: |
           set -euo pipefail
 
-          for attempt in {1..12}; do
-            health_code="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/health" || true)"
-            version_code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/version" || true)"
-
-            if [ "$health_code" = "200" ] && [ "$version_code" = "200" ] && grep -q '"status":"ok"' /tmp/health.json; then
-              if node - <<'NODE'
+          verify_version_identity() {
+            local version_file="$1"
+            node - "$version_file" <<'NODE'
           const fs = require('fs');
-          const version = JSON.parse(fs.readFileSync('/tmp/version.json', 'utf8'));
+          const file = process.argv[2];
+          const version = JSON.parse(fs.readFileSync(file, 'utf8'));
           const expectedSha = process.env.EXPECTED_SHA;
           const expectedRef = process.env.EXPECTED_REF;
-          const actualSha = version.commitSha || '';
+          const actualSha = String(version.commitSha || '');
           const environment = String(version.environment || '').toLowerCase();
 
           if (!(actualSha === expectedSha || actualSha.startsWith(expectedSha) || expectedSha.startsWith(actualSha))) {
@@ -186,25 +184,53 @@ jobs:
             process.exit(1);
           }
           NODE
-              then
-                malformed_code="$(curl --path-as-is --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/%" || true)"
-                if [ "$malformed_code" != "400" ] || ! grep -q '"error":"MALFORMED_PATH"' /tmp/malformed.json; then
-                  echo "Malformed-path regression failed with HTTP $malformed_code"
-                  cat /tmp/malformed.json 2>/dev/null || true
-                  exit 1
-                fi
+          }
 
-                echo "Health response:"
-                cat /tmp/health.json
-                echo
-                echo "Version response:"
-                cat /tmp/version.json
-                echo
-                echo "Malformed-path response:"
-                cat /tmp/malformed.json
-                echo
-                exit 0
+          for attempt in {1..12}; do
+            health_code="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/health" || true)"
+            version_code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/version" || true)"
+
+            if [ "$health_code" = "200" ] && [ "$version_code" = "200" ] && grep -q '"status":"ok"' /tmp/health.json && verify_version_identity /tmp/version.json; then
+              malformed_code="$(curl --path-as-is --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/%" || true)"
+              if [ "$malformed_code" != "400" ]; then
+                echo "Malformed-path request was not rejected with HTTP 400; received $malformed_code"
+                cat /tmp/malformed.json 2>/dev/null || true
+                exit 1
               fi
+
+              # Railway's edge may reject a syntactically malformed URL before Node receives it.
+              # Direct application tests still require the JSON MALFORMED_PATH contract. Here we
+              # additionally prove that the public service remains healthy and on the reviewed head.
+              post_health_code="$(curl --silent --show-error --output /tmp/post-health.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/health" || true)"
+              post_version_code="$(curl --silent --show-error --output /tmp/post-version.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/version" || true)"
+
+              if [ "$post_health_code" != "200" ] || [ "$post_version_code" != "200" ] || ! grep -q '"status":"ok"' /tmp/post-health.json || ! verify_version_identity /tmp/post-version.json; then
+                echo "Preview did not remain healthy and correctly identified after the malformed-path request."
+                cat /tmp/post-health.json 2>/dev/null || true
+                echo
+                cat /tmp/post-version.json 2>/dev/null || true
+                exit 1
+              fi
+
+              if grep -q '"error":"MALFORMED_PATH"' /tmp/malformed.json 2>/dev/null; then
+                echo "Malformed path was rejected by the application."
+              else
+                echo "Malformed path was rejected by Railway before reaching the application; post-request liveness and identity checks passed."
+              fi
+
+              echo "Health response:"
+              cat /tmp/health.json
+              echo
+              echo "Version response:"
+              cat /tmp/version.json
+              echo
+              echo "Malformed-path response:"
+              cat /tmp/malformed.json 2>/dev/null || true
+              echo
+              echo "Post-request health response:"
+              cat /tmp/post-health.json
+              echo
+              exit 0
             fi
 
             echo "Preview verification attempt $attempt/12: health=$health_code version=$version_code"
