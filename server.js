@@ -1,7 +1,9 @@
-import { createReadStream, existsSync, statSync } from 'node:fs';
-import { extname, join, normalize } from 'node:path';
+import { createReadStream, existsSync } from 'node:fs';
+import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
+
+import { resolveAssetPath } from './server-path.js';
 
 const root = fileURLToPath(new URL('./dist', import.meta.url));
 const port = Number(process.env.PORT || 3000);
@@ -59,18 +61,6 @@ function deploymentMetadata() {
     deploymentId: process.env.RAILWAY_DEPLOYMENT_ID || '',
     publicDomain: process.env.RAILWAY_PUBLIC_DOMAIN || '',
   };
-}
-
-function resolveAssetPath(urlPath) {
-  const decodedPath = decodeURIComponent(urlPath.split('?')[0]);
-  const requestedPath = normalize(decodedPath).replace(/^(\.\.[/\\])+/, '');
-  const candidate = join(root, requestedPath);
-
-  if (candidate.startsWith(root) && existsSync(candidate) && statSync(candidate).isFile()) {
-    return candidate;
-  }
-
-  return join(root, 'index.html');
 }
 
 function readJsonBody(request) {
@@ -264,7 +254,11 @@ const server = createServer(async (request, response) => {
     return sendJson(response, 503, { error: 'BUILD_NOT_FOUND', message: 'Run npm run build before starting the production server.' });
   }
 
-  const assetPath = resolveAssetPath(request.url || '/');
+  const assetPath = resolveAssetPath(root, request.url || '/');
+  if (!assetPath) {
+    return sendJson(response, 400, { error: 'MALFORMED_PATH' });
+  }
+
   const extension = extname(assetPath).toLowerCase();
   const isHtml = extension === '.html';
   response.writeHead(200, {
