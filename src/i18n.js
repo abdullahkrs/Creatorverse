@@ -136,11 +136,14 @@ export function applyLocale(root = document) {
   document.body.classList.toggle('rtl', isArabic);
   if (!isArabic) return;
 
+  const hasFollowerInvite = Boolean(root.querySelector?.('[data-prototype-follower-entry]'));
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(node => {
-    if (node.parentElement?.closest('script, style')) return;
+    const parent = node.parentElement;
+    if (parent?.closest('script, style, [translate="no"], .notranslate, [data-prototype-invite-receipt], [data-prototype-follower-entry]')) return;
+    if (hasFollowerInvite && parent?.closest('.realm-heading h2, .realm-creator, .realm-tagline')) return;
     node.nodeValue = translateDynamic(node.nodeValue || '');
   });
 

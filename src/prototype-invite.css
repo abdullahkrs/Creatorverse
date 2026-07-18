@@ -1,0 +1,173 @@
+.cv-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.invite-receipt {
+  border-inline-start: var(--cv-space-1) solid var(--cv-color-action);
+  animation: invite-receipt-reveal var(--cv-duration-normal) var(--cv-ease-standard);
+}
+
+.invite-receipt-copy {
+  display: grid;
+  gap: var(--cv-space-3);
+  min-inline-size: 0;
+}
+
+.invite-receipt h2,
+.follower-entry h1,
+.invite-error h1 {
+  margin: 0;
+  max-inline-size: none;
+  font-size: var(--cv-text-2xl);
+  line-height: var(--cv-leading-tight);
+  letter-spacing: -0.025em;
+}
+
+.invite-receipt-copy > p,
+.follower-entry > p,
+.invite-error > p {
+  margin: 0;
+  max-inline-size: var(--cv-reading-max);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-md);
+  line-height: var(--cv-leading-normal);
+}
+
+.invite-signal-stamp {
+  min-inline-size: 0;
+  padding: var(--cv-space-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cv-space-2) var(--cv-space-3);
+  background: var(--cv-color-surface-raised);
+  border: 1px solid var(--cv-color-border);
+  border-block-start: var(--cv-space-1) solid var(--cv-color-action);
+  border-radius: var(--cv-radius-md);
+}
+
+.invite-signal-stamp.theme-wild { border-block-start-color: var(--cv-color-success); }
+.invite-signal-stamp.theme-future { border-block-start-color: var(--cv-color-focus); }
+.invite-signal-stamp .invite-signal-icon {
+  grid-row: 1 / span 2;
+  inline-size: 2rem;
+  block-size: 2rem;
+  color: var(--cv-color-action);
+}
+.invite-signal-stamp strong,
+.invite-signal-stamp span {
+  min-inline-size: 0;
+  overflow-wrap: break-word;
+}
+.invite-signal-stamp span {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.invite-copy-action {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+}
+
+.invite-manual-url {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  padding-inline: var(--cv-space-3);
+  color: var(--cv-color-text);
+  background: var(--cv-color-surface-raised);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  direction: ltr;
+  text-align: start;
+  overflow-x: auto;
+}
+
+.invite-copy-status {
+  min-block-size: 1.5rem;
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.follower-entry {
+  display: grid;
+  gap: var(--cv-space-3);
+  max-inline-size: 46rem;
+}
+
+.follower-entry-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2);
+}
+
+.follower-entry-facts > span {
+  min-block-size: var(--cv-target-min);
+  padding: var(--cv-space-2) var(--cv-space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cv-space-2);
+  min-inline-size: 0;
+  color: var(--cv-color-text);
+  background: var(--cv-color-surface);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  font-size: var(--cv-text-sm);
+}
+
+.follower-entry-facts strong {
+  overflow-wrap: break-word;
+}
+
+.follower-fact-icon {
+  color: var(--cv-color-action);
+}
+
+.invite-error {
+  max-inline-size: 36rem;
+  padding-block: var(--cv-space-4);
+  display: grid;
+  gap: var(--cv-space-4);
+}
+
+.invite-error .primary {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+}
+
+@keyframes invite-receipt-reveal {
+  from { opacity: 0; transform: translateY(var(--cv-space-1)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 48rem) {
+  .invite-receipt-copy {
+    grid-template-columns: minmax(0, 1.35fr) minmax(12rem, 0.65fr);
+    grid-template-areas:
+      "title stamp"
+      "support stamp"
+      "action stamp"
+      "manual stamp"
+      "status stamp";
+    align-items: start;
+  }
+
+  .invite-receipt-copy > h2 { grid-area: title; }
+  .invite-receipt-copy > p:first-of-type { grid-area: support; }
+  .invite-signal-stamp { grid-area: stamp; align-self: stretch; align-content: center; }
+  .invite-copy-action { grid-area: action; max-inline-size: 20rem; }
+  .invite-manual-url { grid-area: manual; }
+  .invite-copy-status { grid-area: status; }
+  .invite-error .primary { inline-size: fit-content; min-inline-size: 12rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-receipt { animation: none; }
+}

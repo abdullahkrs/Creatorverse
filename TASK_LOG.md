@@ -2,6 +2,38 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-19 — CV-MVP-004 safe prototype invite handoff
+
+**Outcome:** Connect creator onboarding completion to one safe copyable prototype invite and one fresh-session follower entry without real social actions, identity disclosure, or product-scope expansion.
+
+### Completed
+
+- Added a versioned fragment-only invite payload with strict field, theme, length, decoded-size, encoding, protocol, and credential bounds.
+- Included only fictional realm name, allowlisted theme, and optional fictional promise; creator handles, contacts, secrets, query data, unknown fields, and external-account data are excluded.
+- Rejected malformed encoding, duplicate invite parameters, bidi controls, explicit URLs, bare domains, external URI schemes, contact-like data, social handles, selected real-world political targeting, and hostility or mobilization wording before rendering.
+- Added focused regression coverage for `example.com`, `discord.gg/room`, `ftp://example.com`, custom `scheme://` values, `mailto:`, unsafe realm names, and manually crafted unsafe invite tokens.
+- Kept creator completion inside the existing studio and added one dominant copy action with idle, pending, success, denied or unsupported manual-copy, failure, retry, disabled, focus, and live-region states.
+- Added a compact English LTR and Arabic RTL follower entry immediately before the unchanged role → route → result loop, while withholding Create and Creator tools until the invited follower completes the mission.
+- Added a localized invalid-invite recovery path that does not echo the malformed payload and returns to the normal featured realm.
+- Used existing design tokens, semantic elements, logical properties, a content-based breakpoint, 44 px action targets, mixed-direction isolation, and reduced-motion handling without a new dependency or framework migration.
+- Added focused unit tests plus bilingual Playwright, axe, keyboard, fresh-context, copy-denial, invalid-recovery, 200% text-zoom, overflow, reduced-motion, and screenshot coverage at 320×568, 390×844, 768×1024, 1024×768, and 1440×900.
+- Five-user usability sessions were not conducted or claimed in this implementation cycle.
+
+### Validation
+
+- CI run #150 on head `b685b394d30249e4d5a72120de335a7c3a13db85` passed locked installation, unit/localization/build gates, and exact isolated Railway Preview `/health`, `/version`, branch, commit, malformed-path, and post-request identity checks.
+- Run #150 browser evidence exposed an Arabic-only localization mutation loop when the invite-owned dynamic realm values were repeatedly translated and restored; no release stage was advanced on that head.
+- The focused repair prevents the generic Arabic localizer from rewriting invite-owned localized components and follower realm values, preserving dynamic text and stopping the microtask loop without weakening tests.
+- CI run #152 on implementation head `733a29151cc4fc688d638852aa8a94c77f2e6b3e` passed locked `npm ci`, `npm run check`, the production build, exact isolated Railway Preview verification, the complete English/Arabic browser matrix, axe, keyboard flow, fresh-session invite entry, invalid recovery, 200% text zoom, and responsive screenshot gates.
+- A P2 review on earlier head `314c4d8a5c` identified that bare domains and non-HTTP external schemes could bypass the original external-text denylist.
+- CI run #155 on focused repair head `68dd06f139267bcc1287b7d5d6cc1e119d65943e` passed locked installation, the expanded unit and localization gates, `npm run check`, production build, exact isolated Railway Preview `/health` and `/version`, branch and commit identity, malformed-path safety, post-request liveness, bilingual Playwright, axe, keyboard, text zoom, responsive evidence, and artifact upload.
+- Browser evidence artifact `browser-quality-68dd06f139267bcc1287b7d5d6cc1e119d65943e` is retained through 2026-08-01; the safety repair changed validation only and preserved the approved visual, responsive, Arabic/English, state, and interaction behavior.
+- Rollback is limited to reverting Pull Request #15; no database, dependency, secret, account, environment, or external-service rollback is required.
+
+### Next best task
+
+Run independent QA on the unchanged final PR head and exact Railway Preview; do not add persistence, authentication, social posting, analytics, rewards, or another feature to this cycle.
+
 ## 2026-07-19 — CV-QUALITY-003 responsive cascade precedence
 
 **Outcome:** Make the existing mobile text-pressure rules authoritative without changing product copy, layout identity, or release checks.
@@ -116,7 +148,7 @@ Run independent QA on the exact PR head; do not add invitation, persistence, aut
 - Added a product-specific signal-route map and custom inline SVG symbols for the brand, roles, themes, imports, and disclosure control.
 - Moved YouTube profile and public-post imports behind one optional Creator tools disclosure while preserving loading, empty, error, success, and disabled states.
 - Integrated the language control into navigation and raised language and primary interaction targets to the 44 px token.
-- Added explicit Arabic RTL desktop grid composition, RTL action order, logical properties, and isolated LTR URLs and numbers.
+- Added explicit Arabic RTL desktop grid composition, RTL action order, logical CSS properties, and isolated LTR URLs and numbers.
 - Preserved the required fictional-world acknowledgement and its keyboard focus, localized error, `aria-invalid`, and launch-blocking behavior.
 - Added `test/design-gate.test.js` and `docs/visual-evidence.md` with bilingual mobile visual evidence.
 
