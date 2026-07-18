@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { appendFile } from 'node:fs/promises';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -28,10 +28,7 @@ export async function verifyCandidate(candidate, context) {
   if (!health.response.ok || health.body?.status !== 'ok') throw new Error(`Preview health failed with HTTP ${health.response.status}`);
   if (!version.response.ok || typeof version.body !== 'object') throw new Error(`Preview version failed with HTTP ${version.response.status}`);
   verifyIdentity(version.body, { ...context, candidate: base });
-
-  const malformed = await requestJson(base, { method: 'GET', headers: { 'x-creatorverse-malformed-check': '1' } }).catch(error => ({ response: { status: 0 }, body: String(error) }));
-  // Fetch cannot emit a malformed request target portably. CI performs the raw curl check after exact candidate selection.
-  return { base, health: health.body, version: version.body, transportProbe: malformed.response.status };
+  return { base, health: health.body, version: version.body };
 }
 
 async function githubJson(path, token) {
@@ -50,8 +47,12 @@ function railwayUrls(value) {
   return [...String(value || '').matchAll(/https?:\/\/[A-Za-z0-9.-]+\.up\.railway\.app/g)].map(match => match[0]);
 }
 
+export function expectedPrDomain(prNumber) {
+  return `https://creatorverse-app-creatorverse-pr-${prNumber}.up.railway.app`;
+}
+
 export async function discoverCandidates({ repository, sha, ref, prNumber, token, stagingUrl }) {
-  const candidates = new Set(stagingUrl ? [stagingUrl] : []);
+  const candidates = new Set([expectedPrDomain(prNumber)]);
   const deployments = await githubJson(`/repos/${repository}/deployments?sha=${encodeURIComponent(sha)}&per_page=100`, token);
   const metadata = [deployments];
   for (const deployment of Array.isArray(deployments) ? deployments : []) {
@@ -62,6 +63,7 @@ export async function discoverCandidates({ repository, sha, ref, prNumber, token
   metadata.push(await githubJson(`/repos/${repository}/commits/${sha}/check-runs?per_page=100`, token));
   metadata.push(await githubJson(`/repos/${repository}/issues/${prNumber}/comments?per_page=100`, token));
   for (const url of railwayUrls(JSON.stringify(metadata))) candidates.add(url);
+  if (stagingUrl) candidates.add(stagingUrl);
   return [...candidates];
 }
 
@@ -84,7 +86,7 @@ async function main() {
     for (const candidate of candidates) {
       try {
         const result = await verifyCandidate(candidate, context);
-        await writeFile(process.env.GITHUB_OUTPUT || '/tmp/railway-preview-output', `preview_url=${result.base}\n`);
+        await appendFile(process.env.GITHUB_OUTPUT || '/tmp/railway-preview-output', `preview_url=${result.base}\n`);
         console.log(JSON.stringify(result, null, 2));
         return;
       } catch (error) {
