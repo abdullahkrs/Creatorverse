@@ -10,10 +10,11 @@ Goal: prove that the creator-led realm loop is understandable and appealing on m
 - [x] Short mission interaction
 - [x] Visible realm progress
 - [x] Creator onboarding prototype
-- [ ] Share-result card prototype
-- [ ] Five-user usability test
+- [x] Share-ready mission result prototype
+- [x] Five-user usability-test protocol prepared
+- [ ] Five-user usability sessions conducted
 
-Exit signal: at least 4 of 5 test users can explain the product and complete the loop without guidance.
+Exit signal: at least 4 of 5 test users can explain the product and complete the loop without guidance. The protocol exists, but the five sessions have not yet been conducted.
 
 ## Milestone 1 — Single creator playable realm
 

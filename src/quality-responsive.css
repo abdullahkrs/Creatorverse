@@ -1,0 +1,88 @@
+/* Narrow-header and text-zoom safeguards validated by the browser-quality gate. */
+html body {
+  min-inline-size: 0;
+}
+
+@media (max-width: 30rem) {
+  body .nav {
+    flex-wrap: wrap;
+    gap: var(--cv-space-2);
+    padding-block: var(--cv-space-2);
+  }
+
+  body .brand span {
+    display: none;
+  }
+
+  body .nav-actions {
+    min-inline-size: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--cv-space-1);
+  }
+
+  body .nav-create,
+  body .language-control button {
+    padding-inline: var(--cv-space-2);
+  }
+
+  body .role-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  body .role-card {
+    flex: 1 1 5rem;
+  }
+
+  body .mission-actions,
+  body .realm-stats,
+  body .signal-result-facts {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  body .mission-actions > *,
+  body .realm-stats > *,
+  body .signal-result-facts > * {
+    flex: 1 1 7rem;
+  }
+
+  body .mission-heading,
+  body .realm-heading {
+    flex-wrap: wrap;
+    align-items: start;
+  }
+
+  body .mission-heading > :first-child,
+  body .realm-heading > :first-child {
+    min-inline-size: 0;
+    flex: 1 1 10rem;
+  }
+
+  body .mission-status,
+  body .level {
+    max-inline-size: 100%;
+  }
+
+  body .role-copy,
+  body .role-copy small,
+  body .route,
+  body .realm-stats div,
+  body .realm-stats dt,
+  body .realm-stats dd,
+  body .signal-result-facts div,
+  body .signal-result-facts dt,
+  body .signal-result-facts dd {
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  body .role-copy strong {
+    min-inline-size: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}

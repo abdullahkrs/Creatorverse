@@ -1,20 +1,22 @@
 # Creatorverse Standards Index
 
-All autonomous agents must read the standards relevant to their role before changing requirements, code, or release state.
+All autonomous agents must read the standards relevant to their role before changing requirements, code, workflow state, or release state.
 
 ## Required references
 - `DESIGN_SYSTEM.md` — visual identity, hierarchy, copy budget, components, motion, and anti-template rules.
 - `RESPONSIVE_STANDARD.md` — mobile, tablet, desktop, RTL/LTR, input, and validation requirements.
 - `LIBRARY_POLICY.md` — approved target stack and staged dependency-adoption rules.
 - `ENGINEERING_STANDARD.md` — architecture, security, localization, CSS, components, testing, and performance.
+- `QUALITY_PIPELINE.md` — locked installs, real browser evidence, accessibility, localization parity, Railway roles, artifacts, and workflow ownership.
 - `src/design-system/tokens.css` — executable design constants for all new visible UI.
 
 ## Role map
-- Product Lead: read all standards when creating visible-product work.
+- Product Lead: read all standards when creating visible-product work; do not repair routine stage state.
 - Game & UX: read Design System and Responsive Standard.
 - Safety Review: read Engineering Standard plus product safety boundaries in `AGENT.md`.
 - Engineer: read all standards and use tokens before adding hardcoded visual values.
-- QA & Release: verify all applicable standards and reject default-kit or AI-template output.
+- QA & Release: verify every applicable standard, browser artifact, axe result, exact Preview identity, and unchanged-head review marker.
+- Continuity Guard: enforce the workflow-ownership section of Quality Pipeline and repair state only, never product code.
 
 ## Conflict order
 1. Safety, privacy, security, and legal constraints.

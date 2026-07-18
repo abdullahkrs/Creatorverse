@@ -15,176 +15,94 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 12
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Test and build
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Unit, localization, Railway verifier, and build gates
         run: npm run check
 
   railway-preview:
     if: github.event_name == 'pull_request'
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     env:
       EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
       EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       GITHUB_TOKEN: ${{ github.token }}
-      STAGING_URL: https://creatorverse-app-staging.up.railway.app
       PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
-
     steps:
-      - name: Discover and verify isolated Railway preview
-        shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12
+      - id: preview
+        name: Select one exact Railway Preview candidate
+        run: node scripts/verify-railway-preview.mjs
+      - name: Verify malformed request and post-request identity on the same candidate
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
         run: |
           set -euo pipefail
-
-          api="https://api.github.com/repos/$GITHUB_REPOSITORY"
-          auth_header="Authorization: Bearer $GITHUB_TOKEN"
-          version_header="X-GitHub-Api-Version: 2022-11-28"
-          metadata_file="/tmp/railway-preview-metadata.txt"
-
-          github_get() {
-            curl --fail --silent --show-error \
-              --header "$auth_header" \
-              --header "$version_header" \
-              --header "Accept: application/vnd.github+json" \
-              "$1" || printf '{}'
-          }
-
-          verify_version_identity() {
-            local version_file="$1"
-            node - "$version_file" <<'NODE'
-          const fs = require('fs');
-          const file = process.argv[2];
-          const version = JSON.parse(fs.readFileSync(file, 'utf8'));
-          const expectedSha = process.env.EXPECTED_SHA;
-          const expectedRef = process.env.EXPECTED_REF;
-          const actualSha = String(version.commitSha || '');
-          const environment = String(version.environment || '').toLowerCase();
-
-          if (!(actualSha === expectedSha || actualSha.startsWith(expectedSha) || expectedSha.startsWith(actualSha))) process.exit(1);
-          if (environment === 'production') process.exit(1);
-          if (version.branch !== expectedRef) process.exit(1);
-          NODE
-          }
-
-          verify_candidate() {
-            local candidate="${1%/}"
-            [ -n "$candidate" ] || return 1
-            [ "$candidate" != "${PRODUCTION_URL%/}" ] || return 1
-
-            local health_code version_code malformed_code post_health_code post_version_code
-            health_code="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$candidate/health" || true)"
-            version_code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 15 "$candidate/version" || true)"
-
-            [ "$health_code" = "200" ] || return 1
-            [ "$version_code" = "200" ] || return 1
-            grep -q '"status":"ok"' /tmp/health.json || return 1
-            verify_version_identity /tmp/version.json || return 1
-
-            malformed_code="$(curl --request-target '/%' --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$candidate" || true)"
-            if [ "$malformed_code" != "400" ] && [ "$malformed_code" != "502" ]; then
-              return 1
-            fi
-
-            post_health_code="$(curl --silent --show-error --output /tmp/post-health.json --write-out '%{http_code}' --max-time 15 "$candidate/health" || true)"
-            post_version_code="$(curl --silent --show-error --output /tmp/post-version.json --write-out '%{http_code}' --max-time 15 "$candidate/version" || true)"
-
-            [ "$post_health_code" = "200" ] || return 1
-            [ "$post_version_code" = "200" ] || return 1
-            grep -q '"status":"ok"' /tmp/post-health.json || return 1
-            verify_version_identity /tmp/post-version.json || return 1
-
-            echo "Railway Preview: $candidate"
-            echo "Health response:"
-            cat /tmp/health.json
-            echo
-            echo "Version response:"
-            cat /tmp/version.json
-            echo
-            echo "Malformed-path response (HTTP $malformed_code):"
+          malformed_code="$(curl --request-target '/%' --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL" || true)"
+          if [ "$malformed_code" != "400" ] && [ "$malformed_code" != "502" ]; then
+            echo "Unsafe malformed-path response: HTTP $malformed_code"
             cat /tmp/malformed.json 2>/dev/null || true
-            echo
-            echo "Post-request health response:"
-            cat /tmp/post-health.json
-            echo
-            return 0
-          }
+            exit 1
+          fi
+          node --input-type=module - <<'NODE'
+          import { verifyCandidate } from './scripts/verify-railway-preview.mjs';
+          const result = await verifyCandidate(process.env.PREVIEW_URL, {
+            expectedSha: process.env.EXPECTED_SHA,
+            expectedRef: process.env.EXPECTED_REF,
+            productionUrl: process.env.PRODUCTION_URL,
+            prNumber: process.env.PR_NUMBER,
+          });
+          console.log(`Post-request identity verified for ${result.version.branch}@${result.version.commitSha}`);
+          NODE
 
-          collect_candidates() {
-            : > "$metadata_file"
-            deployments="$(github_get "$api/deployments?sha=$EXPECTED_SHA&per_page=100")"
-            printf '%s\n' "$deployments" >> "$metadata_file"
-
-            mapfile -t deployment_ids < <(
-              jq -r --arg sha "$EXPECTED_SHA" --arg ref "$EXPECTED_REF" \
-                '.[]? | select(.sha == $sha or .ref == $ref) | .id' <<<"$deployments"
-            )
-
-            for deployment_id in "${deployment_ids[@]}"; do
-              github_get "$api/deployments/$deployment_id/statuses?per_page=100" >> "$metadata_file"
-              printf '\n' >> "$metadata_file"
-            done
-
-            github_get "$api/commits/$EXPECTED_SHA/status" >> "$metadata_file"
-            printf '\n' >> "$metadata_file"
-            github_get "$api/commits/$EXPECTED_SHA/check-runs?per_page=100" >> "$metadata_file"
-            printf '\n' >> "$metadata_file"
-            github_get "$api/issues/$PR_NUMBER/comments?per_page=100" >> "$metadata_file"
-            printf '\n' >> "$metadata_file"
-            github_get "$api/pulls/$PR_NUMBER/reviews?per_page=100" >> "$metadata_file"
-            printf '\n' >> "$metadata_file"
-            github_get "$api/pulls/$PR_NUMBER/comments?per_page=100" >> "$metadata_file"
-            printf '\n' >> "$metadata_file"
-
-            mapfile -t railway_pages < <(
-              grep -Eo 'https://railway\.com/[^"[:space:]<>]+' "$metadata_file" \
-                | sed -E 's/[),.;]+$//' \
-                | sort -u || true
-            )
-            for railway_page in "${railway_pages[@]}"; do
-              curl --location --silent --show-error --max-time 15 "$railway_page" >> "$metadata_file" || true
-              printf '\n' >> "$metadata_file"
-            done
-
-            grep -Eo 'https?://[A-Za-z0-9.-]+\.up\.railway\.app' "$metadata_file" \
-              | sort -u || true
-          }
-
-          for attempt in {1..30}; do
-            mapfile -t candidates < <(collect_candidates)
-
-            # Prefer the isolated PR domain. A shared staging URL is a fallback only.
-            for candidate in "${candidates[@]}"; do
-              if [ "${candidate%/}" = "${STAGING_URL%/}" ] || [ "${candidate%/}" = "${PRODUCTION_URL%/}" ]; then
-                continue
-              fi
-              if verify_candidate "$candidate"; then
-                exit 0
-              fi
-            done
-
-            if verify_candidate "$STAGING_URL"; then
-              exit 0
-            fi
-
-            echo "Preview verification attempt $attempt/30: no isolated environment serves $EXPECTED_REF@$EXPECTED_SHA"
-            sleep 20
-          done
-
-          echo "No isolated Railway environment is publicly serving the PR branch and commit."
-          echo "Enable Railway PR Environments or deploy the exact PR head to the configured staging service."
-          exit 1
+  browser-quality:
+    if: github.event_name == 'pull_request'
+    needs: railway-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Resolve exact Preview URL again by identity
+        id: preview
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+          EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
+        run: node scripts/verify-railway-preview.mjs
+      - name: Playwright responsive and accessibility gates
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.preview_url }}
+        run: npm run test:e2e
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-quality-${{ github.event.pull_request.head.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
