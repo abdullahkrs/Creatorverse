@@ -1,9 +1,9 @@
 import './styles.css';
 
 const themes = [
-  { id: 'cosmic', label: 'Cosmic', icon: '✦', description: 'Signals, portals, and luminous districts.' },
-  { id: 'wild', label: 'Wild', icon: '◇', description: 'Floating forests, ruins, and discovery routes.' },
-  { id: 'future', label: 'Future', icon: '⬡', description: 'Neon systems, labs, and creator-powered cities.' },
+  { id: 'cosmic', label: 'Signal', description: 'Clear routes and bright checkpoints.' },
+  { id: 'wild', label: 'Canopy', description: 'Branching paths and shared discoveries.' },
+  { id: 'future', label: 'Circuit', description: 'Structured systems and rapid upgrades.' },
 ];
 
 const realm = {
@@ -18,9 +18,9 @@ const realm = {
 };
 
 const roles = [
-  { id: 'builder', icon: '◆', title: 'Builder', description: 'Turn community activity into structures and upgrades.' },
-  { id: 'explorer', icon: '✦', title: 'Explorer', description: 'Discover new districts, routes, and seasonal rewards.' },
-  { id: 'guardian', icon: '◈', title: 'Guardian', description: 'Protect streaks and represent the realm in events.' },
+  { id: 'builder', title: 'Builder', description: 'Build upgrades.' },
+  { id: 'explorer', title: 'Explorer', description: 'Open routes.' },
+  { id: 'guardian', title: 'Guardian', description: 'Protect progress.' },
 ];
 
 let selectedRole = null;
@@ -42,45 +42,107 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function themeClass(themeId) {
-  return `theme-${themeId}`;
+function icon(name, className = '') {
+  const paths = {
+    brand: '<path d="M5 6h7v4H9v4h7v4H5V6Zm7 0h7v12h-7v-4h3v-4h-3V6Z"/>',
+    builder: '<path d="M5 18V9l7-4 7 4v9h-5v-5h-4v5H5Zm5-7h4V9h-4v2Z"/>',
+    explorer: '<path d="m12 4 7 4-3 9-4 3-4-3-3-9 7-4Zm0 4-3 2 2 5 1 1 1-1 2-5-3-2Z"/>',
+    guardian: '<path d="M12 3 19 6v5c0 4.5-2.8 8-7 10-4.2-2-7-5.5-7-10V6l7-3Zm0 5-3 1v2c0 2.4 1.1 4.3 3 5.6 1.9-1.3 3-3.2 3-5.6V9l-3-1Z"/>',
+    signal: '<path d="M5 17h3V7H5v10Zm5 0h4V4h-4v13Zm6 0h3V10h-3v7Z"/>',
+    canopy: '<path d="M12 3c3 0 5 2.1 5 4.8 2 .4 3 1.9 3 3.7 0 2.5-2 4.5-4.5 4.5H14v5h-4v-5H8.5A4.5 4.5 0 0 1 4 11.5c0-1.8 1-3.3 3-3.7C7 5.1 9 3 12 3Z"/>',
+    circuit: '<path d="M7 3h4v4H9v3h6V7h-2V3h4v4h-1v4h4v4h-4v-2H9v2H8v3h3v-1h4v4h-4v-1H6v-5H4v-4h3V7H7V3Z"/>',
+    close: '<path d="m7 7 10 10m0-10L7 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    import: '<path d="M12 3v10m0 0 4-4m-4 4L8 9M5 15v4h14v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    expand: '<path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  };
+  return `<svg class="cv-icon ${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[name] || paths.signal}</svg>`;
+}
+
+function themeIcon(themeId) {
+  const map = { cosmic: 'signal', wild: 'canopy', future: 'circuit' };
+  return icon(map[themeId] || 'signal');
+}
+
+function renderSignalMap(data, preview) {
+  const activeNodes = Math.max(1, Math.min(4, Math.ceil(data.energy / 25)));
+  return `
+    <svg class="signal-map" viewBox="0 0 320 118" role="img" aria-label="Signal Harbor district map">
+      <path class="signal-rail" d="M20 83H88L120 51H194L226 27H300"/>
+      <path class="signal-rail signal-rail-secondary" d="M20 101H112L144 69H214L246 45H300"/>
+      ${[0, 1, 2, 3].map((index) => {
+        const coordinates = [[88,83], [144,69], [214,69], [246,45]][index];
+        return `<circle class="signal-node ${index < activeNodes ? 'is-active' : ''}" cx="${coordinates[0]}" cy="${coordinates[1]}" r="7"/>`;
+      }).join('')}
+      <rect class="signal-gate ${preview ? 'is-preview' : ''}" x="278" y="16" width="22" height="22" rx="3"/>
+    </svg>
+  `;
 }
 
 function renderRealmCard({ preview = false } = {}) {
   const data = preview ? draftRealm : realm;
+  const progress = Math.max(0, Math.min(100, Math.round((data.energy / data.target) * 100)));
   return `
-    <article class="realm-card ${themeClass(data.theme)}">
-      <div class="realm-orbit"><span></span><span></span><span></span></div>
-      <div class="realm-heading">
+    <article class="realm-card theme-${escapeHtml(data.theme)}" aria-label="Current realm">
+      <header class="realm-heading">
         <div>
-          <p class="muted">${preview ? 'Live realm preview' : 'Featured creator realm'}</p>
+          <p class="section-kicker">${preview ? 'Live realm preview' : 'Current realm'}</p>
           <h2>${escapeHtml(data.name)}</h2>
-          <p>${escapeHtml(data.creator)}</p>
+          <p class="realm-creator"><bdi>${escapeHtml(data.creator)}</bdi></p>
         </div>
-        <div class="level">LVL 01</div>
-      </div>
+        <span class="level">LVL 01</span>
+      </header>
+      ${renderSignalMap(data, preview)}
       <p class="realm-tagline">${escapeHtml(data.tagline)}</p>
-      <div class="stats">
-        <div><strong>${data.members.toLocaleString()}</strong><span>members</span></div>
-        <div><strong>${preview ? '1' : '14'}</strong><span>districts</span></div>
-        <div><strong>${preview ? 'Ready' : '6 days'}</strong><span>${preview ? 'to launch' : 'streak'}</span></div>
+      <dl class="realm-stats">
+        <div><dt>members</dt><dd><bdi>${data.members.toLocaleString()}</bdi></dd></div>
+        <div><dt>districts</dt><dd><bdi>${preview ? '1' : '14'}</bdi></dd></div>
+      </dl>
+      <div class="progress-label"><span>Unlock ${escapeHtml(data.district)}</span><strong><bdi>${data.energy}/${data.target}</bdi></strong></div>
+      <div class="progress" role="progressbar" aria-label="Current realm energy" aria-valuemin="0" aria-valuemax="${data.target}" aria-valuenow="${data.energy}">
+        <span style="inline-size:${progress}%"></span>
       </div>
-      <div class="progress-label"><span>Unlock ${escapeHtml(data.district)}</span><strong>${data.energy}/${data.target}</strong></div>
-      <div class="progress"><span style="width:${data.energy}%"></span></div>
+    </article>
+  `;
+}
+
+function renderRoleButton(role) {
+  return `
+    <button class="role-card ${selectedRole === role.id ? 'selected' : ''}" data-role="${role.id}" aria-pressed="${selectedRole === role.id}">
+      ${icon(role.id)}
+      <span class="role-copy"><strong>${role.title}</strong><small>${role.description}</small></span>
+    </button>
+  `;
+}
+
+function renderMission() {
+  return `
+    <article class="mission ${selectedRole ? 'active' : ''}" aria-labelledby="mission-title">
+      <header class="mission-heading">
+        <div>
+          <p class="section-kicker">One mission · 35 seconds</p>
+          <h2 id="mission-title">Power Signal Harbor</h2>
+        </div>
+        <span class="mission-status">${missionCompleted ? 'Complete' : selectedRole ? 'Ready' : 'Choose a role'}</span>
+      </header>
+      <p class="mission-prompt">${selectedRole ? 'Choose one route for your role.' : 'Choose a role to unlock the routes.'}</p>
+      <div class="mission-actions" aria-label="Energy route">
+        <button class="route" ${!selectedRole || missionCompleted ? 'disabled' : ''} data-route="sky">Sky route</button>
+        <button class="route" ${!selectedRole || missionCompleted ? 'disabled' : ''} data-route="ocean">Ocean route</button>
+      </div>
+      <div class="mission-result" aria-live="polite">${missionCompleted ? '<strong>Mission complete.</strong> Your action added 3 realm energy.' : ''}</div>
     </article>
   `;
 }
 
 function renderCreatorOnboarding() {
   return `
-    <section class="creator-studio shell" id="creator-studio">
+    <section class="creator-studio shell" id="creator-studio" aria-labelledby="creator-studio-title">
       <header class="studio-heading">
         <div>
-          <p class="eyebrow">Creator setup · Step ${onboardingStep} of 3</p>
-          <h2>Create a realm your audience will recognize.</h2>
-          <p>Start with identity, visual direction, and one safe community promise. You can refine everything later.</p>
+          <p class="section-kicker">Creator setup · Step ${onboardingStep} of 3</p>
+          <h2 id="creator-studio-title">Create your realm.</h2>
         </div>
-        <button class="icon-button" data-action="close-creator" aria-label="Close creator setup">×</button>
+        <button class="icon-button" data-action="close-creator" aria-label="Close creator setup">${icon('close')}</button>
       </header>
 
       <div class="studio-layout">
@@ -97,7 +159,8 @@ function renderCreatorOnboarding() {
             <div class="theme-grid" role="radiogroup" aria-label="Realm visual theme">
               ${themes.map(theme => `
                 <button class="theme-option ${draftRealm.theme === theme.id ? 'selected' : ''}" data-theme="${theme.id}" role="radio" aria-checked="${draftRealm.theme === theme.id}">
-                  <span>${theme.icon}</span><strong>${theme.label}</strong><small>${theme.description}</small>
+                  ${themeIcon(theme.id)}
+                  <span><strong>${theme.label}</strong><small>${theme.description}</small></span>
                 </button>
               `).join('')}
             </div>
@@ -105,15 +168,10 @@ function renderCreatorOnboarding() {
 
           ${onboardingStep === 3 ? `
             <div class="launch-summary">
-              <p class="eyebrow">First seven-day goal</p>
+              <p class="section-kicker">First seven-day goal</p>
               <h3>Invite 30 members and unlock ${escapeHtml(draftRealm.district)}.</h3>
-              <ul>
-                <li>Members choose Builder, Explorer, or Guardian.</li>
-                <li>You launch one controlled mission template.</li>
-                <li>Every completed action visibly powers the realm.</li>
-                <li>No real-world politics or off-platform conflict.</li>
-              </ul>
-              <label class="check-row"><input type="checkbox" data-field="safety" checked> I understand that all competition must remain inside the fictional Creatorverse universe.</label>
+              <p>Members choose a role, complete one controlled mission, and add visible realm energy.</p>
+              <label class="check-row"><input type="checkbox" data-field="safety" checked> <span>I understand that all competition must remain inside the fictional Creatorverse universe.</span></label>
             </div>
           ` : ''}
 
@@ -132,18 +190,14 @@ function renderCreatorOnboarding() {
 function renderSocialImport() {
   const preview = socialPreview;
   return `
-    <section class="social-import shell" id="social-import">
-      <header class="section-heading social-heading">
+    <section class="social-import" id="social-import" aria-labelledby="social-import-title">
+      <header class="tool-heading">
         <div>
-          <p class="eyebrow">Creator content bridge</p>
-          <h2>Bring a public post into your realm.</h2>
-          <p>Paste a public YouTube, TikTok, or X link. Creatorverse fetches basic public metadata only—never passwords, private messages, or follower lists.</p>
+          <p class="section-kicker">Public post</p>
+          <h3 id="social-import-title">Import a public post.</h3>
         </div>
-        <div class="provider-pills" aria-label="Supported social platforms">
-          <span>YouTube</span><span>TikTok</span><span>X</span><span class="planned">Instagram · planned</span>
-        </div>
+        <p>Public links only. Nothing is saved.</p>
       </header>
-
       <div class="social-import-grid">
         <form class="social-import-form" data-form="social-import">
           <label for="social-url">Public post URL</label>
@@ -151,7 +205,6 @@ function renderSocialImport() {
             <input id="social-url" type="url" inputmode="url" autocomplete="url" maxlength="2048" value="${escapeHtml(socialUrl)}" placeholder="https://www.youtube.com/watch?v=..." required>
             <button class="primary" type="submit" ${socialStatus === 'loading' ? 'disabled' : ''}>${socialStatus === 'loading' ? 'Fetching…' : 'Fetch post'}</button>
           </div>
-          <p class="social-note">Only allowlisted HTTPS domains are requested by the server. Imported data is not saved in this prototype.</p>
           <p class="form-message social-message" aria-live="polite">${socialError ? escapeHtml(socialError) : ''}</p>
         </form>
 
@@ -159,19 +212,19 @@ function renderSocialImport() {
           ${preview ? `
             ${preview.thumbnailUrl ? `<img src="${escapeHtml(preview.thumbnailUrl)}" alt="Public post thumbnail from ${escapeHtml(preview.providerLabel)}" loading="lazy">` : '<div class="social-placeholder">No public thumbnail</div>'}
             <div class="social-preview-copy">
-              <p class="eyebrow">${escapeHtml(preview.providerLabel)} · ${escapeHtml(preview.type)}</p>
+              <p class="section-kicker">${escapeHtml(preview.providerLabel)} · ${escapeHtml(preview.type)}</p>
               <h3>${escapeHtml(preview.title)}</h3>
               <p>${preview.authorName ? `By ${escapeHtml(preview.authorName)}` : 'Public creator post'}</p>
               <div class="social-actions">
                 <a class="secondary link-button" href="${escapeHtml(preview.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open original</a>
-                <button class="primary" data-action="use-social-post">Use as mission seed</button>
+                <button class="primary" data-action="use-social-post">Use for mission</button>
               </div>
             </div>
           ` : `
             <div class="social-empty">
-              <span>↗</span>
-              <h3>Your imported post will appear here.</h3>
-              <p>Use it later as the source for a safe mission, event announcement, or creator result card.</p>
+              ${icon('import')}
+              <h3>No post imported.</h3>
+              <p>Paste a supported public link.</p>
             </div>
           `}
         </article>
@@ -183,53 +236,40 @@ function renderSocialImport() {
 function render() {
   document.querySelector('#app').innerHTML = `
     <main>
-      <nav class="nav shell">
-        <a class="brand" href="#" aria-label="Creatorverse home"><span class="brand-mark">C</span><span>Creatorverse</span></a>
-        <span class="season">Season 0 · Prototype</span>
+      <nav class="nav shell" aria-label="Primary navigation">
+        <a class="brand" href="#join" aria-label="Creatorverse home">${icon('brand', 'brand-icon')}<span>Creatorverse</span></a>
+        <div class="nav-actions">
+          <button class="secondary nav-create" data-action="creator">Create realm</button>
+        </div>
       </nav>
 
-      <section class="hero shell">
-        <div class="hero-copy">
-          <p class="eyebrow">A playable community for creators</p>
-          <h1>Turn your audience into a living digital world.</h1>
-          <p class="lead">Build a fictional realm with your followers, launch safe community missions, collaborate with other creators, and create moments worth sharing.</p>
-          <div class="hero-actions">
-            <button class="primary" data-action="join">Join this realm</button>
-            <button class="secondary" data-action="creator">Create a realm</button>
-          </div>
-          <p class="safety-note">Fictional universe only · No real-world politics · No off-platform conflict</p>
+      <section class="experience shell" id="join" aria-labelledby="experience-title">
+        <div class="experience-intro">
+          <p class="section-kicker">Season 0 · Prototype</p>
+          <h1 id="experience-title">Choose your role. Help the realm grow.</h1>
         </div>
-        ${renderRealmCard()}
+        <div class="experience-grid">
+          <div class="play-panel">
+            <div class="role-grid" aria-label="Choose your role">
+              ${roles.map(renderRoleButton).join('')}
+            </div>
+            ${renderMission()}
+          </div>
+          <div class="realm-panel">${renderRealmCard()}</div>
+        </div>
       </section>
 
       ${creatorMode ? renderCreatorOnboarding() : ''}
-      ${renderSocialImport()}
 
-      <section class="loop shell" id="join">
-        <header class="section-heading"><p class="eyebrow">The first playable loop</p><h2>Choose your role. Help the realm grow.</h2></header>
-        <div class="role-grid">
-          ${roles.map(role => `
-            <button class="role-card ${selectedRole === role.id ? 'selected' : ''}" data-role="${role.id}">
-              <span class="role-icon">${role.icon}</span><strong>${role.title}</strong><span>${role.description}</span>
-            </button>
-          `).join('')}
+      <details class="creator-tools shell">
+        <summary>
+          <span><strong>Creator tools</strong><small>Import public content</small></span>
+          <span class="summary-action">${icon('expand')}</span>
+        </summary>
+        <div class="creator-tools-content">
+          ${renderSocialImport()}
         </div>
-
-        <article class="mission ${selectedRole ? 'active' : ''}">
-          <div><p class="eyebrow">Creator mission · 35 seconds</p><h3>Power the Signal Harbor</h3><p>${selectedRole ? `As a ${roles.find(role => role.id === selectedRole).title}, choose the next energy route for the community.` : 'Select a role to unlock today’s mission.'}</p></div>
-          <div class="mission-actions">
-            <button class="route" ${!selectedRole || missionCompleted ? 'disabled' : ''} data-route="sky">Sky route</button>
-            <button class="route" ${!selectedRole || missionCompleted ? 'disabled' : ''} data-route="ocean">Ocean route</button>
-          </div>
-          <div class="mission-result" aria-live="polite">${missionCompleted ? '<strong>Mission complete.</strong> Your action added 3 realm energy and will appear in the creator’s share card.' : ''}</div>
-        </article>
-      </section>
-
-      <section class="principles shell">
-        <div><span>01</span><h3>Creator-led</h3><p>Every realm reflects the creator’s content, voice, and community rituals.</p></div>
-        <div><span>02</span><h3>Audience-powered</h3><p>Active participation matters more than the creator’s external follower count.</p></div>
-        <div><span>03</span><h3>Safe by design</h3><p>Competition remains inside a fictional world through controlled mission templates.</p></div>
-      </section>
+      </details>
     </main>
   `;
 
@@ -247,7 +287,7 @@ async function importSocialPost() {
   socialError = '';
   socialPreview = null;
   render();
-  document.querySelector('#social-import')?.scrollIntoView({ block: 'center' });
+  document.querySelector('.creator-tools')?.setAttribute('open', '');
 
   try {
     const response = await fetch('/api/social/preview', {
@@ -271,12 +311,11 @@ async function importSocialPost() {
   }
 
   render();
+  document.querySelector('.creator-tools')?.setAttribute('open', '');
   document.querySelector('#social-import')?.scrollIntoView({ block: 'center' });
 }
 
 function bindEvents() {
-  document.querySelector('[data-action="join"]')?.addEventListener('click', () => document.querySelector('#join')?.scrollIntoView({ behavior: 'smooth' }));
-
   document.querySelector('[data-action="creator"]')?.addEventListener('click', () => {
     creatorMode = true;
     onboardingStep = 1;
@@ -288,7 +327,7 @@ function bindEvents() {
   document.querySelector('[data-action="close-creator"]')?.addEventListener('click', () => { creatorMode = false; render(); });
   document.querySelector('[data-action="creator-back"]')?.addEventListener('click', () => { onboardingStep = Math.max(1, onboardingStep - 1); render(); document.querySelector('#creator-studio')?.scrollIntoView(); });
   document.querySelector('[data-action="creator-next"]')?.addEventListener('click', () => {
-    const message = document.querySelector('.form-message');
+    const message = document.querySelector('.creator-studio .form-message');
     if (onboardingStep === 1 && (!draftRealm.name.trim() || !draftRealm.creator.trim() || !draftRealm.tagline.trim())) {
       if (message) message.textContent = 'Complete all three fields to continue.';
       return;
@@ -333,7 +372,7 @@ function bindEvents() {
       selectedRole = button.dataset.role;
       missionCompleted = false;
       render();
-      document.querySelector('.mission')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.querySelector('.mission')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
   });
 
@@ -342,7 +381,7 @@ function bindEvents() {
       missionCompleted = true;
       realm.energy = Math.min(realm.target, realm.energy + 3);
       render();
-      document.querySelector('.mission')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.querySelector('.mission')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
   });
 }
