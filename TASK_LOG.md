@@ -2,6 +2,32 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-18 — CV-QUALITY-002 mobile text-zoom overflow repair
+
+**Outcome:** Preserve the mobile role-first hierarchy while allowing English and Arabic content to reflow without horizontal scrolling at 200% text zoom.
+
+### Completed
+
+- Traced the remaining 320×568 English overflow to fixed multi-column minimum-content pressure in the role grid, mission heading/actions, and realm statistics.
+- Replaced unconditional compact tracks with intrinsic `auto-fit` tracks that retain three role choices and two route/stat tracks when content fits, then reflow vertically when scaled text requires more inline space.
+- Kept role, route, status, and fact content shrinkable through logical sizing and natural wrapping without clipping, ellipsis, page-level overflow hiding, text reduction, transforms, or test-only CSS.
+- Preserved role order, selected indicators, original SVG icons, keyboard focus, 44×44 targets, Arabic RTL composition, result states, reduced motion, and the existing flat signal-route identity.
+- Extended Playwright evidence to capture role-ready and result-ready screenshots at 200% text zoom for English and Arabic at 320×568 and 390×844, in addition to the existing five-size bilingual evidence matrix.
+- Added no product-facing copy, dependency, persistence, integration, secret, schema, or production mutation.
+
+### Validation
+
+- CI run #126 reproduced the original English 320×568 failure with `scrollWidth - clientWidth = 38` while Arabic and standard-size paths remained green.
+- CI run #128 proved the first focused stacked-layout repair removed the overflow without weakening the existing browser gate.
+- The layout was refined to preserve the normal compact three-role composition and reflow only under content pressure, matching the CV-QUALITY-002 UX handoff.
+- CI run #131 on implementation head `ea6ee1cca0a8488618032075840f9246523e4945` passed locked `npm ci`, unit/localization/build gates, exact isolated Railway Preview `/health` and `/version`, malformed-path and post-request identity, all bilingual Playwright paths, 200% text zoom at 320×568 and 390×844, axe, and artifact upload.
+- Browser evidence artifact: `browser-quality-ea6ee1cca0a8488618032075840f9246523e4945`, retained for 14 days.
+- Rollback is limited to reverting the focused adaptive-layout commit `4c8c959ffe786dd33679b4d3c79d41c561e7a172` and evidence-test commit `ea6ee1cca0a8488618032075840f9246523e4945`; no data or dependency rollback is required.
+
+### Next best task
+
+Run exact-head CI after this factual log update, then let independent QA review and merge PR #10 without adding another feature.
+
 ## 2026-07-18 — CV-QUALITY-001 repository quality pipeline
 
 **Outcome:** Make pull requests reproducibly installable and independently verifiable through real browser, accessibility, localization, and exact isolated Railway Preview gates.
@@ -19,18 +45,16 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - Reused the same verifier after the malformed-path probe so post-request `/health` and `/version` cannot pass with missing commit metadata or a switched candidate.
 - Documented permanent Production, Staging, and PR Environment roles and clarified non-overlapping workflow ownership.
 - Corrected `ROADMAP.md` and `BACKLOG.md` to record the completed share-result prototype and prepared usability protocol without claiming the five sessions were conducted.
-- Added a phone text-zoom repair that stacks role choices, mission routes, mission headings, realm headings, and realm statistics when narrow content pressure requires it; long labels wrap without clipping.
 
 ### Validation
 
 - GitHub CI runs #120, #123, #125, and #126 passed locked installation, unit/localization/build gates, and exact isolated Railway Preview identity, `/health`, `/version`, malformed-path, and post-request checks.
-- Run #126 generated the required bilingual evidence and passed all standard-size interaction, state, and axe paths, but failed the English 320×568 200% text-zoom gate with 38 px horizontal overflow.
-- Element-level trace analysis isolated the remaining overflow to the phone role grid, mission heading/actions, and realm statistics retaining multi-column minimum-content pressure.
-- Run #128 on repair commit `655592a750b026dc2b7b8fa2cb1f98e42800626e` passed locked installation, unit/localization/build gates, exact isolated Railway Preview checks, all bilingual Playwright paths, the unchanged 200% text-zoom gate, axe, and artifact upload.
+- Run #125 generated all 20 required role-ready/result-ready screenshots and passed the bilingual result, state-preservation, focus, target-size, controlled action, and axe paths except the English 200% text-zoom overflow gate.
+- Run #126 preserved the passing pipeline work but left the isolated mobile text-zoom defect for focused cycle CV-QUALITY-002.
 
 ### Next best task
 
-Run exact-head CI after this factual log update, then hand the unchanged slice to independent QA; do not weaken the zoom gate or add another feature.
+Use CV-QUALITY-002 evidence for release review; do not repeat or broaden the completed pipeline work.
 
 ## 2026-07-18 — CV-MVP-003 share-ready mission result
 
