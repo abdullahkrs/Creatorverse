@@ -1,5 +1,29 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Autonomous delivery protocol applied
+
+**Outcome:** Make the five scheduled agents operate through one recoverable GitHub workflow without approval waits, duplicate cycles, hidden CI failures, or unverified production releases.
+
+### Completed
+
+- Replaced `AGENT.md` with the authoritative autonomous contract.
+- Established GitHub Issues and labels as the only workflow state.
+- Enforced one `auto:active` issue and the `stage:ux → stage:safety → stage:build → stage:release` pipeline.
+- Defined role ownership, task-size limits, CI classification, three-attempt repair limit, three-hour recovery, six-hour cycle escape, and external-blocker fallbacks.
+- Added `AUTONOMOUS_DELIVERY.md` with the label catalog, issue contract, CI decision tree, release evidence, production incident handling, and recovery timers.
+- Strengthened the Pull Request template with task keys, changed-file reasons, multilingual and safety gates, Preview evidence, rollback, and post-merge completion checks.
+- Added `.github/workflows/production-smoke.yml` to verify Railway production `/health` and ensure `/version` matches each commit pushed to `main`.
+
+### Remaining repository settings
+
+- Create the documented workflow labels in GitHub if they do not already exist.
+- Protect `main` and require CI plus Production Smoke where repository settings allow it.
+- Keep the Railway production service linked to `main` after the foundation Pull Request is merged.
+
+### Next best task
+
+Resolve and merge the current foundation Pull Request, verify Railway deploys the merged `main` commit, then let Product Lead create the first labeled autonomous cycle.
+
 ## 2026-07-18 — Repository prepared for focused agents
 
 **Outcome:** Make the repository directly usable by a small five-agent team with one-task cycles, Railway Preview review, and no conflicting implementations.
