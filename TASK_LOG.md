@@ -4,31 +4,29 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 ## 2026-07-18 — CV-QUALITY-002 mobile text-zoom overflow repair
 
-**Outcome:** Preserve the mobile role-first hierarchy while allowing English and Arabic content to reflow without horizontal scrolling at 200% text zoom.
+**Outcome:** Preserve the mobile role-first hierarchy while allowing English and Arabic content to reflow without horizontal scrolling or broken words at 200% text zoom.
 
-### Completed
+### Work completed
 
-- Traced the remaining 320×568 English overflow to fixed multi-column minimum-content pressure in the role grid, mission heading/actions, and realm statistics.
-- Replaced unconditional compact tracks with intrinsic `auto-fit` tracks that retain three role choices and two route/stat tracks when content fits, then reflow vertically when scaled text requires more inline space.
-- Kept role, route, status, and fact content shrinkable through logical sizing and natural wrapping without clipping, ellipsis, page-level overflow hiding, text reduction, transforms, or test-only CSS.
-- Preserved role order, selected indicators, original SVG icons, keyboard focus, 44×44 targets, Arabic RTL composition, result states, reduced motion, and the existing flat signal-route identity.
-- Extended Playwright evidence to capture role-ready and result-ready screenshots at 200% text zoom for English and Arabic at 320×568 and 390×844, in addition to the existing five-size bilingual evidence matrix.
-- Added no product-facing copy, dependency, persistence, integration, secret, schema, or production mutation.
+- Expanded Playwright coverage from viewport-only zoom captures to full-page role-ready and result-ready screenshots for English and Arabic at 320×568 and 390×844.
+- Added explicit checks for all three role choices, keyboard focus visibility, 44×44 touch targets, result facts, the result action, natural word boundaries, and element-level inline overflow at 200% text zoom.
+- Added adaptive wrapping for role choices, mission routes, realm statistics, and result facts without clipping, page-level overflow hiding, transforms, font reduction, or new product copy.
+- Preserved role order, original SVG icons, selected states, Arabic RTL composition, English LTR composition, reduced motion, safety behavior, and the existing isolated Railway Preview verifier.
+- Added no dependency, persistence, integration, secret, schema, production mutation, or product-scope expansion.
 
 ### Validation
 
-- CI run #126 reproduced the original English 320×568 failure with `scrollWidth - clientWidth = 38` while Arabic and standard-size paths remained green.
-- CI run #128 proved the first focused stacked-layout repair removed the overflow without weakening the existing browser gate.
-- The layout was refined to preserve the normal compact three-role composition and reflow only under content pressure, matching the CV-QUALITY-002 UX handoff.
-- CI run #131 on implementation head `ea6ee1cca0a8488618032075840f9246523e4945` passed locked `npm ci`, unit/localization/build gates, exact isolated Railway Preview `/health` and `/version`, malformed-path and post-request identity, all bilingual Playwright paths, 200% text zoom at 320×568 and 390×844, axe, and artifact upload.
-- CI runs #132, #133, #134, and #135 repeated the same gates after factual task-log updates.
-- Final release head `f5b77655316a619d991e01b600a97bdaf352096e` passed exact-head CI run #136 with locked build, exact Preview identity, bilingual browser, text-zoom, accessibility, and artifact gates.
-- Final browser evidence artifact: `browser-quality-f5b77655316a619d991e01b600a97bdaf352096e`, retained for 14 days.
-- Rollback is limited to reverting the focused adaptive-layout commit `4c8c959ffe786dd33679b4d3c79d41c561e7a172` and evidence-test commit `ea6ee1cca0a8488618032075840f9246523e4945`; no data or dependency rollback is required.
+- CI run #137 passed the previous gate, but artifact inspection showed that its viewport-only 200% screenshots did not prove the role choices and rendered result facts with character-level wrapping.
+- CI run #139 on head `82e6ce2472de5cac15173cef712f772c7c6583fa` passed locked build and exact isolated Railway Preview checks; browser quality failed because the first natural-wrapping assertion was too brittle and the evidence still showed narrow split role labels.
+- CI run #141 on head `041124122778ae9ea7eda44c50895f12b35338d6` passed locked build and exact isolated Railway Preview checks; browser quality reproduced page overflow of 62 px and 39 px in English, 10 px in Arabic at 320×568, and Arabic role-label inline overflow at 390×844.
+- CI run #142 on head `a84a133c542b1456c21ca37d29d8d1009374d0ac` again passed locked build, `/health`, `/version`, malformed-path safety, and post-request identity on the exact PR environment, but browser quality reproduced the same zoom failures.
+- Source-order review established that `src/quality-responsive.css` is linked before `src/main.js` imports `src/styles.css`; equal-specificity mobile declarations such as `.role-grid` therefore lose to the later base rules. The remaining fix is a narrow cascade-order or selector-specificity repair, not a reason to weaken the browser gate.
+- Three focused repair attempts were exhausted. The branch remains preserved, the issue remains `stage:build`, and the cycle is marked `ci:blocked` with artifact `browser-quality-a84a133c542b1456c21ca37d29d8d1009374d0ac` retained for 14 days.
+- Rollback is limited to reverting commits `e7a236fd2f10e3c058b2877ae9f44af200e5c082`, `82e6ce2472de5cac15173cef712f772c7c6583fa`, `787d53052e6bf5ea6ced98a38ecb7f0bb955bd95`, `041124122778ae9ea7eda44c50895f12b35338d6`, and `a84a133c542b1456c21ca37d29d8d1009374d0ac`; no data or dependency rollback is required.
 
 ### Next best task
 
-Let independent QA review and merge PR #10 without adding another feature.
+Preserve PR #10 and split or explicitly authorize one narrow cascade-order repair; do not add a feature or move the issue to release until the exact-head browser gate passes.
 
 ## 2026-07-18 — CV-QUALITY-001 repository quality pipeline
 
