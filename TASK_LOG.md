@@ -1,5 +1,27 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Release safety acknowledgement enforced
+
+**Outcome:** Prevent creator onboarding from launching when the required fictional-world safety acknowledgement is unchecked.
+
+### Completed
+
+- Added a capture-phase onboarding safety gate that blocks the launch action when the acknowledgement is not selected.
+- Added synchronized English and Arabic validation messages.
+- Added keyboard focus recovery plus `aria-invalid`, `aria-describedby`, and assertive live feedback for the blocked state.
+- Added dependency-free Node tests for acknowledgement validation and localized error selection.
+- Updated `npm run check` to execute the test suite before the production build.
+
+### Validation
+
+- `node --test`: 2 tests passed.
+- `node --check src/safety-gate.js`: passed.
+- Railway Preview URL, `/health`, `/version`, mobile, keyboard, RTL/LTR, and integration-state evidence remain release-review gates for the final PR head.
+
+### Next best task
+
+Complete QA release verification for Pull Request #1 without expanding the current scope.
+
 ## 2026-07-18 — Autonomous delivery protocol applied
 
 **Outcome:** Make the five scheduled agents operate through one recoverable GitHub workflow without approval waits, duplicate cycles, hidden CI failures, or unverified production releases.
