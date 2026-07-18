@@ -63,6 +63,30 @@ async function expectVisibleFocus(page, locator) {
   expect(focus.width).toBeGreaterThan(0);
 }
 
+async function expectNaturalWrapping(locator, label) {
+  const metrics = await locator.evaluate(node => {
+    const text = node.textContent?.trim().replace(/\s+/gu, ' ') || '';
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const lineTops = new Set(
+      [...range.getClientRects()]
+        .filter(rect => rect.width > 0 && rect.height > 0)
+        .map(rect => Math.round(rect.top)),
+    );
+    const style = getComputedStyle(node);
+    return {
+      text,
+      lineCount: lineTops.size,
+      wordCount: text.split(/\s+/u).filter(Boolean).length,
+      wordBreak: style.wordBreak,
+    };
+  });
+
+  expect(metrics.text, `${label} text`).not.toBe('');
+  expect(metrics.wordBreak, `${label} word-break`).not.toBe('break-all');
+  expect(metrics.lineCount, `${label} natural line count`).toBeLessThanOrEqual(Math.max(1, metrics.wordCount));
+}
+
 for (const locale of ['en', 'ar']) {
   for (const viewport of viewports) {
     test(`${locale} ${viewport.name} captures role-ready and result-ready evidence`, async ({ page }) => {
@@ -111,16 +135,42 @@ for (const locale of ['en', 'ar']) {
       await page.goto('/');
       await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
 
+      const roles = page.locator('.experience [data-role]');
+      await expect(roles).toHaveCount(3);
       await expectNoHorizontalOverflow(page);
-      await expect(page.locator('[data-role]').first()).toBeVisible();
-      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-200pct-role-ready.png` });
+      for (let index = 0; index < await roles.count(); index += 1) {
+        const role = roles.nth(index);
+        await role.scrollIntoViewIfNeeded();
+        await expect(role).toBeVisible();
+        await expectNaturalWrapping(role.locator('.role-copy strong'), `${locale} role ${index + 1}`);
+        await expectVisibleFocus(page, role);
+      }
+      await expectTouchTargets(page);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: `test-results/screenshots/${locale}-${viewport.name}-200pct-role-ready.png`,
+        fullPage: true,
+      });
 
       await completeMission(page);
-      const action = page.locator('[data-action="mission-result-action"]');
+      const result = page.locator('[data-mission-result]');
+      const facts = result.locator('.signal-result-facts dd');
+      await expect(facts).toHaveCount(4);
+      for (let index = 0; index < await facts.count(); index += 1) {
+        await expectNaturalWrapping(facts.nth(index), `${locale} result fact ${index + 1}`);
+      }
+
+      const action = result.locator('[data-action="mission-result-action"]');
       await action.scrollIntoViewIfNeeded();
       await expect(action).toBeVisible();
+      await expectVisibleFocus(page, action);
       await expectNoHorizontalOverflow(page);
-      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-200pct-result-ready.png` });
+      await expectTouchTargets(page);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: `test-results/screenshots/${locale}-${viewport.name}-200pct-result-ready.png`,
+        fullPage: true,
+      });
     });
   }
 }
