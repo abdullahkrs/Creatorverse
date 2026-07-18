@@ -15,7 +15,9 @@ const viewports = [
 const localeDirection = { en: 'ltr', ar: 'rtl' };
 
 async function setInitialLocale(page, locale) {
-  await page.addInitScript(value => localStorage.setItem('creatorverse-locale', value), locale);
+  await page.addInitScript(value => {
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', value);
+  }, locale);
 }
 
 async function completeMission(page, { role = 'builder', route = 'sky' } = {}) {
@@ -66,7 +68,7 @@ for (const locale of ['en', 'ar']) {
 
       const roles = page.locator('.experience [data-role]');
       await expect(roles).toHaveCount(3);
-      expect(await roles.locator(':enabled').count()).toBe(3);
+      expect(await page.locator('.experience [data-role]:enabled').count()).toBe(3);
       expect(await page.locator('.experience [data-route]:enabled').count()).toBe(0);
       await expect(roles.first()).toBeVisible();
       await expectVisibleFocus(roles.first());
@@ -103,7 +105,9 @@ for (const locale of ['en', 'ar']) {
     await expectNoHorizontalOverflow(page);
     await expect(page.locator('[data-role]').first()).toBeVisible();
     await completeMission(page);
-    await expect(page.locator('[data-action="mission-result-action"]')).toBeVisible();
+    const action = page.locator('[data-action="mission-result-action"]');
+    await action.scrollIntoViewIfNeeded();
+    await expect(action).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
 }
