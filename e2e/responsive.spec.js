@@ -1,4 +1,7 @@
+import { mkdirSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+
+mkdirSync('test-results/screenshots', { recursive: true });
 
 const viewports = [
   { name: '320x568', width: 320, height: 568 },
