@@ -42,7 +42,7 @@ export function createMissionResult({
   return Object.freeze({
     roleId,
     routeId,
-    energyAdded: after - before,
+    energyAdded: requestedGain,
     energyBefore: before,
     energyAfter: after,
     target: safeTarget,
