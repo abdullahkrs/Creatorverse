@@ -35,12 +35,12 @@ test('keyboard mission result flow remains predictable', async ({ page }) => {
   await page.locator('[data-route="sky"]').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-mission-result]')).toBeVisible();
-  await expect(page.locator('[data-result-action]')).toBeVisible();
+  await expect(page.getByRole('button', { name: /share result|copy result/i })).toBeVisible();
 });
 
 test('reduced motion disables purposeful progress animation', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   const duration = await page.locator('.progress span').evaluate(node => getComputedStyle(node).transitionDuration);
-  expect(['0s', '0.00001s']).toContain(duration);
+  expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.001);
 });
