@@ -26,5 +26,56 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
+      - name: Test and build
         run: npm run check
+
+  railway-preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PREVIEW_URL: https://creatorverse-app-production.up.railway.app
+      EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+
+    steps:
+      - name: Verify Railway Preview health and version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for attempt in {1..30}; do
+            health_code="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/health" || true)"
+            version_code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/version" || true)"
+
+            if [ "$health_code" = "200" ] && [ "$version_code" = "200" ] && grep -q '"status":"ok"' /tmp/health.json; then
+              if node - <<'NODE'
+          const fs = require('fs');
+          const version = JSON.parse(fs.readFileSync('/tmp/version.json', 'utf8'));
+          const expected = process.env.EXPECTED_SHA;
+          const actual = version.commitSha || '';
+          process.exit(actual === expected || actual.startsWith(expected) || expected.startsWith(actual) ? 0 : 1);
+          NODE
+              then
+                echo "Railway Preview: $PREVIEW_URL"
+                echo "Health response:"
+                cat /tmp/health.json
+                echo
+                echo "Version response:"
+                cat /tmp/version.json
+                echo
+                exit 0
+              fi
+            fi
+
+            echo "Preview attempt $attempt/30: health=$health_code version=$version_code; waiting for $EXPECTED_SHA"
+            sleep 20
+          done
+
+          echo "Railway Preview did not deploy the reviewed commit"
+          echo "Last health response:"
+          cat /tmp/health.json 2>/dev/null || true
+          echo
+          echo "Last version response:"
+          cat /tmp/version.json 2>/dev/null || true
+          exit 1
