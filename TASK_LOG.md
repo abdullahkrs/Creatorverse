@@ -2,6 +2,33 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-18 — Professional visual release repair
+
+**Outcome:** Put the playable role-and-route loop first and replace the rejected generic landing-page presentation without changing the selected MVP behavior or safety model.
+
+### Completed
+
+- Removed the tall marketing hero, repeated principles section, generic orbit decoration, gradients, glows, pill controls, Unicode placeholder symbols, and repeated explanatory copy.
+- Made role selection and the 35-second mission the first product content after navigation at phone widths.
+- Added a product-specific signal-route map and custom inline SVG symbols for the brand, roles, themes, imports, and disclosure control.
+- Moved YouTube profile and public-post imports behind one optional Creator tools disclosure while preserving loading, empty, error, success, and disabled states.
+- Integrated the language control into navigation and raised language and primary interaction targets to the 44 px token.
+- Added explicit Arabic RTL desktop grid composition, RTL action order, logical properties, and isolated LTR URLs and numbers.
+- Preserved the required fictional-world acknowledgement and its keyboard focus, localized error, `aria-invalid`, and launch-blocking behavior.
+- Added `test/design-gate.test.js` and `docs/visual-evidence.md` with bilingual mobile visual evidence.
+
+### Validation
+
+- `node --check` passed for `src/main.js`, `src/profile-import.js`, `src/localize.js`, and `src/i18n.js`.
+- Focused `node --test test/design-gate.test.js`: 3 tests passed.
+- Headless Chromium passed English LTR and Arabic RTL at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 with no horizontal overflow.
+- The same browser run verified visible creator access, 44 px language targets, role-to-route interaction, mission success, localized safety blocking, focus recovery, and successful launch after acknowledgement.
+- Full `npm run check`, GitHub CI, and the exact-head Railway Preview `/health` and `/version` checks remain required before release review.
+
+### Next best task
+
+Run QA against the final PR head after CI and Railway Preview complete; do not expand the current slice.
+
 ## 2026-07-18 — CV-MVP-002
 
 - Added `docs/usability-test-plan.md`, a synchronized English/Arabic 10–15 minute five-user protocol and scorecard.
