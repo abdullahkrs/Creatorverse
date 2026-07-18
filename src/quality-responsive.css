@@ -32,7 +32,8 @@ html body {
   }
 
   .mission-actions,
-  .realm-stats {
+  .realm-stats,
+  .signal-result-facts {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
   }
 
@@ -59,8 +60,12 @@ html body {
   .route,
   .realm-stats div,
   .realm-stats dt,
-  .realm-stats dd {
+  .realm-stats dd,
+  .signal-result-facts div,
+  .signal-result-facts dt,
+  .signal-result-facts dd {
     min-inline-size: 0;
     overflow-wrap: break-word;
+    word-break: normal;
   }
 }
