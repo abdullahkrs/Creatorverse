@@ -5,7 +5,9 @@ import { getMissionResultCopy } from '../src/mission-result-i18n.js';
 const localeDirection = { en: 'ltr', ar: 'rtl' };
 
 async function setInitialLocale(page, locale) {
-  await page.addInitScript(value => localStorage.setItem('creatorverse-locale', value), locale);
+  await page.addInitScript(value => {
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', value);
+  }, locale);
 }
 
 async function completeMission(page, { role = 'builder', route = 'sky' } = {}) {
