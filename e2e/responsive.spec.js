@@ -12,6 +12,7 @@ const viewports = [
   { name: '1440x900', width: 1440, height: 900 },
 ];
 
+const textZoomViewports = viewports.slice(0, 2);
 const localeDirection = { en: 'ltr', ar: 'rtl' };
 
 async function setInitialLocale(page, locale) {
@@ -103,20 +104,25 @@ for (const locale of ['en', 'ar']) {
 }
 
 for (const locale of ['en', 'ar']) {
-  test(`${locale} remains usable at 200 percent text zoom`, async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 568 });
-    await setInitialLocale(page, locale);
-    await page.goto('/');
-    await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
+  for (const viewport of textZoomViewports) {
+    test(`${locale} ${viewport.name} remains usable at 200 percent text zoom`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await setInitialLocale(page, locale);
+      await page.goto('/');
+      await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
 
-    await expectNoHorizontalOverflow(page);
-    await expect(page.locator('[data-role]').first()).toBeVisible();
-    await completeMission(page);
-    const action = page.locator('[data-action="mission-result-action"]');
-    await action.scrollIntoViewIfNeeded();
-    await expect(action).toBeVisible();
-    await expectNoHorizontalOverflow(page);
-  });
+      await expectNoHorizontalOverflow(page);
+      await expect(page.locator('[data-role]').first()).toBeVisible();
+      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-200pct-role-ready.png` });
+
+      await completeMission(page);
+      const action = page.locator('[data-action="mission-result-action"]');
+      await action.scrollIntoViewIfNeeded();
+      await expect(action).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-200pct-result-ready.png` });
+    });
+  }
 }
 
 for (const locale of ['en', 'ar']) {
