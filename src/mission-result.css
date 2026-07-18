@@ -1,0 +1,271 @@
+.cv-visually-hidden {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.mission.is-complete {
+  border-color: var(--cv-color-success);
+}
+
+.signal-result,
+.signal-result-main,
+.signal-result-side {
+  min-inline-size: 0;
+}
+
+.signal-result-layout {
+  display: grid;
+  gap: var(--cv-space-5);
+}
+
+.signal-result-heading {
+  display: grid;
+  gap: var(--cv-space-4);
+}
+
+.signal-result-heading h2 {
+  margin: 0;
+  max-inline-size: 18ch;
+  font-size: var(--cv-text-2xl);
+  line-height: var(--cv-leading-tight);
+  letter-spacing: -0.03em;
+}
+
+.signal-contribution {
+  inline-size: fit-content;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0 var(--cv-space-2);
+  padding-block: var(--cv-space-2);
+  padding-inline: var(--cv-space-3);
+  border-block: 1px solid var(--cv-color-border);
+  border-inline-start: var(--cv-space-1) solid var(--cv-color-success);
+  color: var(--cv-color-text);
+}
+
+.signal-contribution .signal-role-icon {
+  grid-row: 1 / span 2;
+  inline-size: var(--cv-space-8);
+  block-size: var(--cv-space-8);
+  color: var(--cv-color-action);
+}
+
+.signal-contribution strong {
+  font-size: clamp(2rem, 1.7rem + 1.2vw, 2.5rem);
+  line-height: 1;
+}
+
+.signal-contribution span {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.signal-progress {
+  margin-block-start: var(--cv-space-5);
+}
+
+.signal-progress-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cv-space-3);
+  margin-block-end: var(--cv-space-2);
+  font-size: var(--cv-text-sm);
+}
+
+.signal-progress-label strong {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.signal-progress-label bdi {
+  flex: 0 0 auto;
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+  color: var(--cv-color-success);
+  font-weight: 800;
+}
+
+.signal-energy-track {
+  --signal-before: 0%;
+  --signal-gain: 0%;
+  --signal-after: 0%;
+  position: relative;
+  direction: ltr;
+  block-size: var(--cv-space-3);
+  overflow: hidden;
+  background: var(--cv-color-surface-raised);
+  border: 1px solid var(--cv-color-border);
+  clip-path: polygon(0 0, calc(100% - var(--cv-space-2)) 0, 100% 50%, calc(100% - var(--cv-space-2)) 100%, 0 100%);
+}
+
+.signal-energy-track::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--cv-space-2);
+  inline-size: 1px;
+  background: var(--cv-color-text-muted);
+}
+
+.signal-energy-before,
+.signal-energy-gain {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  display: block;
+}
+
+.signal-energy-before {
+  inline-size: var(--signal-before);
+  background: var(--cv-color-border);
+}
+
+.signal-energy-gain {
+  inset-inline-start: var(--signal-before);
+  inline-size: var(--signal-gain);
+  background: var(--cv-color-success);
+  transform-origin: 0% 50%;
+  animation: signal-energy-gain var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.signal-energy-node {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: var(--signal-after);
+  inline-size: var(--cv-space-3);
+  block-size: var(--cv-space-3);
+  border: var(--cv-space-1) solid var(--cv-color-canvas);
+  background: var(--cv-color-action);
+  transform: translate(-50%, -50%);
+  animation: signal-node-arrival var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.signal-result-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cv-space-2);
+  margin: 0;
+}
+
+.signal-result-facts div {
+  min-inline-size: 0;
+  padding-block: var(--cv-space-2);
+  padding-inline: var(--cv-space-3);
+  border-block-start: 1px solid var(--cv-color-border);
+}
+
+.signal-result-facts dt {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-xs);
+}
+
+.signal-result-facts dd {
+  margin: var(--cv-space-1) 0 0;
+  overflow-wrap: anywhere;
+  font-size: var(--cv-text-sm);
+  font-weight: 800;
+}
+
+.signal-result-facts bdi {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.signal-result-action-area {
+  margin-block-start: var(--cv-space-4);
+}
+
+.signal-result-action {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cv-space-2);
+}
+
+.signal-action-progress {
+  inline-size: var(--cv-space-4);
+  block-size: var(--cv-space-4);
+  border: 2px solid currentColor;
+  border-inline-start-color: transparent;
+  border-radius: var(--cv-radius-round);
+  animation: signal-action-spin var(--cv-duration-progress) linear infinite;
+}
+
+.signal-action-status {
+  min-block-size: 1.4rem;
+  margin: var(--cv-space-2) 0 0;
+  color: var(--cv-color-warning);
+  font-size: var(--cv-text-sm);
+}
+
+html[dir='rtl'] .signal-result,
+html[dir='rtl'] .signal-result-facts,
+html[dir='rtl'] .signal-result-action-area {
+  text-align: start;
+}
+
+html[dir='rtl'] .signal-contribution {
+  justify-self: start;
+}
+
+@keyframes signal-energy-gain {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes signal-node-arrival {
+  from { opacity: 0; transform: translate(-100%, -50%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes signal-action-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 40rem) {
+  .signal-result-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .signal-result-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
+    align-items: end;
+    gap: var(--cv-space-6);
+  }
+
+  .signal-result-action-area {
+    margin-block-start: var(--cv-space-3);
+  }
+}
+
+@media (max-width: 22rem) {
+  .signal-progress-label {
+    align-items: start;
+    flex-direction: column;
+    gap: var(--cv-space-1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-energy-gain,
+  .signal-energy-node,
+  .signal-action-progress {
+    animation: none;
+  }
+}

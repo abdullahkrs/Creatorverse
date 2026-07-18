@@ -1,0 +1,66 @@
+const COPY = Object.freeze({
+  en: Object.freeze({
+    title: 'Signal strengthened',
+    kicker: '35-second mission',
+    ready: 'Mission result ready.',
+    role: 'Role',
+    route: 'Route',
+    energy: 'Energy',
+    district: 'District',
+    realmChange: 'Realm energy change',
+    share: 'Share result',
+    copy: 'Copy result',
+    sharing: 'Sharing…',
+    copying: 'Copying…',
+    shared: 'Shared',
+    copied: 'Copied',
+    shareSuccess: 'Result shared.',
+    copySuccess: 'Result copied.',
+    cancelled: 'Sharing cancelled.',
+    denied: 'Sharing was not allowed. Try again.',
+    shareFailed: 'Sharing failed. Try again.',
+    copyFailed: 'Copy failed. Try again.',
+    unsupported: 'Copy is unavailable in this browser.',
+    invalidUrl: 'Result link is unavailable.',
+    shareTitle: 'Creatorverse signal result',
+    roles: Object.freeze({ builder: 'Builder', explorer: 'Explorer', guardian: 'Guardian' }),
+    routes: Object.freeze({ sky: 'Sky route', ocean: 'Ocean route' }),
+    districts: Object.freeze({ 'Signal Harbor': 'Signal Harbor' }),
+  }),
+  ar: Object.freeze({
+    title: 'تم تعزيز الإشارة',
+    kicker: 'مهمة من 35 ثانية',
+    ready: 'نتيجة المهمة جاهزة.',
+    role: 'الدور',
+    route: 'المسار',
+    energy: 'الطاقة',
+    district: 'المنطقة',
+    realmChange: 'تغير طاقة العالم',
+    share: 'شارك النتيجة',
+    copy: 'انسخ النتيجة',
+    sharing: 'جارٍ المشاركة…',
+    copying: 'جارٍ النسخ…',
+    shared: 'تمت المشاركة',
+    copied: 'تم النسخ',
+    shareSuccess: 'تمت مشاركة النتيجة.',
+    copySuccess: 'تم نسخ النتيجة.',
+    cancelled: 'تم إلغاء المشاركة.',
+    denied: 'لم يُسمح بالمشاركة. حاول مجددًا.',
+    shareFailed: 'تعذرت المشاركة. حاول مجددًا.',
+    copyFailed: 'تعذر النسخ. حاول مجددًا.',
+    unsupported: 'النسخ غير متاح في هذا المتصفح.',
+    invalidUrl: 'رابط النتيجة غير متاح.',
+    shareTitle: 'نتيجة إشارة Creatorverse',
+    roles: Object.freeze({ builder: 'البنّاء', explorer: 'المستكشف', guardian: 'الحارس' }),
+    routes: Object.freeze({ sky: 'المسار السماوي', ocean: 'المسار البحري' }),
+    districts: Object.freeze({ 'Signal Harbor': 'ميناء الإشارة' }),
+  }),
+});
+
+export function normalizeMissionLocale(locale) {
+  return String(locale || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
+}
+
+export function getMissionResultCopy(locale = 'en') {
+  return COPY[normalizeMissionLocale(locale)];
+}
