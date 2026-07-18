@@ -191,7 +191,7 @@ jobs:
             version_code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/version" || true)"
 
             if [ "$health_code" = "200" ] && [ "$version_code" = "200" ] && grep -q '"status":"ok"' /tmp/health.json && verify_version_identity /tmp/version.json; then
-              malformed_code="$(curl --path-as-is --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL/%" || true)"
+              malformed_code="$(curl --request-target '/%' --silent --show-error --output /tmp/malformed.json --write-out '%{http_code}' --max-time 15 "$PREVIEW_URL" || true)"
               if [ "$malformed_code" != "400" ]; then
                 echo "Malformed-path request was not rejected with HTTP 400; received $malformed_code"
                 cat /tmp/malformed.json 2>/dev/null || true
