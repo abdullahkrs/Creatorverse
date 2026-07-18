@@ -2,6 +2,31 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-18 — CV-MVP-003 share-ready mission result
+
+**Outcome:** Replace the plain mission-complete sentence with one compact, bilingual result receipt that explains the follower's contribution and exposes one safe share-or-copy action.
+
+### Completed
+
+- Added a semantic mission-result field receipt inside the existing playable area with selected role, selected route, `+3` energy, realm energy before/after, and the affected district.
+- Added exactly one dominant action: native Web Share when available, otherwise a localized copy fallback.
+- Built the share payload from bounded allowlisted result fields and a validated HTTP(S) public URL with query and fragment data removed.
+- Added controlled pending, success, cancel, denial, clipboard failure, unsupported, invalid-URL, retry, and repeated-activation states.
+- Added predictable focus on the result heading, separate one-time completion and action-status live regions, a 44 px minimum action target, isolated LTR values, and reduced-motion handling.
+- Added synchronized English/Arabic result copy and intentional RTL composition without changing onboarding, imports, mission rules, persistence, or external integrations.
+- Added responsive composition evidence and focused unit/design gates without adding a dependency or changing the vanilla Vite architecture.
+
+### Validation
+
+- `node --check` passed for `src/mission-result-i18n.js`, `src/mission-result.js`, and `src/mission-result-view.js`.
+- Focused `node --test test/mission-result.test.js`: 4 tests passed.
+- Source review confirmed intrinsic one-column phone layout, a content-based `40rem` breakpoint, 44 px action target, logical properties, mixed-direction isolation, and reduced-motion overrides.
+- Full `npm run check`, GitHub CI, exact-head Railway Preview `/health` and `/version`, and browser screenshots at the required viewports remain required before release review.
+
+### Next best task
+
+Run independent QA on the exact PR head; do not add invitation, persistence, authentication, or another feature to this cycle.
+
 ## 2026-07-18 — Professional visual release repair
 
 **Outcome:** Put the playable role-and-route loop first and replace the rejected generic landing-page presentation without changing the selected MVP behavior or safety model.
