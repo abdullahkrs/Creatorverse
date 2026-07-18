@@ -1,5 +1,5 @@
 /* Narrow-header and text-zoom safeguards validated by the browser-quality gate. */
-body {
+html body {
   min-inline-size: 0;
 }
 
