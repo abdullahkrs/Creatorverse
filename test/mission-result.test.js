@@ -28,6 +28,18 @@ test('creates allowlisted, bounded result data', () => {
     target: 100,
     district: 'Signal Harbor',
   });
+  const capped = createMissionResult({
+    roleId: 'builder',
+    routeId: 'sky',
+    energyBefore: 99,
+    energyAdded: 3,
+    target: 100,
+    district: 'Signal Harbor',
+  });
+  assert.equal(capped.energyAdded, 3);
+  assert.equal(capped.energyBefore, 99);
+  assert.equal(capped.energyAfter, 100);
+
   assert.throws(() => createMissionResult({ roleId: 'admin', routeId: 'sky' }), /INVALID_ROLE/);
   assert.throws(() => createMissionResult({ roleId: 'builder', routeId: 'external' }), /INVALID_ROUTE/);
   assert.equal(sanitizeResultText('<b>Harbor</b>\n\u0000'), 'b Harbor /b');
