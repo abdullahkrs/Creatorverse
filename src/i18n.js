@@ -140,7 +140,7 @@ export function applyLocale(root = document) {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(node => {
-    if (node.parentElement?.closest('script, style')) return;
+    if (node.parentElement?.closest('script, style, [translate="no"], .notranslate')) return;
     node.nodeValue = translateDynamic(node.nodeValue || '');
   });
 
