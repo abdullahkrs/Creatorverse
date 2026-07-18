@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       expected_sha:
-        description: Optional commit SHA expected from /version
+        description: Optional override for the commit SHA expected from /version
         required: false
         type: string
 
@@ -40,7 +40,7 @@ jobs:
       EXPECTED_ENVIRONMENT: ${{ matrix.environment }}
       STAGING_URL: https://creatorverse-app-staging.up.railway.app
       PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
-      EXPECTED_SHA: ${{ github.event_name == 'push' && matrix.environment == 'production' && github.sha || inputs.expected_sha || '' }}
+      EXPECTED_SHA: ${{ inputs.expected_sha || (github.event_name == 'pull_request' && github.event.pull_request.base.sha) || github.sha }}
 
     steps:
       - name: Enforce environment isolation
@@ -96,6 +96,9 @@ jobs:
           if (health.status !== 'ok') {
             throw new Error(`Unexpected /health response: ${JSON.stringify(health)}`);
           }
+          if (!expectedSha) {
+            throw new Error('EXPECTED_SHA must not be empty');
+          }
           if (!actualSha) {
             throw new Error('/version does not expose commitSha or commit');
           }
@@ -105,7 +108,7 @@ jobs:
           if (expectedEnvironment === 'staging' && actualEnvironment === 'production') {
             throw new Error('Production must never be accepted as staging or preview');
           }
-          if (expectedSha && !(actualSha === expectedSha || actualSha.startsWith(expectedSha) || expectedSha.startsWith(actualSha))) {
+          if (!(actualSha === expectedSha || actualSha.startsWith(expectedSha) || expectedSha.startsWith(actualSha))) {
             throw new Error(`Commit mismatch: expected ${expectedSha}, received ${actualSha}`);
           }
           NODE
