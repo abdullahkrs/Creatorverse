@@ -65,26 +65,20 @@ async function expectVisibleFocus(page, locator) {
 
 async function expectNaturalWrapping(locator, label) {
   const metrics = await locator.evaluate(node => {
-    const text = node.textContent?.trim().replace(/\s+/gu, ' ') || '';
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const lineTops = new Set(
-      [...range.getClientRects()]
-        .filter(rect => rect.width > 0 && rect.height > 0)
-        .map(rect => Math.round(rect.top)),
-    );
     const style = getComputedStyle(node);
     return {
-      text,
-      lineCount: lineTops.size,
-      wordCount: text.split(/\s+/u).filter(Boolean).length,
+      text: node.textContent?.trim().replace(/\s+/gu, ' ') || '',
+      clientWidth: node.clientWidth,
+      scrollWidth: node.scrollWidth,
+      overflowWrap: style.overflowWrap,
       wordBreak: style.wordBreak,
     };
   });
 
   expect(metrics.text, `${label} text`).not.toBe('');
   expect(metrics.wordBreak, `${label} word-break`).not.toBe('break-all');
-  expect(metrics.lineCount, `${label} natural line count`).toBeLessThanOrEqual(Math.max(1, metrics.wordCount));
+  expect(metrics.overflowWrap, `${label} overflow-wrap`).not.toBe('anywhere');
+  expect(metrics.scrollWidth, `${label} inline overflow`).toBeLessThanOrEqual(metrics.clientWidth + 1);
 }
 
 for (const locale of ['en', 'ar']) {
