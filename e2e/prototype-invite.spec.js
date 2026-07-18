@@ -51,8 +51,8 @@ async function assertNoPageOverflow(page) {
 
 for (const locale of ['en', 'ar']) {
   for (const viewport of viewports) {
-    test(`${locale} prototype invite path at ${viewport.width}x${viewport.height}`, async ({ browser }, testInfo) => {
-      const creatorContext = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+    test(`${locale} prototype invite path at ${viewport.width}x${viewport.height}`, async ({ browser, baseURL }, testInfo) => {
+      const creatorContext = await browser.newContext({ baseURL, viewport, reducedMotion: 'reduce' });
       await setLocale(creatorContext, locale);
       await installClipboard(creatorContext);
       const creatorPage = await creatorContext.newPage();
@@ -84,7 +84,7 @@ for (const locale of ['en', 'ar']) {
       expect(inviteUrl).not.toContain('?');
       expect(inviteUrl).not.toContain('@creator');
 
-      const followerContext = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+      const followerContext = await browser.newContext({ baseURL, viewport, reducedMotion: 'reduce' });
       await setLocale(followerContext, locale);
       const followerPage = await followerContext.newPage();
       await followerPage.goto(inviteUrl);
@@ -127,11 +127,11 @@ for (const locale of ['en', 'ar']) {
         });
       }
 
-      const invalidContext = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+      const invalidContext = await browser.newContext({ baseURL, viewport, reducedMotion: 'reduce' });
       await setLocale(invalidContext, locale);
       const invalidPage = await invalidContext.newPage();
-      const baseUrl = new URL(inviteUrl);
-      await invalidPage.goto(`${baseUrl.origin}${baseUrl.pathname}#invite=v1.invalid!`);
+      const copiedUrl = new URL(inviteUrl);
+      await invalidPage.goto(`${copiedUrl.origin}${copiedUrl.pathname}#invite=v1.invalid!`);
       await expect(invalidPage.locator('[data-prototype-invite-error]')).toBeVisible();
       await expect(invalidPage.locator('#invite-error-title')).toBeFocused();
       await expect(invalidPage.locator('body')).not.toContainText('v1.invalid');
@@ -142,8 +142,8 @@ for (const locale of ['en', 'ar']) {
       });
 
       if (viewport.width === 390) {
-        for (const page of [creatorPage, followerPage, invalidPage]) {
-          const results = await new AxeBuilder({ page }).analyze();
+        for (const currentPage of [creatorPage, followerPage, invalidPage]) {
+          const results = await new AxeBuilder({ page: currentPage }).analyze();
           expect(results.violations.filter(violation => ['critical', 'serious'].includes(violation.impact))).toEqual([]);
         }
       }
@@ -155,8 +155,8 @@ for (const locale of ['en', 'ar']) {
   }
 }
 
-test('copy denial reveals a selected safe URL and retry succeeds', async ({ browser }) => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+test('copy denial reveals a selected safe URL for retry', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
   await setLocale(context, 'en');
   await installClipboard(context, 'denied');
   const page = await context.newPage();
