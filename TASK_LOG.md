@@ -1,5 +1,25 @@
 # Creatorverse Task Log
 
+## 2026-07-18 — Focused Railway PR Preview trigger repair
+
+**Outcome:** Ensure Railway's focused PR-environment detector treats the root Creatorverse service as affected by any repository change, so the isolated service can deploy and expose `/health` and `/version` instead of being skipped.
+
+### Completed
+
+- Added an explicit root-level Railway `build.watchPatterns` rule matching `**`.
+- Kept the existing Railpack build, `npm start`, `/health`, timeout, and restart policy unchanged.
+- Preserved the CI rule that rejects Production as Preview and requires the exact PR branch and commit.
+
+### Validation
+
+- GitHub CI run #64 already proved `npm run check`, tests, and the production build pass on the preceding application head.
+- The final head must re-run the same checks and obtain a public isolated Railway PR deployment before the issue can move to release review.
+- If Railway still reports the service as unaffected, the remaining blocker is the Railway service Root Directory or dashboard watch-path configuration, which is external to repository code.
+
+### Next best task
+
+Run QA only after the isolated Railway PR service returns HTTP 200 from `/health` and `/version.commitSha` matches the final PR head.
+
 ## 2026-07-18 — Static-path and Preview isolation release repair
 
 **Outcome:** Prevent malformed request paths from crashing the Node server and ensure pre-merge verification cannot use the permanent Railway production service.
