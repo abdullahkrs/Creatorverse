@@ -1,0 +1,20 @@
+/* Narrow-header safeguards validated by the repository browser-quality gate. */
+@media (max-width: 30rem) {
+  .nav {
+    gap: var(--cv-space-2);
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .nav-actions {
+    min-inline-size: 0;
+    gap: var(--cv-space-1);
+  }
+
+  .nav-create,
+  .language-control button {
+    padding-inline: var(--cv-space-2);
+  }
+}
