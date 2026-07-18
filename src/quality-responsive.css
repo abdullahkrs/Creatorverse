@@ -1,4 +1,8 @@
-/* Narrow-header safeguards validated by the repository browser-quality gate. */
+/* Narrow-header and text-zoom safeguards validated by the browser-quality gate. */
+body {
+  min-inline-size: 0;
+}
+
 @media (max-width: 30rem) {
   .nav {
     gap: var(--cv-space-2);
