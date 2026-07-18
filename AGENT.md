@@ -1,122 +1,134 @@
-# Creatorverse Agent Operating Guide
+# Creatorverse Autonomous Agent Contract
 
-Read this file before every development cycle.
+Read this file before every autonomous action.
 
 ## Mission
 
-Build a mobile-first creator-community game that turns each creator's audience into a fictional digital realm. Members complete short missions, grow their realm, collaborate with other creator communities, and participate in safe seasonal competition.
-
-## Non-negotiable boundaries
-
-1. The universe is fictional and must not reproduce real countries, borders, governments, political parties, conflicts, flags, or geopolitical events.
-2. All competition remains inside Creatorverse. Never create mechanics that encourage harassment, brigading, mass reporting, misinformation, boycotts, or hostile activity on external platforms.
-3. External follower count is never the primary source of power. Active participation, retention, collaboration, and skill matter more.
-4. Never sell competitive power. Monetization may include cosmetics, creator tools, sponsorships, and commerce integrations, but not pay-to-win.
-5. Protect minors by default. No private adult-to-minor messaging, precise location, open file sharing, gambling-like rewards, or unrestricted spending.
-6. Avoid building a general-purpose social network. Creatorverse complements existing platforms.
-7. Social integrations must use official APIs, public oEmbed data, or explicit creator authorization. Never request social-media passwords or scrape private data.
+Build a mobile-first creator-community game where creators form fictional digital realms and followers complete short, safe actions that visibly grow those realms.
 
 ## North star
 
-A creator shares one link, followers join in seconds, complete a meaningful action in under one minute, visibly change the creator's realm, and give the creator a result worth sharing back to social media.
+Creator creates realm → shares link → follower joins in seconds → chooses role → completes an action in under one minute → realm visibly changes → creator receives a result worth sharing.
 
-## Current core loop
+Every cycle must improve, validate, secure, or restore this loop.
 
-Creator creates realm → follower joins → chooses role → completes short mission → realm gains energy → district unlocks → creator shares result.
+## Single source of truth
 
-Every development cycle must improve, complete, measure, or validate this loop.
+GitHub Issues and labels are the only workflow state.
 
-## Five-agent team
+Only one open issue may carry `auto:active`.
 
-Only these five agents are used in normal development:
+The valid pipeline is:
 
-### 1. Product Lead
+`stage:ux` → `stage:safety` → `stage:build` → `stage:release`
 
-Owns scope, priority, creator value, follower value, success metric, and conflict resolution. Rejects feature drift and decides the single task for the cycle.
+Agents must not use private scratch files, duplicate status documents, or a second issue to represent the same cycle.
 
-### 2. Game and UX Agent
+## Five agents
 
-Owns gameplay rules, creator workflow, follower workflow, mobile UX, accessibility, RTL/LTR behavior, progression, fairness-by-design, and sharing loops.
+1. Product Lead: creates one focused issue only when no `auto:active` issue exists; does not modify code.
+2. Game & UX Agent: defines flow, mobile behavior, accessibility, Arabic/English parity, RTL/LTR, and all states; does not modify code.
+3. Safety & Fairness Reviewer: defines concrete safeguards and blocks only concrete release risks; does not modify product code.
+4. Full-Stack Engineer: the only primary code author; creates one branch and one PR for the active issue; does not merge.
+5. QA & Release Agent: verifies all gates, returns actionable failures to `stage:build`, squash-merges passing work, and verifies Railway production.
 
-### 3. Safety and Fairness Reviewer
+## Issue contract
 
-Owns fictional-world separation, privacy, minors, content safety, anti-abuse, integration permissions, political-risk review, and no-pay-to-win review. May block release only for a concrete safety, legal-risk, privacy, or fairness failure.
+Every autonomous issue must include:
 
-### 4. Full-Stack Engineer
+- User outcome.
+- Testable acceptance criteria.
+- Non-goals.
+- Success signal.
+- Safety and privacy constraints.
+- Language and direction requirements.
+- Expected affected areas.
+- Stable task key such as `CV-MVP-014`.
 
-The only agent allowed to change application code in a cycle. Implements the approved vertical slice, keeps architecture simple, and adds secure validation and failure handling.
+A task must be split before implementation if it has more than one independent user outcome, more than one major external integration, or combines a broad refactor with a feature.
 
-### 5. QA and Release Agent
+## Product boundaries
 
-Owns acceptance tests, regression checks, mobile and browser review, accessibility basics, security-critical paths, Railway deployment verification, and the release decision.
+- Fictional universe only: no real countries, borders, governments, political parties, flags, geopolitical conflicts, or simulations of current events.
+- No off-platform hostility, brigading, harassment, mass reporting, misinformation, or boycott mechanics.
+- No pay-to-win, gambling-like rewards, or direct conversion of external follower count into competitive power.
+- Protect minors by default: no private adult-minor messaging, precise location, unrestricted spending, or open file sharing.
+- Use official social APIs and public embed endpoints only. Never scrape accounts, request social passwords, expose secrets, or bypass platform controls.
+- Creatorverse complements social platforms; it must not become an unrestricted general social network.
 
-## Required reading order
+## Engineering cycle
 
-1. `AGENT.md`
-2. `README.md`
-3. `ROADMAP.md`
-4. `TASK_LOG.md`
-5. `DECISIONS.md`
-6. `BACKLOG.md`
-7. `METRICS.md`
-8. `RAILWAY_AGENT_WORKFLOW.md`
-9. `package.json`
-10. `.github/workflows/ci.yml`
+The Engineer must:
 
-## One-cycle workflow
+1. Read the active issue and completed handoffs.
+2. Implement exactly one coherent vertical slice.
+3. Keep Arabic and English synchronized and preserve RTL/LTR when UI changes.
+4. Escape imported content and validate all server inputs.
+5. Add or update relevant automated tests.
+6. Run `npm run check` and all available tests.
+7. Update `TASK_LOG.md` with facts only.
+8. Create or update one dedicated branch and one linked PR.
+9. Include acceptance evidence, tests, safety notes, Railway Preview expectations, `/health`, `/version`, limitations, and rollback notes.
+10. Move the issue from `stage:build` to `stage:release` and stop.
 
-Run exactly one focused cycle:
+## CI failure protocol
 
-1. Product Lead inspects current implementation and selects one unfinished high-value task.
-2. Product Lead writes one user outcome, one success metric, and explicit acceptance criteria.
-3. Game and UX Agent provides at most five concise requirements.
-4. Safety and Fairness Reviewer provides at most five risks or controls. It says `PASS`, `PASS WITH CONTROLS`, or `BLOCK`.
-5. Full-Stack Engineer implements the smallest complete vertical slice. No other agent writes competing code.
-6. QA and Release Agent runs available checks and records evidence.
-7. Update `TASK_LOG.md` and any document whose facts changed.
-8. Create or update one Pull Request using `.github/pull_request_template.md`.
-9. Wait for GitHub CI and Railway Preview. Add the Preview URL and `/version` result to the PR.
-10. Stop. Do not merge, begin another task, or modify production.
+Classify failures as code, test, dependency, transient network, configuration, secret, security, or deployment.
 
-## Branch and Pull Request rules
+- Fix the cause; never hide the failure.
+- Keep repairs on the same branch and PR.
+- A transient failure may be retried once without code changes.
+- Integration tests must use mocks in CI when secrets are unavailable.
+- Never commit a secret, disable CodeQL, delete a valid test, weaken branch protection, or use broad `continue-on-error` to force green status.
+- Maximum: three focused repair attempts for the same failure. After that, add exact evidence, label `ci:blocked`, and let Product Lead split or replace the task.
 
-- Branch name: `feat/<short-task>`, `fix/<short-task>`, or `chore/<short-task>`.
-- One branch and one Pull Request per cycle.
-- Pull Requests target `staging` when that branch exists; otherwise target `main` during prototype setup.
-- Never push development work directly to `main`.
-- Never merge automatically unless the repository owner explicitly requests it.
-- Railway Preview is required for user-visible changes.
+## QA and release gates
 
-## Anti-loop rules
+QA may merge only when all applicable checks pass:
 
-- Do not rebuild working components because another architecture looks cleaner.
-- Do not rename or reorganize files without a direct benefit to the selected task.
-- Do not add speculative infrastructure.
-- Do not repeat completed work recorded in `TASK_LOG.md`.
-- Do not introduce more than one major concept per cycle.
-- Do not activate extra agents for a small task.
-- Do not create long design documents for a small implementation.
-- If blocked, document the blocker and implement the best unblocked slice only when it still satisfies the cycle outcome.
+- Acceptance criteria.
+- Required GitHub CI checks.
+- No disabled or bypassed checks.
+- Mobile behavior and keyboard accessibility.
+- Arabic and English parity; RTL and LTR.
+- Loading, empty, success, and error states.
+- Safety, privacy, fairness, and secret handling.
+- Railway Preview `/health` returns 200.
+- Railway Preview `/version` matches the PR commit.
 
-## Definition of done
+After squash merge, QA must verify Railway production `/health` and `/version` match the merged commit. Then close the issue, remove workflow labels, and delete the branch when possible.
 
-A cycle is done only when:
+If production verification fails, no new feature may start. Create or restore a critical production-fix cycle and return to the last known good version when a safe rollback path exists.
 
-- Acceptance criteria are met.
-- `npm run check` passes.
-- The changed path works at a mobile width.
-- Interactive controls are keyboard reachable and understandable.
-- Empty, loading, success, and error states are considered where relevant.
-- User-provided text is safely rendered.
-- Applicable ownership and permission checks are enforced server-side.
-- No real-world political or off-platform hostile mechanic is introduced.
-- Railway Preview is healthy for user-visible changes.
-- The PR contains test evidence, known risks, Preview URL, and exact next task.
+## Priority order
 
-## Architecture direction
+Production outage → security vulnerability → failed deployment → broken core loop → current milestone → new feature → visual polish.
 
-The current application is a lightweight Vite and Node prototype deployed as one Railway service. Keep the design simple until the core loop is validated. Add PostgreSQL, authentication, persistence, OAuth integrations, and separate services as focused milestones rather than one large migration.
+## Anti-loop and recovery rules
 
-## Decision priority
+- One active issue, one user outcome, one branch, one PR, one primary code author.
+- Never begin a second feature in the same cycle.
+- Never rebuild a working component without a user-facing or proven maintenance benefit.
+- Never combine a broad refactor with a product feature.
+- Do not reopen decisions already recorded in `DECISIONS.md` unless the underlying facts changed.
+- Do not create duplicate task keys.
+- If no meaningful progress occurs for three hours, Product Lead restores the correct stage from issue and PR evidence.
+- If a cycle remains unresolvable after six hours or three focused repairs, preserve useful work, close or split the cycle, and start the highest-value unblocked task.
+- Missing external approval, paid account, secret, or permission must not cause hourly retries. Implement a safe fallback or feature-disabled state, record the external blocker, and move to unblocked work.
+- Agents do not wait for user approval.
 
-Safety and legality → creator and follower trust → core-loop value → fairness → measurable learning → simplicity → revenue → visual polish → technical elegance.
+## Definition of complete
+
+A cycle is complete only when:
+
+- The issue is closed.
+- The PR is squash-merged.
+- CI passed.
+- Railway production is healthy.
+- Production `/version` matches the merged commit.
+- Arabic and English paths work.
+- Mobile and basic accessibility checks pass.
+- No concrete security or safety blocker remains.
+- `TASK_LOG.md` is updated.
+- The feature branch is removed when possible.
+- No stale `auto:active` label remains.
