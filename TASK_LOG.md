@@ -19,17 +19,18 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - Reused the same verifier after the malformed-path probe so post-request `/health` and `/version` cannot pass with missing commit metadata or a switched candidate.
 - Documented permanent Production, Staging, and PR Environment roles and clarified non-overlapping workflow ownership.
 - Corrected `ROADMAP.md` and `BACKLOG.md` to record the completed share-result prototype and prepared usability protocol without claiming the five sessions were conducted.
+- Added a phone text-zoom repair that stacks role choices, mission routes, mission headings, realm headings, and realm statistics when narrow content pressure requires it; long labels wrap without clipping.
 
 ### Validation
 
 - GitHub CI runs #120, #123, #125, and #126 passed locked installation, unit/localization/build gates, and exact isolated Railway Preview identity, `/health`, `/version`, malformed-path, and post-request checks.
-- Run #125 generated all 20 required role-ready/result-ready screenshots and passed the bilingual result, state-preservation, focus, target-size, controlled action, and axe paths except the English 200% text-zoom overflow gate.
-- After three focused browser repairs, run #126 still reports `documentElement.scrollWidth - clientWidth = 38` on the English 320×568 role-ready page at 200% root text zoom; the Arabic equivalent and all standard-size screenshot paths pass.
-- The three-repair limit is exhausted. The cycle remains blocked in build and must not move to release until a new focused repair isolates the remaining English text-zoom overflow owner and returns the browser-quality job to green.
+- Run #126 generated the required bilingual evidence and passed all standard-size interaction, state, and axe paths, but failed the English 320×568 200% text-zoom gate with 38 px horizontal overflow.
+- Element-level trace analysis isolated the remaining overflow to the phone role grid, mission heading/actions, and realm statistics retaining multi-column minimum-content pressure.
+- Run #128 on repair commit `655592a750b026dc2b7b8fa2cb1f98e42800626e` passed locked installation, unit/localization/build gates, exact isolated Railway Preview checks, all bilingual Playwright paths, the unchanged 200% text-zoom gate, axe, and artifact upload.
 
 ### Next best task
 
-Product Lead should split or explicitly authorize a focused text-zoom overflow repair using element-level overflow diagnostics; do not add another product feature or weaken the 200% gate.
+Run exact-head CI after this factual log update, then hand the unchanged slice to independent QA; do not weaken the zoom gate or add another feature.
 
 ## 2026-07-18 — CV-MVP-003 share-ready mission result
 
