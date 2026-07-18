@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
   deployments: read
+  checks: read
+  pull-requests: read
 
 jobs:
   build:
@@ -51,72 +53,77 @@ jobs:
           api="https://api.github.com/repos/$GITHUB_REPOSITORY"
           auth_header="Authorization: Bearer $GITHUB_TOKEN"
           version_header="X-GitHub-Api-Version: 2022-11-28"
-          production_host="${PRODUCTION_URL#https://}"
-          production_host="${production_host#http://}"
-          production_host="${production_host%%/*}"
-          service_slug="${production_host%-production.up.railway.app}"
+          metadata_file="/tmp/railway-preview-metadata.txt"
+          : > "$metadata_file"
 
-          for attempt in {1..30}; do
-            deployments="$(curl --fail --silent --show-error \
+          github_get() {
+            curl --fail --silent --show-error \
               --header "$auth_header" \
               --header "$version_header" \
-              "$api/deployments?sha=$EXPECTED_SHA&per_page=100" || printf '[]')"
+              --header "Accept: application/vnd.github+json" \
+              "$1" || printf '{}'
+          }
+
+          for attempt in {1..30}; do
+            : > "$metadata_file"
+
+            deployments="$(github_get "$api/deployments?sha=$EXPECTED_SHA&per_page=100")"
+            printf '%s\n' "$deployments" >> "$metadata_file"
 
             mapfile -t deployment_ids < <(
               jq -r --arg sha "$EXPECTED_SHA" --arg ref "$EXPECTED_REF" \
-                '.[] | select(.sha == $sha or .ref == $ref) | .id' <<<"$deployments"
+                '.[]? | select(.sha == $sha or .ref == $ref) | .id' <<<"$deployments"
             )
 
             for deployment_id in "${deployment_ids[@]}"; do
-              statuses="$(curl --fail --silent --show-error \
-                --header "$auth_header" \
-                --header "$version_header" \
-                "$api/deployments/$deployment_id/statuses?per_page=100" || printf '[]')"
-
-              successful_status="$(jq -c '
-                [ .[] | select(.state == "success") ][0] // empty
-              ' <<<"$statuses")"
-              [ -n "$successful_status" ] || continue
-
-              preview_environment="$(jq -r '.environment // ""' <<<"$successful_status")"
-              environment_url="$(jq -r '.environment_url // ""' <<<"$successful_status")"
-              target_url="$(jq -r '.target_url // ""' <<<"$successful_status")"
-              log_url="$(jq -r '.log_url // ""' <<<"$successful_status")"
-
-              environment_slug="${preview_environment%%/*}"
-              environment_slug="$(tr '[:upper:] ' '[:lower:]-' <<<"$environment_slug" | sed -E 's/[^a-z0-9-]+/-/g; s/^-+|-+$//g')"
-
-              candidates=("$environment_url" "$target_url" "$log_url")
-              if [ -n "$service_slug" ] && [ -n "$environment_slug" ]; then
-                candidates+=("https://${service_slug}-${environment_slug}.up.railway.app")
-                candidates+=("https://${environment_slug}-${service_slug}.up.railway.app")
-              fi
-              if [ -n "$service_slug" ]; then
-                candidates+=("https://${service_slug}-pr-${PR_NUMBER}.up.railway.app")
-              fi
-
-              for candidate in "${candidates[@]}"; do
-                candidate="${candidate%/}"
-                [ -n "$candidate" ] || continue
-                [[ "$candidate" == http://* || "$candidate" == https://* ]] || continue
-                [ "$candidate" != "${PRODUCTION_URL%/}" ] || continue
-
-                health_code="$(curl --silent --show-error --output /tmp/discovery-health.json --write-out '%{http_code}' --max-time 12 "$candidate/health" || true)"
-                if [ "$health_code" = "200" ] && grep -q '"status":"ok"' /tmp/discovery-health.json; then
-                  echo "PREVIEW_URL=$candidate" >> "$GITHUB_ENV"
-                  echo "Railway PR environment: $preview_environment"
-                  echo "Railway Preview: $candidate"
-                  exit 0
-                fi
-              done
+              github_get "$api/deployments/$deployment_id/statuses?per_page=100" >> "$metadata_file"
+              printf '\n' >> "$metadata_file"
             done
 
-            echo "Preview discovery attempt $attempt/30: waiting for a public isolated deployment of $EXPECTED_SHA"
+            github_get "$api/commits/$EXPECTED_SHA/status" >> "$metadata_file"
+            printf '\n' >> "$metadata_file"
+            github_get "$api/commits/$EXPECTED_SHA/check-runs?per_page=100" >> "$metadata_file"
+            printf '\n' >> "$metadata_file"
+            github_get "$api/issues/$PR_NUMBER/comments?per_page=100" >> "$metadata_file"
+            printf '\n' >> "$metadata_file"
+            github_get "$api/pulls/$PR_NUMBER/reviews?per_page=100" >> "$metadata_file"
+            printf '\n' >> "$metadata_file"
+            github_get "$api/pulls/$PR_NUMBER/comments?per_page=100" >> "$metadata_file"
+            printf '\n' >> "$metadata_file"
+
+            mapfile -t railway_pages < <(
+              grep -Eo 'https://railway\.com/[^"[:space:]<>]+' "$metadata_file" \
+                | sed -E 's/[),.;]+$//' \
+                | sort -u || true
+            )
+            for railway_page in "${railway_pages[@]}"; do
+              curl --location --silent --show-error --max-time 15 "$railway_page" >> "$metadata_file" || true
+              printf '\n' >> "$metadata_file"
+            done
+
+            mapfile -t candidates < <(
+              grep -Eo 'https?://[A-Za-z0-9.-]+\.up\.railway\.app' "$metadata_file" \
+                | sort -u || true
+            )
+
+            for candidate in "${candidates[@]}"; do
+              candidate="${candidate%/}"
+              [ "$candidate" != "${PRODUCTION_URL%/}" ] || continue
+
+              health_code="$(curl --silent --show-error --output /tmp/discovery-health.json --write-out '%{http_code}' --max-time 15 "$candidate/health" || true)"
+              if [ "$health_code" = "200" ] && grep -q '"status":"ok"' /tmp/discovery-health.json; then
+                echo "PREVIEW_URL=$candidate" >> "$GITHUB_ENV"
+                echo "Railway Preview: $candidate"
+                exit 0
+              fi
+            done
+
+            echo "Preview discovery attempt $attempt/30: found ${#candidates[@]} non-production Railway-domain candidate(s); waiting for a public isolated deployment of $EXPECTED_SHA"
             sleep 20
           done
 
-          echo "No public isolated Railway PR Environment was found for $EXPECTED_SHA."
-          echo "Ensure PR Environments are enabled and that the base Railway service uses a Railway-provided public domain so the temporary environment receives its own domain."
+          echo "No public isolated Railway PR Environment URL was exposed through GitHub deployment metadata, status checks, check runs, PR comments, or the Railway deployment page."
+          echo "Ensure PR Environments are enabled and the base service uses a Railway-provided domain; the Railway integration must publish the temporary service URL for automated verification."
           exit 1
 
       - name: Verify Railway Preview health, version, and malformed-path handling
