@@ -1,0 +1,81 @@
+name: Agent development cycle
+description: Define one focused Creatorverse development cycle
+title: "[Cycle] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One issue equals one development cycle. Do not combine unrelated features.
+
+  - type: textarea
+    id: user_outcome
+    attributes:
+      label: User outcome
+      description: Describe the one result a creator or follower should achieve.
+      placeholder: A creator can...
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_signal
+    attributes:
+      label: Measurable success signal
+      description: State one behavior or metric that should improve.
+      placeholder: At least 4 of 5 users can...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Add a small set of observable pass/fail criteria.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: primary_user
+    attributes:
+      label: Primary user
+      options:
+        - Creator
+        - Follower
+        - Both
+        - Operator or moderator
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: reviews
+    attributes:
+      label: Required reviews
+      options:
+        - label: Game and UX review
+          required: true
+        - label: Safety and fairness review
+          required: true
+        - label: QA and release review
+          required: true
+
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Explicit exclusions
+      description: State what this cycle must not build.
+      placeholder: No database migration, no OAuth, no unrelated redesign...
+    validations:
+      required: true
+
+  - type: textarea
+    id: railway
+    attributes:
+      label: Railway validation plan
+      description: Explain what must be tested in the PR Preview.
+      placeholder: Test the flow on mobile, verify /health and /version...
+    validations:
+      required: true
