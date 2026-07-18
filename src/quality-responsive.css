@@ -27,16 +27,25 @@ html body {
     padding-inline: var(--cv-space-2);
   }
 
-  .role-grid,
+  .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  }
+
   .mission-actions,
   .realm-stats {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
   }
 
   .mission-heading,
   .realm-heading {
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: start;
+  }
+
+  .mission-heading > :first-child,
+  .realm-heading > :first-child {
+    min-inline-size: 0;
+    flex: 1 1 10rem;
   }
 
   .mission-status,
@@ -52,6 +61,6 @@ html body {
   .realm-stats dt,
   .realm-stats dd {
     min-inline-size: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 }
