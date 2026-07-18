@@ -9,8 +9,11 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 ### Completed
 
 - Added and committed `package-lock.json`; CI build and browser jobs use `npm ci` on Node 22.12.
-- Added Playwright Chromium checks and real screenshot/report artifacts at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in English LTR and Arabic RTL.
-- Added axe WCAG A/AA checks, keyboard-path coverage, 44 px target checks, horizontal-overflow checks, 200% text zoom coverage, and reduced-motion validation.
+- Added Playwright Chromium checks at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in English LTR and Arabic RTL.
+- Added exactly 20 baseline viewport screenshots: role-ready and result-ready for both locales at all five required sizes.
+- Added width-and-height 44 px target checks, keyboard focus-visible checks, horizontal-overflow checks, 200% root-text-zoom checks, reduced-motion validation, result fact/live-region checks, controlled Web Share loading/failure/retry/success checks, and clipboard fallback checks using synthetic browser fixtures only.
+- Added axe checks for role-ready, completed-result, language-switch, controlled action error/success, and creator safety-error states in both locales.
+- Preserved the selected role and completed result through an intentional language reload by restoring bounded session-only interaction state; no account, external post, or durable product data was added.
 - Added mission-result Arabic/English key parity and visible-copy bypass checks.
 - Moved Railway Preview selection into a tested Node verifier that accepts only HTTPS isolated PR-environment domains for the current PR and rejects shared Staging, Production, wrong branches, empty or wrong SHAs, and arbitrary Railway hosts.
 - Reused the same verifier after the malformed-path probe so post-request `/health` and `/version` cannot pass with missing commit metadata or a switched candidate.
@@ -19,14 +22,14 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 ### Validation
 
-- Focused local `node --check scripts/verify-railway-preview.mjs`: passed.
-- Focused local `node --test test/railway-preview.test.js`: 3 tests passed.
-- GitHub CI run #108 passed the full locked install, unit/localization/build, exact Preview, Playwright, axe, and artifact gates on the preceding implementation head.
-- The final documentation and Preview-isolation repair head must pass the same GitHub CI and exact Railway PR Environment checks before release review.
+- GitHub CI runs #120, #123, #125, and #126 passed locked installation, unit/localization/build gates, and exact isolated Railway Preview identity, `/health`, `/version`, malformed-path, and post-request checks.
+- Run #125 generated all 20 required role-ready/result-ready screenshots and passed the bilingual result, state-preservation, focus, target-size, controlled action, and axe paths except the English 200% text-zoom overflow gate.
+- After three focused browser repairs, run #126 still reports `documentElement.scrollWidth - clientWidth = 38` on the English 320×568 role-ready page at 200% root text zoom; the Arabic equivalent and all standard-size screenshot paths pass.
+- The three-repair limit is exhausted. The cycle remains blocked in build and must not move to release until a new focused repair isolates the remaining English text-zoom overflow owner and returns the browser-quality job to green.
 
 ### Next best task
 
-Run independent QA on the final unchanged PR head; do not add a product feature to this infrastructure cycle.
+Product Lead should split or explicitly authorize a focused text-zoom overflow repair using element-level overflow diagnostics; do not add another product feature or weaken the 200% gate.
 
 ## 2026-07-18 — CV-MVP-003 share-ready mission result
 
