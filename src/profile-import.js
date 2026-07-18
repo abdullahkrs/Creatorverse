@@ -24,17 +24,24 @@ function compactNumber(value) {
   }).format(value);
 }
 
+function profileIcon() {
+  return `
+    <svg class="profile-empty-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M5 19v-2c0-2.8 2.3-5 5-5h4c2.8 0 5 2.2 5 5v2H5Zm7-9a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>
+    </svg>
+  `;
+}
+
 function template() {
   const profile = state.profile;
   return `
-    <section class="profile-import shell" id="profile-import">
-      <header class="section-heading profile-heading">
+    <section class="profile-import" id="profile-import" aria-labelledby="profile-import-title">
+      <header class="tool-heading profile-heading">
         <div>
-          <p class="eyebrow">Creator profile connection</p>
-          <h2>Build your realm from a real creator profile.</h2>
-          <p>Import public YouTube channel identity and statistics. TikTok, X, and Instagram profiles will require the creator to connect their own account through official authorization.</p>
+          <p class="section-kicker">YouTube profile</p>
+          <h3 id="profile-import-title">Import a YouTube profile.</h3>
         </div>
-        <div class="profile-support"><span>YouTube · available</span><span class="planned">TikTok · OAuth</span><span class="planned">X · OAuth</span><span class="planned">Instagram · OAuth</span></div>
+        <p>Public channel data only.</p>
       </header>
       <div class="profile-grid">
         <form class="profile-form" data-profile-form>
@@ -43,28 +50,28 @@ function template() {
             <input id="profile-url" type="url" inputmode="url" autocomplete="url" maxlength="2048" value="${escapeHtml(state.url)}" placeholder="https://www.youtube.com/@creator" required>
             <button class="primary" type="submit" ${state.status === 'loading' ? 'disabled' : ''}>${state.status === 'loading' ? 'Fetching…' : 'Fetch profile'}</button>
           </div>
-          <p class="social-note">This uses the official YouTube Data API. Add <code>YOUTUBE_API_KEY</code> to Railway Variables to enable it.</p>
+          <p class="profile-note">Official YouTube API. Nothing is saved.</p>
           <p class="form-message" aria-live="polite">${escapeHtml(state.error)}</p>
         </form>
         <article class="profile-card ${profile ? 'has-profile' : ''}">
           ${profile ? `
             <img src="${escapeHtml(profile.avatarUrl)}" alt="${escapeHtml(profile.title)} profile image" loading="lazy">
             <div class="profile-copy">
-              <p class="eyebrow">${escapeHtml(profile.providerLabel)}</p>
+              <p class="section-kicker">${escapeHtml(profile.providerLabel)}</p>
               <h3>${escapeHtml(profile.title)}</h3>
               <p class="profile-description">${escapeHtml(profile.description || 'Public creator profile')}</p>
-              <div class="profile-stats">
-                <div><strong>${compactNumber(profile.subscriberCount)}</strong><span>subscribers</span></div>
-                <div><strong>${compactNumber(profile.videoCount)}</strong><span>videos</span></div>
-                <div><strong>${compactNumber(profile.viewCount)}</strong><span>views</span></div>
-              </div>
+              <dl class="profile-stats">
+                <div><dt>subscribers</dt><dd>${compactNumber(profile.subscriberCount)}</dd></div>
+                <div><dt>videos</dt><dd>${compactNumber(profile.videoCount)}</dd></div>
+                <div><dt>views</dt><dd>${compactNumber(profile.viewCount)}</dd></div>
+              </dl>
               <div class="social-actions">
                 <a class="secondary link-button" href="${escapeHtml(profile.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open profile</a>
                 <button class="primary" type="button" data-use-profile>Use for realm</button>
               </div>
             </div>
           ` : `
-            <div class="profile-empty"><span>◎</span><h3>Creator profile preview</h3><p>Public identity and statistics will appear here after a successful lookup.</p></div>
+            <div class="profile-empty">${profileIcon()}<h3>No profile imported.</h3><p>Paste a public YouTube channel link.</p></div>
           `}
         </article>
       </div>
