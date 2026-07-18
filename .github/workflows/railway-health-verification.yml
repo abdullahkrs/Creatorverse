@@ -1,0 +1,132 @@
+name: Railway Health Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/railway-health-verification.yml'
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to verify
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - staging
+          - production
+      expected_sha:
+        description: Optional commit SHA expected from /version
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: railway-health-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.environment == 'both' ||
+      inputs.environment == matrix.environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: staging
+            base_url: https://creatorverse-app-staging.up.railway.app
+          - environment: production
+            base_url: https://creatorverse-app-production.up.railway.app
+    env:
+      BASE_URL: ${{ matrix.base_url }}
+      EXPECTED_ENVIRONMENT: ${{ matrix.environment }}
+      STAGING_URL: https://creatorverse-app-staging.up.railway.app
+      PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
+      EXPECTED_SHA: ${{ github.event_name == 'push' && matrix.environment == 'production' && github.sha || inputs.expected_sha || '' }}
+
+    steps:
+      - name: Enforce environment isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${STAGING_URL%/}" != "${PRODUCTION_URL%/}"
+          if [ "$EXPECTED_ENVIRONMENT" = "staging" ]; then
+            test "${BASE_URL%/}" != "${PRODUCTION_URL%/}"
+          fi
+
+      - name: Resolve Railway domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          host="$(node -e "console.log(new URL(process.env.BASE_URL).hostname)")"
+          resolved=''
+          for attempt in {1..8}; do
+            if resolved="$(getent ahosts "$host" 2>/dev/null)" && [ -n "$resolved" ]; then
+              printf '%s\n' "$resolved"
+              exit 0
+            fi
+            echo "DNS attempt $attempt/8 failed for $host"
+            sleep 5
+          done
+          echo "Unable to resolve $host"
+          exit 1
+
+      - name: Verify health and version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl_json() {
+            curl --fail --silent --show-error --location \
+              --retry 8 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 10 --max-time 30 \
+              "$1"
+          }
+
+          curl_json "${BASE_URL%/}/health" > /tmp/health.json
+          curl_json "${BASE_URL%/}/version" > /tmp/version.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const health = JSON.parse(fs.readFileSync('/tmp/health.json', 'utf8'));
+          const version = JSON.parse(fs.readFileSync('/tmp/version.json', 'utf8'));
+          const expectedEnvironment = process.env.EXPECTED_ENVIRONMENT;
+          const expectedSha = (process.env.EXPECTED_SHA || '').trim();
+          const actualEnvironment = String(version.environment || '').toLowerCase();
+          const actualSha = String(version.commitSha || version.commit || '').trim();
+
+          if (health.status !== 'ok') {
+            throw new Error(`Unexpected /health response: ${JSON.stringify(health)}`);
+          }
+          if (!actualSha) {
+            throw new Error('/version does not expose commitSha or commit');
+          }
+          if (expectedEnvironment === 'production' && actualEnvironment !== 'production') {
+            throw new Error(`Expected production, received ${actualEnvironment || 'empty'}`);
+          }
+          if (expectedEnvironment === 'staging' && actualEnvironment === 'production') {
+            throw new Error('Production must never be accepted as staging or preview');
+          }
+          if (expectedSha && !(actualSha === expectedSha || actualSha.startsWith(expectedSha) || expectedSha.startsWith(actualSha))) {
+            throw new Error(`Commit mismatch: expected ${expectedSha}, received ${actualSha}`);
+          }
+          NODE
+
+          echo "Environment: $EXPECTED_ENVIRONMENT"
+          echo 'Health response:'
+          cat /tmp/health.json
+          echo
+          echo 'Version response:'
+          cat /tmp/version.json
+          echo
