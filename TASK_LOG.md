@@ -2,6 +2,30 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-19 — CV-QUALITY-003 responsive cascade precedence
+
+**Outcome:** Make the existing mobile text-pressure rules authoritative without changing product copy, layout identity, or release checks.
+
+### Completed
+
+- Confirmed the release blocker was CSS cascade precedence: `src/quality-responsive.css` loads before later equal-specificity base declarations from `src/styles.css`.
+- Added narrowly scoped `body` component prefixes only to the existing `max-width: 30rem` safeguards so role, mission, realm, result, and navigation reflow rules outrank later base rules without `!important`, hidden overflow, font reduction, forced breaking, or duplicated media blocks.
+- Preserved semantic order, natural role-label wrapping, keyboard focus, 44×44 targets, Arabic RTL and English LTR composition, reduced motion, result states, safety acknowledgement, and share/copy safeguards.
+- Added `test/quality-responsive.test.js` to lock the focused specificity contract and reject hidden-overflow or ellipsis shortcuts.
+- Added no product-facing string, dependency, integration, persistence, secret, schema, Railway change, or visual redesign.
+
+### Validation
+
+- CI run #145 on implementation head `319e90b1c53014fcb65d59c3de4410d199b53d8b` passed locked `npm ci`, unit tests, localization parity, Railway verifier tests, and the production build.
+- The same run passed exact isolated Railway Preview `/health`, `/version`, branch and commit identity, malformed-path safety, and post-request liveness without using Production or shared Staging as Preview.
+- Playwright and axe passed the required English and Arabic role-ready/result-ready matrix at 320×568, 390×844, 768×1024, 1024×768, and 1440×900, including 200% text zoom, page and essential-label overflow assertions, keyboard order, focus visibility, 44×44 targets, state preservation, controlled share failure/retry/success, live regions, and reduced motion.
+- Browser evidence artifact `browser-quality-319e90b1c53014fcb65d59c3de4410d199b53d8b` is retained for 14 days.
+- Rollback is limited to reverting commits `5e52071c69a9bd3a9a8af20fb8ec189a9e39d0cd` and `319e90b1c53014fcb65d59c3de4410d199b53d8b`; no data, dependency, environment, or secret rollback is required.
+
+### Next best task
+
+Run independent QA on the unchanged final PR head; do not add product scope or relax the responsive gate.
+
 ## 2026-07-18 — CV-QUALITY-002 mobile text-zoom overflow repair
 
 **Outcome:** Preserve the mobile role-first hierarchy while allowing English and Arabic content to reflow without horizontal scrolling or broken words at 200% text zoom.
@@ -259,54 +283,3 @@ Validate the current multilingual social post and YouTube profile import on Rail
 ### Validation
 
 - Profile and post requests are sent only from the Railway server, not directly from the browser to arbitrary hosts.
-- Unsupported domains and non-HTTPS URLs are rejected.
-- All imported text is escaped before rendering.
-- Profile component rendering was reviewed to prevent repeated mutation loops.
-
-### Next best task
-
-Verify the automatic Railway deployment, test one public URL per supported post provider, add a restricted YouTube API key, and test Arabic/English switching on mobile.
-
-## 2026-07-18 — Railway test deployment setup
-
-**Outcome:** Make the current Creatorverse prototype deployable as a single public Railway service for usability testing.
-
-### Completed
-
-- Added a production `start` command and Node 22 runtime requirement.
-- Added a dependency-free Node server that serves the Vite `dist` output.
-- Added SPA fallback so direct and refreshed routes return the application.
-- Added `/health` for Railway deployment health checks.
-- Added baseline response security headers.
-- Added `railway.json` with Railpack build, start, healthcheck, watch, and restart settings.
-- Added `RAILWAY_DEPLOYMENT.md` with dashboard setup and verification instructions.
-- Kept the test deployment database-free; no secrets or variables are required yet.
-
-### Validation
-
-- The production server binds to Railway's injected `PORT` on `0.0.0.0`.
-- The health endpoint returns HTTP 200 without requiring the Vite application build.
-- Missing build output returns a controlled 503 response instead of a process crash.
-- Railway configuration uses the current root repository structure.
-
-### Next best task
-
-Deploy the feature branch to Railway, verify the test checklist, then complete the creator share-result card and invitation loop.
-
-## 2026-07-18 — Operational development agents
-
-**Outcome:** Convert the documented specialist roles into reusable operating prompts that can run focused Creatorverse development cycles with explicit handoffs and release decisions.
-
-### Completed
-
-- Added `.github/agents/orchestrator.agent.md` as the single cycle coordinator.
-- Added `.github/agents/product-game.agent.md` for product value, rules, progression, balance, and economy.
-- Added `.github/agents/creator-community-ux.agent.md` for creator workflows, follower experience, mobile UX, RTL readiness, and viral outputs.
-- Added `.github/agents/safety-fairness.agent.md` with release-blocking safety, legal-risk, minors, privacy, anti-abuse, and fairness review.
-- Added `.github/agents/engineering.agent.md` as the only implementation owner in a cycle.
-- Added `.github/agents/qa-release.agent.md` for acceptance evidence, regression, accessibility, measurement, and release decisions.
-- Added `.github/agents/HANDOFF_TEMPLATE.md` so activated agents produce compatible, concise handoffs instead of competing implementations.
-
-### Operating rule
-
-The orchestrator activates only the agents required for one selected vertical slice. One engineering owner changes the code; specialist agents define requirements and review the result. Every cycle ends after verification and a task-log update.
