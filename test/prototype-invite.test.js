@@ -49,6 +49,26 @@ test('accepts only allowlisted bounded fictional fields', () => {
   assert.throws(() => createPrototypeInvite({ name: 'Nova\u202E', theme: 'cosmic', promise: 'Safe' }), /INVITE_UNSAFE_CONTROL/);
 });
 
+test('rejects bare domains and external URL schemes during creation and parsing', () => {
+  assert.throws(() => createPrototypeInvite({ name: 'example.com', theme: 'cosmic', promise: 'Safe' }), /INVITE_PRIVATE_OR_EXTERNAL_TEXT/);
+
+  for (const externalText of [
+    'Visit example.com',
+    'Join discord.gg/room',
+    'Open ftp://example.com',
+    'Open custom+realm://example.com/path',
+    'Use mailto:team@example.com',
+  ]) {
+    assert.throws(
+      () => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: externalText }),
+      /INVITE_PRIVATE_OR_EXTERNAL_TEXT/,
+    );
+  }
+
+  const crafted = encodePayload({ v: 1, n: 'Nova', t: 'cosmic', p: 'Visit example.com' });
+  assert.deepEqual(parsePrototypeInviteToken(crafted), { status: 'invalid' });
+});
+
 test('parses one invite fragment, ignores unrelated data, and rejects malformed input', () => {
   const token = createPrototypeInvite({ name: 'Harbor Lab', theme: 'future', promise: 'Build a calm fictional signal.' });
   assert.equal(parsePrototypeInviteFragment('').status, 'none');
