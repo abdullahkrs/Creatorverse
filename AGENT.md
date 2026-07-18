@@ -12,6 +12,21 @@ Creator creates realm → shares link → follower joins in seconds → chooses 
 
 Every cycle must improve, validate, secure, or restore this loop.
 
+## Mandatory standards
+
+Before changing visible requirements, code, or release state, read `docs/standards/README.md` and every standard mapped to your role. New visible UI must use `src/design-system/tokens.css` before introducing hardcoded visual values.
+
+The repository standards are release gates, not suggestions. Agents must reject or repair work that:
+
+- looks like a generic AI-generated landing page or default component kit;
+- relies on excessive explanatory copy, oversized slogans, repetitive cards, generic gradients, glows, decorative geometry, or placeholder icons;
+- lacks a clear dominant action and original product identity;
+- fails responsive behavior at 320/390/768/1024/1440 widths as applicable;
+- treats Arabic RTL as a simple mirrored English layout;
+- hides essential behavior behind hover or lacks keyboard, focus, reduced-motion, loading, empty, error, and success states.
+
+A full React/Tailwind migration requires its own focused issue. Libraries are adopted incrementally under `docs/standards/LIBRARY_POLICY.md`.
+
 ## Single source of truth
 
 GitHub Issues and labels are the only workflow state.
@@ -27,10 +42,10 @@ Agents must not use private scratch files, duplicate status documents, or a seco
 ## Five agents
 
 1. Product Lead: creates one focused issue only when no `auto:active` issue exists; does not modify code.
-2. Game & UX Agent: defines flow, mobile behavior, accessibility, Arabic/English parity, RTL/LTR, and all states; does not modify code.
+2. Game & UX Agent: defines flow, professional visual direction, copy budget, responsive behavior, accessibility, Arabic/English parity, RTL/LTR, and all states; does not modify code.
 3. Safety & Fairness Reviewer: defines concrete safeguards and blocks only concrete release risks; does not modify product code.
 4. Full-Stack Engineer: the only primary code author; creates one branch and one PR for the active issue; does not merge.
-5. QA & Release Agent: verifies all gates, returns actionable failures to `stage:build`, squash-merges passing work, and verifies Railway production.
+5. QA & Release Agent: verifies all functional, safety, deployment, responsive, accessibility, and professional visual-quality gates; returns actionable failures to `stage:build`, squash-merges passing work, and verifies Railway production.
 
 ## Issue contract
 
@@ -44,6 +59,7 @@ Every autonomous issue must include:
 - Language and direction requirements.
 - Expected affected areas.
 - Stable task key such as `CV-MVP-014`.
+- For visible UI: copy budget, responsive evidence sizes, visual-quality bar, and required before/after evidence.
 
 A task must be split before implementation if it has more than one independent user outcome, more than one major external integration, or combines a broad refactor with a feature.
 
@@ -60,16 +76,17 @@ A task must be split before implementation if it has more than one independent u
 
 The Engineer must:
 
-1. Read the active issue and completed handoffs.
+1. Read the active issue, completed handoffs, and all mapped standards.
 2. Implement exactly one coherent vertical slice.
-3. Keep Arabic and English synchronized and preserve RTL/LTR when UI changes.
-4. Escape imported content and validate all server inputs.
-5. Add or update relevant automated tests.
-6. Run `npm run check` and all available tests.
-7. Update `TASK_LOG.md` with facts only.
-8. Create or update one dedicated branch and one linked PR.
-9. Include acceptance evidence, tests, safety notes, Railway Preview expectations, `/health`, `/version`, limitations, and rollback notes.
-10. Move the issue from `stage:build` to `stage:release` and stop.
+3. Keep Arabic and English synchronized and preserve intentional RTL/LTR composition when UI changes.
+4. Use design tokens, semantic HTML, logical CSS properties, and the responsive standard for visible work.
+5. Escape imported content and validate all server inputs.
+6. Add or update relevant automated tests.
+7. Run `npm run check` and all available tests.
+8. Update `TASK_LOG.md` with facts only.
+9. Create or update one dedicated branch and one linked PR.
+10. Include acceptance evidence, responsive screenshots or equivalent evidence, tests, safety notes, Railway Preview expectations, `/health`, `/version`, limitations, and rollback notes.
+11. Move the issue from `stage:build` to `stage:release` and stop.
 
 ## CI failure protocol
 
@@ -89,9 +106,12 @@ QA may merge only when all applicable checks pass:
 - Acceptance criteria.
 - Required GitHub CI checks.
 - No disabled or bypassed checks.
-- Mobile behavior and keyboard accessibility.
-- Arabic and English parity; RTL and LTR.
+- Professional visual-quality requirements in `docs/standards/DESIGN_SYSTEM.md`.
+- Responsive evidence and no unintended horizontal overflow.
+- Mobile behavior, touch targets, keyboard accessibility, and visible focus.
+- Arabic and English parity; composed RTL and LTR.
 - Loading, empty, success, and error states.
+- Reduced-motion behavior when motion exists.
 - Safety, privacy, fairness, and secret handling.
 - Railway Preview `/health` returns 200.
 - Railway Preview `/version` matches the PR commit.
@@ -102,7 +122,7 @@ If production verification fails, no new feature may start. Create or restore a 
 
 ## Priority order
 
-Production outage → security vulnerability → failed deployment → broken core loop → current milestone → new feature → visual polish.
+Production outage → security vulnerability → failed deployment → broken core loop → professional usability and visual quality → current milestone → new feature breadth.
 
 ## Anti-loop and recovery rules
 
@@ -127,7 +147,8 @@ A cycle is complete only when:
 - Railway production is healthy.
 - Production `/version` matches the merged commit.
 - Arabic and English paths work.
-- Mobile and basic accessibility checks pass.
+- Responsive, mobile, keyboard, and basic accessibility checks pass.
+- Visible UI meets the professional design and copy standards.
 - No concrete security or safety blocker remains.
 - `TASK_LOG.md` is updated.
 - The feature branch is removed when possible.
