@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1040" viewBox="0 0 900 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Creatorverse bilingual mobile layout evidence</title>
+  <desc id="desc">Equivalent visual regression sheet for the final 320 and 390 pixel English LTR and Arabic RTL layouts.</desc>
+  <rect width="900" height="1040" fill="#0b0d12"/>
+  <style>
+    text{font-family:Arial,Tahoma,sans-serif;fill:#f5f7fb}.label{font-size:18px;font-weight:700}.small{font-size:11px;fill:#a8afbd}.title{font-size:21px;font-weight:800}.role{font-size:11px;font-weight:700}.phone{fill:#0b0d12;stroke:#343b49;stroke-width:2}.surface{fill:#141821;stroke:#343b49}.action{fill:#f0d36a}.muted{fill:#1b202b;stroke:#343b49}.line{stroke:#343b49;stroke-width:2}.route{fill:#1b202b;stroke:#343b49}.accent{fill:#f0d36a}.rtl{text-anchor:end}
+  </style>
+
+  <text class="label" x="38" y="34">320 × 568 · English LTR</text>
+  <g transform="translate(38 52)">
+    <rect class="phone" width="320" height="455" rx="16"/>
+    <rect class="action" x="16" y="14" width="32" height="32" rx="6"/><rect fill="#171408" x="26" y="24" width="12" height="12"/>
+    <text x="56" y="35" font-size="15" font-weight="800">Creatorverse</text>
+    <rect class="muted" x="180" y="10" width="58" height="40" rx="8"/><text x="197" y="35" font-size="13" font-weight="700">Create</text>
+    <rect class="action" x="242" y="10" width="62" height="40" rx="8"/><text x="261" y="35" font-size="13" font-weight="800" fill="#171408">EN</text>
+    <line class="line" x1="16" y1="62" x2="304" y2="62"/>
+    <text class="small" x="16" y="88">SEASON 0 · PROTOTYPE</text>
+    <text class="title" x="16" y="118">Choose your role.</text><text class="title" x="16" y="143">Help the realm grow.</text>
+    <g transform="translate(16 163)">
+      <rect class="surface" width="90" height="82" rx="10"/><rect class="surface" x="99" width="90" height="82" rx="10"/><rect class="surface" x="198" width="90" height="82" rx="10"/>
+      <circle class="accent" cx="45" cy="26" r="7"/><circle class="accent" cx="144" cy="26" r="7"/><circle class="accent" cx="243" cy="26" r="7"/>
+      <text class="role" x="24" y="60">Builder</text><text class="role" x="119" y="60">Explorer</text><text class="role" x="216" y="60">Guardian</text>
+    </g>
+    <rect class="surface" x="16" y="258" width="288" height="170" rx="12"/>
+    <text class="small" x="32" y="282">ONE MISSION · 35 SECONDS</text><text x="32" y="312" font-size="18" font-weight="800">Power Signal Harbor</text>
+    <rect class="muted" x="211" y="276" width="77" height="28" rx="6"/><text class="small" x="222" y="294">Choose role</text>
+    <text class="small" x="32" y="340">Choose a role to unlock the routes.</text>
+    <rect class="route" x="32" y="357" width="116" height="48" rx="8"/><rect class="route" x="156" y="357" width="132" height="48" rx="8"/>
+    <text class="small" x="60" y="386">Sky route</text><text class="small" x="182" y="386">Ocean route</text>
+  </g>
+
+  <text class="label" x="500" y="34">320 × 568 · Arabic RTL</text>
+  <g transform="translate(500 52)">
+    <rect class="phone" width="320" height="455" rx="16"/>
+    <rect class="action" x="272" y="14" width="32" height="32" rx="6"/><rect fill="#171408" x="282" y="24" width="12" height="12"/>
+    <text class="rtl" x="264" y="35" font-size="15" font-weight="800">Creatorverse</text>
+    <rect class="muted" x="82" y="10" width="58" height="40" rx="8"/><text x="99" y="35" font-size="13" font-weight="700">إنشاء</text>
+    <rect class="action" x="16" y="10" width="62" height="40" rx="8"/><text x="28" y="35" font-size="13" font-weight="800" fill="#171408">العربية</text>
+    <line class="line" x1="16" y1="62" x2="304" y2="62"/>
+    <text class="small rtl" x="304" y="88">الموسم 0 · نسخة تجريبية</text>
+    <text class="title rtl" x="304" y="118">اختر دورك وساعد</text><text class="title rtl" x="304" y="143">العالم على النمو.</text>
+    <g transform="translate(16 163)">
+      <rect class="surface" width="90" height="82" rx="10"/><rect class="surface" x="99" width="90" height="82" rx="10"/><rect class="surface" x="198" width="90" height="82" rx="10"/>
+      <circle class="accent" cx="45" cy="26" r="7"/><circle class="accent" cx="144" cy="26" r="7"/><circle class="accent" cx="243" cy="26" r="7"/>
+      <text class="role" x="22" y="60">الحارس</text><text class="role" x="111" y="60">المستكشف</text><text class="role" x="220" y="60">البنّاء</text>
+    </g>
+    <rect class="surface" x="16" y="258" width="288" height="170" rx="12"/>
+    <text class="small rtl" x="288" y="282">مهمة واحدة · 35 ثانية</text><text class="rtl" x="288" y="312" font-size="18" font-weight="800">فعّل ميناء الإشارة</text>
+    <rect class="muted" x="32" y="276" width="77" height="28" rx="6"/><text class="small" x="45" y="294">اختر دورًا</text>
+    <text class="small rtl" x="288" y="340">اختر دورًا لفتح المسارات.</text>
+    <rect class="route" x="32" y="357" width="124" height="48" rx="8"/><rect class="route" x="164" y="357" width="124" height="48" rx="8"/>
+    <text class="small" x="56" y="386">المسار البحري</text><text class="small" x="188" y="386">المسار السماوي</text>
+  </g>
+
+  <text class="label" x="38" y="558">390 × 844 · English LTR</text>
+  <g transform="translate(38 576) scale(1.08)">
+    <rect class="phone" width="360" height="405" rx="16"/>
+    <rect class="action" x="16" y="14" width="32" height="32" rx="6"/><text x="58" y="35" font-size="15" font-weight="800">Creatorverse</text>
+    <rect class="muted" x="216" y="10" width="62" height="40" rx="8"/><rect class="action" x="282" y="10" width="62" height="40" rx="8"/>
+    <line class="line" x1="16" y1="62" x2="344" y2="62"/>
+    <text class="small" x="16" y="86">SEASON 0 · PROTOTYPE</text><text class="title" x="16" y="116">Choose your role. Help the realm grow.</text>
+    <rect class="surface" x="16" y="138" width="100" height="76" rx="10"/><rect class="surface" x="130" y="138" width="100" height="76" rx="10"/><rect class="surface" x="244" y="138" width="100" height="76" rx="10"/>
+    <text class="role" x="43" y="185">Builder</text><text class="role" x="157" y="185">Explorer</text><text class="role" x="270" y="185">Guardian</text>
+    <rect class="surface" x="16" y="228" width="328" height="154" rx="12"/><text class="small" x="32" y="252">ONE MISSION · 35 SECONDS</text><text x="32" y="280" font-size="18" font-weight="800">Power Signal Harbor</text>
+    <rect class="route" x="32" y="314" width="142" height="48" rx="8"/><rect class="route" x="186" y="314" width="142" height="48" rx="8"/>
+  </g>
+
+  <text class="label" x="500" y="558">390 × 844 · Arabic RTL</text>
+  <g transform="translate(500 576) scale(1.08)">
+    <rect class="phone" width="360" height="405" rx="16"/>
+    <rect class="action" x="312" y="14" width="32" height="32" rx="6"/><text class="rtl" x="302" y="35" font-size="15" font-weight="800">Creatorverse</text>
+    <rect class="muted" x="82" y="10" width="62" height="40" rx="8"/><rect class="action" x="16" y="10" width="62" height="40" rx="8"/>
+    <line class="line" x1="16" y1="62" x2="344" y2="62"/>
+    <text class="small rtl" x="344" y="86">الموسم 0 · نسخة تجريبية</text><text class="title rtl" x="344" y="116">اختر دورك وساعد العالم على النمو.</text>
+    <rect class="surface" x="16" y="138" width="100" height="76" rx="10"/><rect class="surface" x="130" y="138" width="100" height="76" rx="10"/><rect class="surface" x="244" y="138" width="100" height="76" rx="10"/>
+    <text class="role" x="39" y="185">الحارس</text><text class="role" x="148" y="185">المستكشف</text><text class="role" x="272" y="185">البنّاء</text>
+    <rect class="surface" x="16" y="228" width="328" height="154" rx="12"/><text class="small rtl" x="328" y="252">مهمة واحدة · 35 ثانية</text><text class="rtl" x="328" y="280" font-size="18" font-weight="800">فعّل ميناء الإشارة</text>
+    <rect class="route" x="32" y="314" width="142" height="48" rx="8"/><rect class="route" x="186" y="314" width="142" height="48" rx="8"/>
+  </g>
+</svg>
