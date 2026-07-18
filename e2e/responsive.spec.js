@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+import { getMissionResultCopy } from '../src/mission-result-i18n.js';
 
 mkdirSync('test-results/screenshots', { recursive: true });
 
@@ -11,31 +12,195 @@ const viewports = [
   { name: '1440x900', width: 1440, height: 900 },
 ];
 
+const localeDirection = { en: 'ltr', ar: 'rtl' };
+
+async function setInitialLocale(page, locale) {
+  await page.addInitScript(value => localStorage.setItem('creatorverse-locale', value), locale);
+}
+
+async function completeMission(page, { role = 'builder', route = 'sky' } = {}) {
+  await page.locator(`[data-role="${role}"]`).click();
+  await page.locator(`[data-route="${route}"]`).click();
+  await expect(page.locator('[data-mission-result]')).toBeVisible();
+}
+
+async function expectNoHorizontalOverflow(page) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+}
+
+async function expectTouchTargets(page) {
+  const targets = await page.locator('button:visible').evaluateAll(nodes => nodes.map(node => {
+    const rect = node.getBoundingClientRect();
+    return { label: node.getAttribute('aria-label') || node.textContent?.trim() || 'button', width: rect.width, height: rect.height };
+  }));
+
+  expect(targets.length).toBeGreaterThan(0);
+  for (const target of targets) {
+    expect(target.width, `${target.label} width`).toBeGreaterThanOrEqual(44);
+    expect(target.height, `${target.label} height`).toBeGreaterThanOrEqual(44);
+  }
+}
+
+async function expectVisibleFocus(locator) {
+  await locator.focus();
+  await expect(locator).toBeFocused();
+  const focus = await locator.evaluate(node => {
+    const style = getComputedStyle(node);
+    return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+  });
+  expect(focus.style).not.toBe('none');
+  expect(focus.width).toBeGreaterThan(0);
+}
+
 for (const locale of ['en', 'ar']) {
   for (const viewport of viewports) {
-    test(`${locale} ${viewport.name} keeps the core loop usable`, async ({ page }) => {
+    test(`${locale} ${viewport.name} captures role-ready and result-ready evidence`, async ({ page }) => {
       await page.setViewportSize(viewport);
-      await page.addInitScript(value => localStorage.setItem('creatorverse-locale', value), locale);
+      await setInitialLocale(page, locale);
       await page.goto('/');
-      await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr');
-      await expect(page.locator('[data-role]').first()).toBeVisible();
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-      expect(overflow).toBeLessThanOrEqual(1);
-      const targets = await page.locator('button:visible').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
-      expect(Math.min(...targets)).toBeGreaterThanOrEqual(44);
-      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}.png`, fullPage: true });
+
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('html')).toHaveAttribute('dir', localeDirection[locale]);
+      await expect(page.locator('[data-mission-result]')).toHaveCount(0);
+
+      const roles = page.locator('.experience [data-role]');
+      await expect(roles).toHaveCount(3);
+      expect(await roles.locator(':enabled').count()).toBe(3);
+      expect(await page.locator('.experience [data-route]:enabled').count()).toBe(0);
+      await expect(roles.first()).toBeVisible();
+      await expectVisibleFocus(roles.first());
+      await expectNoHorizontalOverflow(page);
+      await expectTouchTargets(page);
+
+      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-role-ready.png` });
+
+      await completeMission(page);
+      const result = page.locator('[data-mission-result]');
+      const resultAction = result.locator('[data-action="mission-result-action"]');
+      await expect(result.locator('.signal-result-facts > div')).toHaveCount(4);
+      await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '75');
+      await expect(result.locator('#mission-result-action-status')).toHaveAttribute('aria-live', 'polite');
+      await expect(result.locator('[data-result-announcement]')).toHaveAttribute('aria-live', 'polite');
+      await expect(resultAction).toBeVisible();
+      await resultAction.scrollIntoViewIfNeeded();
+      await expectVisibleFocus(resultAction);
+      await expectNoHorizontalOverflow(page);
+      await expectTouchTargets(page);
+
+      await page.screenshot({ path: `test-results/screenshots/${locale}-${viewport.name}-result-ready.png` });
     });
   }
 }
 
+for (const locale of ['en', 'ar']) {
+  test(`${locale} remains usable at 200 percent text zoom`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await setInitialLocale(page, locale);
+    await page.goto('/');
+    await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
+
+    await expectNoHorizontalOverflow(page);
+    await expect(page.locator('[data-role]').first()).toBeVisible();
+    await completeMission(page);
+    await expect(page.locator('[data-action="mission-result-action"]')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+}
+
+for (const locale of ['en', 'ar']) {
+  test(`${locale} preserves the completed result after resize and language switching`, async ({ page }) => {
+    const targetLocale = locale === 'en' ? 'ar' : 'en';
+    await page.setViewportSize({ width: 390, height: 844 });
+    await setInitialLocale(page, locale);
+    await page.goto('/');
+    await completeMission(page, { role: 'explorer', route: 'ocean' });
+
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await expect(page.locator('[data-role="explorer"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-mission-result]')).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator('[data-mission-result]')).toBeVisible();
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.locator(`[data-locale="${targetLocale}"]`).click(),
+    ]);
+
+    await expect(page.locator('html')).toHaveAttribute('lang', targetLocale);
+    await expect(page.locator('html')).toHaveAttribute('dir', localeDirection[targetLocale]);
+    await expect(page.locator('[data-role="explorer"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-mission-result]')).toBeVisible();
+    await expect(page.locator('.signal-result-facts > div')).toHaveCount(4);
+  });
+}
+
+for (const locale of ['en', 'ar']) {
+  test(`${locale} share action exposes loading, failure, retry, and success`, async ({ page }) => {
+    const copy = getMissionResultCopy(locale);
+    await setInitialLocale(page, locale);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'share', {
+        configurable: true,
+        value: () => new Promise((resolve, reject) => {
+          window.__shareAttempt = (window.__shareAttempt || 0) + 1;
+          window.__settleShare = window.__shareAttempt === 1
+            ? () => reject(new Error('CONTROLLED_SHARE_FAILURE'))
+            : () => resolve();
+        }),
+      });
+    });
+    await page.goto('/');
+    await completeMission(page);
+
+    const action = page.locator('[data-action="mission-result-action"]');
+    const status = page.locator('#mission-result-action-status');
+    await action.click();
+    await expect(action).toBeDisabled();
+    await expect(action).toContainText(copy.sharing);
+    await page.evaluate(() => window.__settleShare());
+    await expect(status).toHaveText(copy.shareFailed);
+    await expect(action).toBeEnabled();
+    await expect(action).toBeFocused();
+
+    await action.click();
+    await expect(action).toBeDisabled();
+    await page.evaluate(() => window.__settleShare());
+    await expect(action).toContainText(copy.shared);
+    await expect(status).toHaveText(copy.shareSuccess);
+  });
+
+  test(`${locale} copy fallback completes without external posting`, async ({ page }) => {
+    const copy = getMissionResultCopy(locale);
+    await setInitialLocale(page, locale);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: async text => { window.__copiedMissionResult = text; } },
+      });
+    });
+    await page.goto('/');
+    await completeMission(page);
+
+    const action = page.locator('[data-action="mission-result-action"]');
+    await action.click();
+    await expect(action).toContainText(copy.copied);
+    await expect(page.locator('#mission-result-action-status')).toHaveText(copy.copySuccess);
+    expect(await page.evaluate(() => window.__copiedMissionResult)).toContain(page.url());
+  });
+}
+
 test('keyboard mission result flow remains predictable', async ({ page }) => {
   await page.goto('/');
-  await page.locator('[data-role="builder"]').focus();
+  const role = page.locator('[data-role="builder"]');
+  await expectVisibleFocus(role);
   await page.keyboard.press('Enter');
-  await page.locator('[data-route="sky"]').focus();
+  const route = page.locator('[data-route="sky"]');
+  await expectVisibleFocus(route);
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-mission-result]')).toBeVisible();
-  await expect(page.getByRole('button', { name: /share result|copy result/i })).toBeVisible();
+  await expect(page.locator('[data-action="mission-result-action"]')).toBeVisible();
 });
 
 test('reduced motion disables purposeful progress animation', async ({ page }) => {
