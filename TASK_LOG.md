@@ -21,9 +21,9 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - CI run #128 proved the first focused stacked-layout repair removed the overflow without weakening the existing browser gate.
 - The layout was refined to preserve the normal compact three-role composition and reflow only under content pressure, matching the CV-QUALITY-002 UX handoff.
 - CI run #131 on implementation head `ea6ee1cca0a8488618032075840f9246523e4945` passed locked `npm ci`, unit/localization/build gates, exact isolated Railway Preview `/health` and `/version`, malformed-path and post-request identity, all bilingual Playwright paths, 200% text zoom at 320×568 and 390×844, axe, and artifact upload.
-- Final exact-head CI run #132 on `976db4367f5eebe3613e5fca898e3aca8b6ef1e9` repeated the same locked build, exact Preview, bilingual browser, text-zoom, accessibility, and artifact gates successfully.
-- Documentation-only head `f6f5431b9806657058a7920bd9f77a4ae0025d8f` passed final exact-head CI run #133 with the same gates and browser evidence.
-- Final browser evidence artifact: `browser-quality-f6f5431b9806657058a7920bd9f77a4ae0025d8f`, retained for 14 days.
+- CI runs #132 and #133 repeated the same gates after factual task-log updates.
+- Final documentation-only head `8812980e02820f387fc5107a1f6d89e693c9bcd6` passed exact-head CI run #134 with locked build, exact Preview identity, bilingual browser, text-zoom, accessibility, and artifact gates.
+- Final browser evidence artifact: `browser-quality-8812980e02820f387fc5107a1f6d89e693c9bcd6`, retained for 14 days.
 - Rollback is limited to reverting the focused adaptive-layout commit `4c8c959ffe786dd33679b4d3c79d41c561e7a172` and evidence-test commit `ea6ee1cca0a8488618032075840f9246523e4945`; no data or dependency rollback is required.
 
 ### Next best task
