@@ -42,6 +42,11 @@ test('packet contains exactly five anonymous scorecards and the fixed ten-task o
       1,
       `${participant} must have exactly one scorecard`,
     );
+    assert.equal(
+      occurrences(findings, `| Anonymous participant ID | \`${participant}\` |`),
+      1,
+      `${participant} must be preassigned only to its own anonymous scorecard`,
+    );
   }
 
   for (const task of taskLabels) {
@@ -53,23 +58,55 @@ test('packet contains exactly five anonymous scorecards and the fixed ten-task o
   }
 });
 
+test('every scorecard preserves the approved protocol fields and scoring meanings', () => {
+  const taskHeader =
+    '| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |';
+
+  assert.equal(occurrences(findings, taskHeader), 5);
+  assert.match(
+    findings,
+    /Task outcome must be exactly `Pass unassisted`, `Pass assisted`, or `Fail`/,
+  );
+  assert.match(findings, /Duration band must be exactly `<30s`, `30–60s`, or `>60s`/);
+  assert.match(findings, /Pass assisted` never counts as unassisted evidence/);
+  assert.match(findings, /<severity>: <concise observable friction>/);
+  assert.match(findings, /`Critical`, `High`, `Medium`, or `Low`/);
+
+  for (const requiredField of [
+    'Date band',
+    'Voluntary consent confirmed',
+    'No recording confirmed',
+    'Adult/approved process confirmed',
+    'Raw-note deletion due',
+    'Contradiction to another observation',
+  ]) {
+    assert.equal(
+      occurrences(findings, `| ${requiredField} |`),
+      5,
+      `${requiredField} must appear once in each scorecard`,
+    );
+  }
+});
+
 test('planned allocation guarantees bilingual RTL and LTR coverage', () => {
   assert.match(findings, /\| P01 \| AR \| RTL \|/);
   assert.match(findings, /\| P02 \| AR \| RTL \|/);
   assert.match(findings, /\| P03 \| EN \| LTR \|/);
   assert.match(findings, /\| P04 \| EN \| LTR \|/);
   assert.match(findings, /\| P05 \| EN \| LTR \|/);
+
+  assert.equal(occurrences(findings, '| Session language | `AR` |'), 2);
+  assert.equal(occurrences(findings, '| Direction verified | `RTL` |'), 2);
+  assert.equal(occurrences(findings, '| Session language | `EN` |'), 3);
+  assert.equal(occurrences(findings, '| Direction verified | `LTR` |'), 3);
 });
 
-test('privacy and released-build identity gates are explicit', () => {
+test('privacy, released-build identity, and controlled-state gates are explicit', () => {
   for (const requiredField of [
     'Public test URL',
     'Released `main` commit SHA',
     '`/health` result',
     '`/version` commit SHA',
-    'Voluntary consent confirmed',
-    'Adult confirmed',
-    'No recording confirmed',
   ]) {
     assert.ok(findings.includes(requiredField), `${requiredField} must remain present`);
   }
@@ -78,7 +115,21 @@ test('privacy and released-build identity gates are explicit', () => {
     findings,
     /\|\s*(Name|Email|Phone|Account handle|Precise location|Device ID)\s*\|/i,
   );
+
+  for (const state of [
+    'Loading',
+    'Empty content',
+    'Invalid/expired link',
+    'Recoverable mission failure',
+    'Network/service error',
+    'Recoverable copy failure',
+  ]) {
+    assert.equal(
+      occurrences(findings, `| ${state} |`),
+      6,
+      `${state} must appear in five scorecards and the aggregate summary`,
+    );
+  }
+
   assert.match(findings, /Required threshold: `4\/5`/);
-  assert.match(findings, /Invalid or expired invite/);
-  assert.match(findings, /Recoverable service failure/);
 });
