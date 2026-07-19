@@ -2,6 +2,34 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-19 — CV-MVP-005A automated usability proxy gate
+
+**Outcome:** Add a deterministic engineering proxy for the creator-to-follower loop without presenting automation as human research. The current decision is `AUTOMATED_PROXY_FAIL` because the required recovery profile did not complete on the exact PR head.
+
+### Completed
+
+- Added five deterministic Playwright profile definitions covering Arabic RTL and English LTR, touch and keyboard, `320×568` and `390×844`, isolated browser storage, visible-control interaction, keyboard focus, 44 px targets, overflow, accessibility, interaction budgets, screenshots, and the creator → invite → follower → role → route → mission → result/share → language-preservation loop.
+- Added a fresh-session recovery profile for malformed invite, clipboard denial, empty content, loading, recoverable mission-source failure, and recoverable service failure using synthetic fixtures only.
+- Added an exact-head JSON and Markdown report contract tied to the Railway PR Preview URL, branch, `/health`, and `/version`, with regression tests for missing, stale, wrong-SHA, wrong-branch, Production, incomplete, and research-mislabeled evidence.
+- Added a syntax gate before unit/localization/build checks and a CI report-integrity step after the browser suite.
+- Preserved the creator close control at the 44 px target floor through a focused non-shrinking responsive rule; a concurrent focused commit also hardened the shared target token to `max(2.75rem, 44px)`.
+- Added no account, credential, analytics, Production-data, recruitment, interview, survey, facilitator, or manual evidence dependency.
+
+### Validation
+
+- CI run #164 passed locked installation, unit/localization/build, and exact Railway identity, then exposed a syntax defect in the initial proxy specification before browser execution.
+- CI run #166 passed the new syntax gate, locked checks, and exact Railway identity; browser evidence exposed that the test bootstrap overwrote an intentional locale change after reload.
+- CI run #167 passed locked checks and exact Railway identity; browser evidence then exposed the creator close control shrinking below 44 px on the mobile creator view.
+- CI run #168 passed locked checks and exact Railway identity for head `d25ea2d2d6c1bc12d923ce86cef803104887df04`, but the branch advanced concurrently to `d2fa614f3021c9529cead5784d02c1d8408c2a25` while the browser job was running, so the proxy correctly rejected the changed `/version` identity.
+- CI run #169 on exact head `d2fa614f3021c9529cead5784d02c1d8408c2a25` passed locked install, syntax/unit/localization/build, isolated Railway Preview selection, `/health`, `/version`, branch and commit identity, malformed-path safety, and generated all four required AR/RTL and EN/LTR core-profile screenshots.
+- Run #169 failed in the fresh-session clipboard recovery path because its fail-once clipboard fixture was invoked through the normal creator helper, which requires the first copy attempt to report success. The recovery report and integrity step were therefore not generated, so the factual decision remains `AUTOMATED_PROXY_FAIL`.
+- Artifact `browser-quality-d2fa614f3021c9529cead5784d02c1d8408c2a25` is retained through 2026-08-02 and contains the four passing core-profile screenshots plus the exact recovery failure trace.
+- Three focused repair attempts were exhausted in this run. Pull Request #19 remains draft and issue #18 remains `stage:build`; no release claim or human-usability claim is made.
+
+### Next best task
+
+Preserve Pull Request #19 and make only the narrow recovery-helper correction in the next authorized engineering attempt: let the controlled first clipboard denial reach the manual-copy state before requiring the retry to succeed, then rerun the unchanged exact-head Railway, browser, axe, screenshot, and report-integrity gates.
+
 ## 2026-07-19 — CV-MVP-004 safe prototype invite handoff
 
 **Outcome:** Connect creator onboarding completion to one safe copyable prototype invite and one fresh-session follower entry without real social actions, identity disclosure, or product-scope expansion.
@@ -273,7 +301,7 @@ Resolve and merge the current foundation Pull Request, verify Railway deploys th
 - Reduced normal development to Product Lead, Game and UX, Safety and Fairness, Full-Stack Engineer, and QA and Release.
 - Updated `AGENT.md` with the fixed team, one-code-owner rule, branch policy, Railway Preview requirement, and stop conditions.
 - Updated the orchestrator prompt to prohibit extra agents and automatic merging.
-- Added `.github/pull_request_template.md` with acceptance, safety, localization, social-integration, CI, and Railway evidence gates.
+- Added `.github/pull_request_template.md` with acceptance, safety, localization, social-integration, CI, Railway evidence, rollback, and post-merge completion checks.
 - Added `.github/ISSUE_TEMPLATE/agent-cycle.yml` so one issue defines one measurable development cycle.
 - Added `AGENT_QUICKSTART.md` with the exact command to start an agent cycle and the repository-owner review checklist.
 
