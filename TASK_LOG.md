@@ -4,31 +4,29 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 ## 2026-07-19 — CV-MVP-005A automated usability proxy gate
 
-**Outcome:** Add a deterministic engineering proxy for the creator-to-follower loop without presenting automation as human research. The current decision is `AUTOMATED_PROXY_FAIL` because the required recovery profile did not complete on the exact PR head.
+**Outcome:** Add a deterministic engineering proxy for the creator-to-follower loop without presenting automation as human research. The current decision is `AUTOMATED_PROXY_PASS` on exact head `a4350de85c8246b8df0836865c8612c42bc1f140`.
 
 ### Completed
 
-- Added five deterministic Playwright profile definitions covering Arabic RTL and English LTR, touch and keyboard, `320×568` and `390×844`, isolated browser storage, visible-control interaction, keyboard focus, 44 px targets, overflow, accessibility, interaction budgets, screenshots, and the creator → invite → follower → role → route → mission → result/share → language-preservation loop.
-- Added a fresh-session recovery profile for malformed invite, clipboard denial, empty content, loading, recoverable mission-source failure, and recoverable service failure using synthetic fixtures only.
-- Added an exact-head JSON and Markdown report contract tied to the Railway PR Preview URL, branch, `/health`, and `/version`, with regression tests for missing, stale, wrong-SHA, wrong-branch, Production, incomplete, and research-mislabeled evidence.
-- Added a syntax gate before unit/localization/build checks and a CI report-integrity step after the browser suite.
-- Preserved the creator close control at the 44 px target floor through a focused non-shrinking responsive rule; a concurrent focused commit also hardened the shared target token to `max(2.75rem, 44px)`.
-- Added no account, credential, analytics, Production-data, recruitment, interview, survey, facilitator, or manual evidence dependency.
+- Added five deterministic Playwright profiles covering Arabic RTL and English LTR, touch and keyboard, `320×568` and `390×844`, isolated browser storage, visible-control interaction, keyboard focus, minimum 44 px targets, overflow, accessibility, interaction budgets, screenshots, and the creator → invite → follower → role → route → mission → result/share → language-preservation loop.
+- Added a fresh-session recovery profile for malformed invite, clipboard denial and retry, empty content, loading, recoverable mission-source failure, and recoverable service failure using synthetic fixtures only.
+- Added exact-head JSON and Markdown evidence tied to the isolated Railway PR Preview URL, branch, `/health`, and `/version`, with regression tests for missing, stale, wrong-SHA, wrong-branch, Production, incomplete, and research-mislabeled evidence.
+- Added the syntax gate and CI report-integrity check without adding a dependency, account, credential, analytics, Production data, recruitment, interview, survey, facilitator, or manual evidence requirement.
+- Hardened the shared interaction token to `max(2.75rem, 44px)` so the creator close control and other token-based controls retain the required CSS-pixel floor in mobile browser profiles.
+- Corrected the recovery helper so the controlled first clipboard denial is observed as a visible focused manual-copy state before the same named action succeeds on retry.
 
 ### Validation
 
-- CI run #164 passed locked installation, unit/localization/build, and exact Railway identity, then exposed a syntax defect in the initial proxy specification before browser execution.
-- CI run #166 passed the new syntax gate, locked checks, and exact Railway identity; browser evidence exposed that the test bootstrap overwrote an intentional locale change after reload.
-- CI run #167 passed locked checks and exact Railway identity; browser evidence then exposed the creator close control shrinking below 44 px on the mobile creator view.
-- CI run #168 passed locked checks and exact Railway identity for head `d25ea2d2d6c1bc12d923ce86cef803104887df04`, but the branch advanced concurrently to `d2fa614f3021c9529cead5784d02c1d8408c2a25` while the browser job was running, so the proxy correctly rejected the changed `/version` identity.
-- CI run #169 on exact head `d2fa614f3021c9529cead5784d02c1d8408c2a25` passed locked install, syntax/unit/localization/build, isolated Railway Preview selection, `/health`, `/version`, branch and commit identity, malformed-path safety, and generated all four required AR/RTL and EN/LTR core-profile screenshots.
-- Run #169 failed in the fresh-session clipboard recovery path because its fail-once clipboard fixture was invoked through the normal creator helper, which requires the first copy attempt to report success. The recovery report and integrity step were therefore not generated, so the factual decision remains `AUTOMATED_PROXY_FAIL`.
-- Artifact `browser-quality-d2fa614f3021c9529cead5784d02c1d8408c2a25` is retained through 2026-08-02 and contains the four passing core-profile screenshots plus the exact recovery failure trace.
-- Three focused repair attempts were exhausted in this run. Pull Request #19 remains draft and issue #18 remains `stage:build`; no release claim or human-usability claim is made.
+- CI runs #164, #166, #167, #168, and #169 exposed and preserved factual syntax, locale-bootstrap, touch-target, exact-head identity, and recovery-helper failures; none was treated as passing evidence.
+- CI run #171 on exact head `a4350de85c8246b8df0836865c8612c42bc1f140` passed locked `npm ci`, proxy syntax, unit tests, localization parity, production build, exact isolated Railway Preview selection, `/health`, `/version`, branch and commit identity, malformed-path safety, and post-request liveness.
+- The same run passed all five automated profiles, the complete creator-to-follower core loop, Arabic/English and RTL/LTR paths, touch and keyboard operation, state preservation, interaction budgets, minimum target size, overflow checks, axe serious/critical gates, all six controlled recovery states, screenshot generation, and exact-head JSON/Markdown report integrity.
+- Artifact `browser-quality-a4350de85c8246b8df0836865c8612c42bc1f140` is retained through 2026-08-02.
+- `AUTOMATED_PROXY_PASS` is an engineering regression signal only. It is not evidence of human comprehension, demand, retention, preference, or market validation.
+- Rollback is limited to reverting Pull Request #19; no database, secret, account, dependency, Production-data, or external-service rollback is required.
 
 ### Next best task
 
-Preserve Pull Request #19 and make only the narrow recovery-helper correction in the next authorized engineering attempt: let the controlled first clipboard denial reach the manual-copy state before requiring the retry to succeed, then rerun the unchanged exact-head Railway, browser, axe, screenshot, and report-integrity gates.
+Run independent QA on the unchanged final PR head and exact Railway Preview; do not weaken the proxy, add product scope, or reinterpret automated evidence as human research.
 
 ## 2026-07-19 — CV-MVP-004 safe prototype invite handoff
 
@@ -97,7 +95,6 @@ Run independent QA on the unchanged final PR head; do not add product scope or r
 - Added adaptive wrapping for role choices, mission routes, realm statistics, and result facts without clipping, page-level overflow hiding, transforms, font reduction, or new product copy.
 - Preserved role order, original SVG icons, selected states, Arabic RTL composition, English LTR composition, reduced motion, safety behavior, and the existing isolated Railway Preview verifier.
 - Added no dependency, persistence, integration, secret, schema, production mutation, or product-scope expansion.
-
 ### Validation
 
 - CI run #137 passed the previous gate, but artifact inspection showed that its viewport-only 200% screenshots did not prove the role choices and rendered result facts with character-level wrapping.
@@ -297,7 +294,6 @@ Resolve and merge the current foundation Pull Request, verify Railway deploys th
 **Outcome:** Make the repository directly usable by a small five-agent team with one-task cycles, Railway Preview review, and no conflicting implementations.
 
 ### Completed
-
 - Reduced normal development to Product Lead, Game and UX, Safety and Fairness, Full-Stack Engineer, and QA and Release.
 - Updated `AGENT.md` with the fixed team, one-code-owner rule, branch policy, Railway Preview requirement, and stop conditions.
 - Updated the orchestrator prompt to prohibit extra agents and automatic merging.
