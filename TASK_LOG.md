@@ -2,6 +2,28 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-19 — CV-MVP-005 usability evidence packet
+
+**Outcome:** Prepare one privacy-safe, protocol-locked evidence packet for five real adult usability sessions without fabricating participant evidence or changing the released product.
+
+### Completed
+
+- Added `docs/usability-findings-cv-mvp-005.md` with exact public-build identity fields, a fixed AR/RTL and EN/LTR allocation, five anonymous scorecards, the unchanged ten-task order, controlled-state evidence, aggregate totals, repeated-friction and contradiction tables, safety/privacy observations, language-parity observations, and the unchanged `4/5` Milestone 0 rule.
+- Added `test/usability-evidence.test.js` to lock the incomplete status, exactly five `P01`–`P05` scorecards, the ten protocol tasks, bilingual direction allocation, privacy exclusions, released-build identity fields, controlled-state evidence, and threshold.
+- Added no product code, copy, styling, dependency, framework, deployment, Railway configuration, secret, account, analytics, persistence, or Production-data change.
+- Created draft Pull Request #17 on the dedicated `cv-mvp-005-usability-evidence` branch and linked it to issue #16.
+
+### Validation and limitation
+
+- GitHub CI remains authoritative for locked installation, `npm run check`, and repository gates on the PR head.
+- Five distinct consenting adults have not yet completed the required sessions. The exact public test URL, released `main` SHA, scorecards, and final milestone decision remain intentionally blank or `INCOMPLETE`.
+- Automated browser runs, developer self-testing, AI simulations, repeated participants, and invented responses are not accepted as human usability evidence.
+- Issue #16 remains `stage:build`; it must not move to release until five real sessions and the factual `PASS`, `FAIL`, or `INCONCLUSIVE` decision are recorded.
+
+### Next best task
+
+Conduct exactly five protocol-compliant sessions on one verified released build, commit anonymized factual observations only, run the required checks, and advance the unchanged PR head only after the evidence is complete.
+
 ## 2026-07-19 — CV-MVP-004 safe prototype invite handoff
 
 **Outcome:** Connect creator onboarding completion to one safe copyable prototype invite and one fresh-session follower entry without real social actions, identity disclosure, or product-scope expansion.
