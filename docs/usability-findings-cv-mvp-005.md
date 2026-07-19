@@ -32,6 +32,18 @@ The URL, `/version` response, and released commit must match. Do not run a sessi
 
 The fifth session may be reassigned to AR/RTL if needed, but the final set must contain at least two AR/RTL and two EN/LTR sessions.
 
+## Protocol-locked recording rules
+
+Use the scorecard fields and meanings from `docs/usability-test-plan.md` without changing them during sessions.
+
+- Task outcome must be exactly `Pass unassisted`, `Pass assisted`, or `Fail`.
+- Duration band must be exactly `<30s`, `30–60s`, or `>60s`.
+- `Pass assisted` never counts as unassisted evidence.
+- Record the first wrong turn factually; enter `None` when there was no wrong turn.
+- In `Critical friction`, enter `None` or `<severity>: <concise observable friction>`, where severity is `Critical`, `High`, `Medium`, or `Low` only for genuine friction.
+- Participant explanation/evidence is limited to two short factual sentences and must not contain personal details or speculative redesign.
+- The single permitted neutral recovery prompt may be used only after at least ten seconds of inactivity. Any additional guidance makes the task assisted at best.
+
 ## Privacy and session controls
 
 Apply these controls to every session:
@@ -46,176 +58,273 @@ Apply these controls to every session:
 
 ## Scorecard P01
 
-| Session field | Entry |
+### Session metadata
+
+| Field | Entry |
 |---|---|
-| Language / direction | `AR` / `RTL` |
+| Anonymous participant ID | `P01` |
+| Session language | `AR` |
+| Direction verified | `RTL` |
+| Viewport/device class | `~360×800 mobile portrait` |
+| Date band |  |
 | Voluntary consent confirmed |  |
-| Adult confirmed |  |
 | No recording confirmed |  |
-| Viewport | `~360×800` mobile portrait |
+| Adult/approved process confirmed |  |
+| Raw-note deletion due |  |
 
-| Task | Outcome | Duration band | Observable note | Severity |
-|---|---|---|---|---|
-| 1. Explain realm purpose |  |  |  |  |
-| 2. Complete creator onboarding |  |  |  |  |
-| 3. Identify safe share item |  |  |  |  |
-| 4. Enter follower realm |  |  |  |  |
-| 5. Choose and explain role |  |  |  |  |
-| 6. Complete mission under one minute |  |  |  |  |
-| 7. Explain visible realm change |  |  |  |  |
-| 8. Explain safe share value |  |  |  |  |
-| 9. Switch language and direction |  |  |  |  |
-| 10. Complete keyboard basics |  |  |  |  |
+### Task evidence
 
-| Participant decision field | Entry |
+| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |
+|---|---|---|---|---|---|
+| 1. Explain realm purpose |  |  |  |  |  |
+| 2. Complete creator onboarding |  |  |  |  |  |
+| 3. Identify safe share item |  |  |  |  |  |
+| 4. Enter follower realm |  |  |  |  |  |
+| 5. Choose and explain role |  |  |  |  |  |
+| 6. Complete mission under one minute |  |  |  |  |  |
+| 7. Explain visible realm change |  |  |  |  |  |
+| 8. Explain safe share value |  |  |  |  |  |
+| 9. Switch language and direction |  |  |  |  |  |
+| 10. Complete keyboard basics |  |  |  |  |  |
+
+### Controlled states
+
+| State | Outcome | Evidence / first friction |
+|---|---|---|
+| Loading |  |  |
+| Empty content |  |  |
+| Invalid/expired link |  |  |
+| Recoverable mission failure |  |  |
+| Network/service error |  |  |
+| Recoverable copy failure |  |  |
+
+### Participant-level decision
+
+| Measure | Entry |
 |---|---|
 | Explains Creatorverse independently |  |
-| Completes core loop unassisted |  |
+| Completes creator-to-follower core loop unassisted |  |
 | Participant milestone pass |  |
-| Confidence `1–5` |  |
-| Safe fictional-result share intent `1–5` |  |
+| Confidence |  |
+| Safe fictional-result share intent |  |
 | Highest-priority finding |  |
+| Contradiction to another observation |  |
 
 ## Scorecard P02
 
-| Session field | Entry |
+### Session metadata
+
+| Field | Entry |
 |---|---|
-| Language / direction | `AR` / `RTL` |
+| Anonymous participant ID | `P02` |
+| Session language | `AR` |
+| Direction verified | `RTL` |
+| Viewport/device class | `~360×800 mobile portrait` |
+| Date band |  |
 | Voluntary consent confirmed |  |
-| Adult confirmed |  |
 | No recording confirmed |  |
-| Viewport | `~360×800` mobile portrait |
+| Adult/approved process confirmed |  |
+| Raw-note deletion due |  |
 
-| Task | Outcome | Duration band | Observable note | Severity |
-|---|---|---|---|---|
-| 1. Explain realm purpose |  |  |  |  |
-| 2. Complete creator onboarding |  |  |  |  |
-| 3. Identify safe share item |  |  |  |  |
-| 4. Enter follower realm |  |  |  |  |
-| 5. Choose and explain role |  |  |  |  |
-| 6. Complete mission under one minute |  |  |  |  |
-| 7. Explain visible realm change |  |  |  |  |
-| 8. Explain safe share value |  |  |  |  |
-| 9. Switch language and direction |  |  |  |  |
-| 10. Complete keyboard basics |  |  |  |  |
+### Task evidence
 
-| Participant decision field | Entry |
+| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |
+|---|---|---|---|---|---|
+| 1. Explain realm purpose |  |  |  |  |  |
+| 2. Complete creator onboarding |  |  |  |  |  |
+| 3. Identify safe share item |  |  |  |  |  |
+| 4. Enter follower realm |  |  |  |  |  |
+| 5. Choose and explain role |  |  |  |  |  |
+| 6. Complete mission under one minute |  |  |  |  |  |
+| 7. Explain visible realm change |  |  |  |  |  |
+| 8. Explain safe share value |  |  |  |  |  |
+| 9. Switch language and direction |  |  |  |  |  |
+| 10. Complete keyboard basics |  |  |  |  |  |
+
+### Controlled states
+
+| State | Outcome | Evidence / first friction |
+|---|---|---|
+| Loading |  |  |
+| Empty content |  |  |
+| Invalid/expired link |  |  |
+| Recoverable mission failure |  |  |
+| Network/service error |  |  |
+| Recoverable copy failure |  |  |
+
+### Participant-level decision
+
+| Measure | Entry |
 |---|---|
 | Explains Creatorverse independently |  |
-| Completes core loop unassisted |  |
+| Completes creator-to-follower core loop unassisted |  |
 | Participant milestone pass |  |
-| Confidence `1–5` |  |
-| Safe fictional-result share intent `1–5` |  |
+| Confidence |  |
+| Safe fictional-result share intent |  |
 | Highest-priority finding |  |
+| Contradiction to another observation |  |
 
 ## Scorecard P03
 
-| Session field | Entry |
+### Session metadata
+
+| Field | Entry |
 |---|---|
-| Language / direction | `EN` / `LTR` |
+| Anonymous participant ID | `P03` |
+| Session language | `EN` |
+| Direction verified | `LTR` |
+| Viewport/device class | `~360×800 mobile portrait` |
+| Date band |  |
 | Voluntary consent confirmed |  |
-| Adult confirmed |  |
 | No recording confirmed |  |
-| Viewport | `~360×800` mobile portrait |
+| Adult/approved process confirmed |  |
+| Raw-note deletion due |  |
 
-| Task | Outcome | Duration band | Observable note | Severity |
-|---|---|---|---|---|
-| 1. Explain realm purpose |  |  |  |  |
-| 2. Complete creator onboarding |  |  |  |  |
-| 3. Identify safe share item |  |  |  |  |
-| 4. Enter follower realm |  |  |  |  |
-| 5. Choose and explain role |  |  |  |  |
-| 6. Complete mission under one minute |  |  |  |  |
-| 7. Explain visible realm change |  |  |  |  |
-| 8. Explain safe share value |  |  |  |  |
-| 9. Switch language and direction |  |  |  |  |
-| 10. Complete keyboard basics |  |  |  |  |
+### Task evidence
 
-| Participant decision field | Entry |
+| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |
+|---|---|---|---|---|---|
+| 1. Explain realm purpose |  |  |  |  |  |
+| 2. Complete creator onboarding |  |  |  |  |  |
+| 3. Identify safe share item |  |  |  |  |  |
+| 4. Enter follower realm |  |  |  |  |  |
+| 5. Choose and explain role |  |  |  |  |  |
+| 6. Complete mission under one minute |  |  |  |  |  |
+| 7. Explain visible realm change |  |  |  |  |  |
+| 8. Explain safe share value |  |  |  |  |  |
+| 9. Switch language and direction |  |  |  |  |  |
+| 10. Complete keyboard basics |  |  |  |  |  |
+
+### Controlled states
+
+| State | Outcome | Evidence / first friction |
+|---|---|---|
+| Loading |  |  |
+| Empty content |  |  |
+| Invalid/expired link |  |  |
+| Recoverable mission failure |  |  |
+| Network/service error |  |  |
+| Recoverable copy failure |  |  |
+
+### Participant-level decision
+
+| Measure | Entry |
 |---|---|
 | Explains Creatorverse independently |  |
-| Completes core loop unassisted |  |
+| Completes creator-to-follower core loop unassisted |  |
 | Participant milestone pass |  |
-| Confidence `1–5` |  |
-| Safe fictional-result share intent `1–5` |  |
+| Confidence |  |
+| Safe fictional-result share intent |  |
 | Highest-priority finding |  |
+| Contradiction to another observation |  |
 
 ## Scorecard P04
 
-| Session field | Entry |
+### Session metadata
+
+| Field | Entry |
 |---|---|
-| Language / direction | `EN` / `LTR` |
+| Anonymous participant ID | `P04` |
+| Session language | `EN` |
+| Direction verified | `LTR` |
+| Viewport/device class | `~360×800 mobile portrait` |
+| Date band |  |
 | Voluntary consent confirmed |  |
-| Adult confirmed |  |
 | No recording confirmed |  |
-| Viewport | `~360×800` mobile portrait |
+| Adult/approved process confirmed |  |
+| Raw-note deletion due |  |
 
-| Task | Outcome | Duration band | Observable note | Severity |
-|---|---|---|---|---|
-| 1. Explain realm purpose |  |  |  |  |
-| 2. Complete creator onboarding |  |  |  |  |
-| 3. Identify safe share item |  |  |  |  |
-| 4. Enter follower realm |  |  |  |  |
-| 5. Choose and explain role |  |  |  |  |
-| 6. Complete mission under one minute |  |  |  |  |
-| 7. Explain visible realm change |  |  |  |  |
-| 8. Explain safe share value |  |  |  |  |
-| 9. Switch language and direction |  |  |  |  |
-| 10. Complete keyboard basics |  |  |  |  |
+### Task evidence
 
-| Participant decision field | Entry |
+| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |
+|---|---|---|---|---|---|
+| 1. Explain realm purpose |  |  |  |  |  |
+| 2. Complete creator onboarding |  |  |  |  |  |
+| 3. Identify safe share item |  |  |  |  |  |
+| 4. Enter follower realm |  |  |  |  |  |
+| 5. Choose and explain role |  |  |  |  |  |
+| 6. Complete mission under one minute |  |  |  |  |  |
+| 7. Explain visible realm change |  |  |  |  |  |
+| 8. Explain safe share value |  |  |  |  |  |
+| 9. Switch language and direction |  |  |  |  |  |
+| 10. Complete keyboard basics |  |  |  |  |  |
+
+### Controlled states
+
+| State | Outcome | Evidence / first friction |
+|---|---|---|
+| Loading |  |  |
+| Empty content |  |  |
+| Invalid/expired link |  |  |
+| Recoverable mission failure |  |  |
+| Network/service error |  |  |
+| Recoverable copy failure |  |  |
+
+### Participant-level decision
+
+| Measure | Entry |
 |---|---|
 | Explains Creatorverse independently |  |
-| Completes core loop unassisted |  |
+| Completes creator-to-follower core loop unassisted |  |
 | Participant milestone pass |  |
-| Confidence `1–5` |  |
-| Safe fictional-result share intent `1–5` |  |
+| Confidence |  |
+| Safe fictional-result share intent |  |
 | Highest-priority finding |  |
+| Contradiction to another observation |  |
 
 ## Scorecard P05
 
-| Session field | Entry |
+### Session metadata
+
+| Field | Entry |
 |---|---|
-| Language / direction | `EN` / `LTR` |
+| Anonymous participant ID | `P05` |
+| Session language | `EN` |
+| Direction verified | `LTR` |
+| Viewport/device class | `~360×800 mobile portrait` |
+| Date band |  |
 | Voluntary consent confirmed |  |
-| Adult confirmed |  |
 | No recording confirmed |  |
-| Viewport | `~360×800` mobile portrait |
+| Adult/approved process confirmed |  |
+| Raw-note deletion due |  |
 
-| Task | Outcome | Duration band | Observable note | Severity |
-|---|---|---|---|---|
-| 1. Explain realm purpose |  |  |  |  |
-| 2. Complete creator onboarding |  |  |  |  |
-| 3. Identify safe share item |  |  |  |  |
-| 4. Enter follower realm |  |  |  |  |
-| 5. Choose and explain role |  |  |  |  |
-| 6. Complete mission under one minute |  |  |  |  |
-| 7. Explain visible realm change |  |  |  |  |
-| 8. Explain safe share value |  |  |  |  |
-| 9. Switch language and direction |  |  |  |  |
-| 10. Complete keyboard basics |  |  |  |  |
+### Task evidence
 
-| Participant decision field | Entry |
+| Task | Outcome | Duration band | First wrong turn | Critical friction | Participant explanation/evidence |
+|---|---|---|---|---|---|
+| 1. Explain realm purpose |  |  |  |  |  |
+| 2. Complete creator onboarding |  |  |  |  |  |
+| 3. Identify safe share item |  |  |  |  |  |
+| 4. Enter follower realm |  |  |  |  |  |
+| 5. Choose and explain role |  |  |  |  |  |
+| 6. Complete mission under one minute |  |  |  |  |  |
+| 7. Explain visible realm change |  |  |  |  |  |
+| 8. Explain safe share value |  |  |  |  |  |
+| 9. Switch language and direction |  |  |  |  |  |
+| 10. Complete keyboard basics |  |  |  |  |  |
+
+### Controlled states
+
+| State | Outcome | Evidence / first friction |
+|---|---|---|
+| Loading |  |  |
+| Empty content |  |  |
+| Invalid/expired link |  |  |
+| Recoverable mission failure |  |  |
+| Network/service error |  |  |
+| Recoverable copy failure |  |  |
+
+### Participant-level decision
+
+| Measure | Entry |
 |---|---|
 | Explains Creatorverse independently |  |
-| Completes core loop unassisted |  |
+| Completes creator-to-follower core loop unassisted |  |
 | Participant milestone pass |  |
-| Confidence `1–5` |  |
-| Safe fictional-result share intent `1–5` |  |
+| Confidence |  |
+| Safe fictional-result share intent |  |
 | Highest-priority finding |  |
-
-## Controlled-state evidence
-
-Exercise the invalid-invite recovery and at least one recoverable copy or service failure using safe, reversible fixtures.
-
-| State | Participant(s) | Outcome | Observable evidence |
-|---|---|---|---|
-| Invalid or expired invite |  |  |  |
-| Recoverable copy failure |  |  |  |
-| Recoverable service failure |  |  |  |
-| Loading |  |  |  |
-| Empty content |  |  |  |
-| Success |  |  |  |
+| Contradiction to another observation |  |
 
 ## Aggregate participant matrix
 
@@ -241,6 +350,20 @@ Exercise the invalid-invite recovery and at least one recoverable copy or servic
 | 8. Explain safe share value |  |  |  |
 | 9. Switch language and direction |  |  |  |
 | 10. Complete keyboard basics |  |  |  |
+
+## Controlled-state summary
+
+The five scorecards retain every controlled state from the approved protocol. The cycle-specific recoverable copy-failure row is an additive observation only and does not replace the protocol's recoverable mission or network/service states.
+
+| State | Participant(s) | Outcome | Observable evidence |
+|---|---|---|---|
+| Loading |  |  |  |
+| Empty content |  |  |  |
+| Invalid/expired link |  |  |  |
+| Recoverable mission failure |  |  |  |
+| Network/service error |  |  |  |
+| Recoverable copy failure |  |  |  |
+| Success |  |  |  |
 
 ## Repeated friction and contradictions
 
