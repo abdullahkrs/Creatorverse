@@ -31,7 +31,7 @@ async function makeContext(browser, baseURL, profile, clipboard = 'success') {
     reducedMotion: 'reduce',
   });
   await context.addInitScript(({ locale, clipboardMode }) => {
-    localStorage.setItem('creatorverse-locale', locale);
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', locale);
     window.__copiedInvite = '';
     window.__copiedResult = '';
     window.__clipboardCalls = 0;
