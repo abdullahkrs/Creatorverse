@@ -9,14 +9,17 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 ### Completed
 
 - Added `docs/usability-findings-cv-mvp-005.md` with exact public-build identity fields, a fixed AR/RTL and EN/LTR allocation, five anonymous scorecards, the unchanged ten-task order, controlled-state evidence, aggregate totals, repeated-friction and contradiction tables, safety/privacy observations, language-parity observations, and the unchanged `4/5` Milestone 0 rule.
-- Added `test/usability-evidence.test.js` to lock the incomplete status, exactly five `P01`–`P05` scorecards, the ten protocol tasks, bilingual direction allocation, privacy exclusions, released-build identity fields, controlled-state evidence, and threshold.
+- Re-aligned every scorecard to the approved protocol metadata, task-evidence, controlled-state, and participant-decision fields after review found that the first packet had replaced `First wrong turn`, `Critical friction`, participant evidence, raw-note deletion, and contradiction fields with a weaker custom table.
+- Locked the exact outcome and duration-band values, factual first-wrong-turn recording, severity-prefixed genuine friction, concise observable evidence, all five protocol controlled states, and the cycle-specific recoverable-copy observation without changing the protocol itself.
+- Updated `test/usability-evidence.test.js` to require exactly five `P01`–`P05` scorecards, the ten protocol tasks, bilingual direction allocation, protocol field parity, privacy exclusions, released-build identity fields, controlled-state coverage, and the unchanged threshold.
 - Added no product code, copy, styling, dependency, framework, deployment, Railway configuration, secret, account, analytics, persistence, or Production-data change.
-- Created draft Pull Request #17 on the dedicated `cv-mvp-005-usability-evidence` branch and linked it to issue #16.
+- Continued draft Pull Request #17 on the dedicated `cv-mvp-005-usability-evidence` branch linked to issue #16.
 
 ### Validation and limitation
 
-- GitHub CI remains authoritative for locked installation, `npm run check`, and repository gates on the PR head.
-- Five distinct consenting adults have not yet completed the required sessions. The exact public test URL, released `main` SHA, scorecards, and final milestone decision remain intentionally blank or `INCOMPLETE`.
+- CI run #159 on prior head `407b878a64d9d7ca0387eaa212aa4dbd648fa984` passed locked installation, `npm run check`, exact isolated Railway Preview identity, malformed-path safety, bilingual browser quality, accessibility, keyboard, responsive, and artifact gates.
+- GitHub CI remains authoritative for the final repaired PR head; no local clone or shell evidence is claimed.
+- Five distinct consenting adults have not yet completed the required sessions. The exact public released-build URL, released `main` SHA, completed scorecards, and final milestone decision remain intentionally blank or `INCOMPLETE`.
 - Automated browser runs, developer self-testing, AI simulations, repeated participants, and invented responses are not accepted as human usability evidence.
 - Issue #16 remains `stage:build`; it must not move to release until five real sessions and the factual `PASS`, `FAIL`, or `INCONCLUSIVE` decision are recorded.
 
