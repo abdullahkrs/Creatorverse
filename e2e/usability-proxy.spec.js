@@ -110,7 +110,7 @@ async function activate(page, selector, input) {
   }
 }
 
-async function creatorInvite(page, profile) {
+async function creatorInvite(page, profile, { expectInitialCopyFailure = false } = {}) {
   let steps = 0;
   await activate(page, '[data-action="creator"]', profile.input);
   steps += 1;
@@ -122,9 +122,15 @@ async function creatorInvite(page, profile) {
   }
   await expect(page.locator('[data-prototype-invite-receipt]')).toBeVisible();
   await quality(page, { dir: profile.dir, runAxe: true, label: `${profile.id} invite receipt` });
+  const copyAction = page.locator('[data-action="copy-prototype-invite"]');
   await activate(page, '[data-action="copy-prototype-invite"]', profile.input);
   steps += 1;
-  await expect(page.locator('[data-action="copy-prototype-invite"]')).toContainText(profile.locale === 'ar' ? 'تم النسخ' : 'Copied');
+  if (expectInitialCopyFailure) {
+    await expect(page.locator('[data-invite-manual-url]')).toBeVisible();
+    await expect(copyAction).toBeFocused();
+    return { invite: '', steps };
+  }
+  await expect(copyAction).toContainText(profile.locale === 'ar' ? 'تم النسخ' : 'Copied');
   const invite = await page.evaluate(() => window.__copiedInvite);
   expect(invite).toContain('#invite=v1.');
   expect(invite).not.toContain('?');
@@ -235,7 +241,7 @@ async function runRecovery(browser, baseURL) {
   const copyContext = await makeContext(browser, baseURL, profile, 'fail-once');
   const copy = await copyContext.newPage();
   await copy.goto('/');
-  const receipt = await creatorInvite(copy, profile);
+  const receipt = await creatorInvite(copy, profile, { expectInitialCopyFailure: true });
   steps += receipt.steps;
   const copyAction = copy.locator('[data-action="copy-prototype-invite"]');
   await expect(copy.locator('[data-invite-manual-url]')).toBeVisible();
