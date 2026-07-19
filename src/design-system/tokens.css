@@ -42,7 +42,7 @@
   --cv-radius-round: 999px;
 
   /* Interaction */
-  --cv-target-min: 2.75rem;
+  --cv-target-min: max(2.75rem, 44px);
   --cv-focus-width: 0.1875rem;
   --cv-focus-offset: 0.1875rem;
   --cv-duration-fast: 120ms;

@@ -3,6 +3,11 @@ html body {
   min-inline-size: 0;
 }
 
+body .icon-button {
+  min-inline-size: var(--cv-target-min);
+  flex: 0 0 var(--cv-target-min);
+}
+
 @media (max-width: 30rem) {
   body .nav {
     flex-wrap: wrap;

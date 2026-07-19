@@ -17,7 +17,8 @@
     "test:a11y": "playwright test e2e/accessibility.spec.js",
     "test:i18n": "node scripts/check-i18n.mjs",
     "test:railway": "node --test test/railway-preview.test.js",
-    "check": "npm run test:unit && npm run test:i18n && npm run build"
+    "test:proxy-syntax": "node --check e2e/usability-proxy.spec.js && node --check scripts/usability-proxy-report.mjs",
+    "check": "npm run test:proxy-syntax && npm run test:unit && npm run test:i18n && npm run build"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",

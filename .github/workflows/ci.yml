@@ -73,7 +73,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: railway-preview
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -92,10 +92,19 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
         run: node scripts/verify-railway-preview.mjs
-      - name: Playwright responsive and accessibility gates
+      - name: Playwright responsive, accessibility, and usability proxy gates
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.preview_url }}
+          USABILITY_PROXY_URL: ${{ steps.preview.outputs.preview_url }}
+          USABILITY_PROXY_SHA: ${{ github.event.pull_request.head.sha }}
+          USABILITY_PROXY_REF: ${{ github.event.pull_request.head.ref }}
         run: npm run test:e2e
+      - name: Verify exact-head usability proxy report integrity
+        env:
+          USABILITY_PROXY_URL: ${{ steps.preview.outputs.preview_url }}
+          USABILITY_PROXY_SHA: ${{ github.event.pull_request.head.sha }}
+          USABILITY_PROXY_REF: ${{ github.event.pull_request.head.ref }}
+        run: node scripts/usability-proxy-report.mjs
       - name: Upload browser evidence
         if: always()
         uses: actions/upload-artifact@v4
