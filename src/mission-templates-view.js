@@ -64,8 +64,7 @@ let applying = false;
 
 const initialInvite = parsePrototypeInviteFragment(window.location.hash);
 if (initialInvite.status === 'invalid') {
-  history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-  sessionStorage.setItem(REPAIRED_KEY, '1');
+  sessionStorage.removeItem(REPAIRED_KEY);
   state = {
     templateId: DEFAULT_MISSION_TEMPLATE_ID,
     creatorSelection: null,
@@ -341,7 +340,11 @@ function handleMissionClick(event) {
   saveState();
 
   if (next.completed) {
-    const route = state.templateId === 'signal-match' ? 'ocean' : 'sky';
+    const route = state.templateId === 'route-choice'
+      ? activation
+      : state.templateId === 'signal-match'
+        ? 'ocean'
+        : 'sky';
     completeThroughLegacy(route);
     return;
   }
