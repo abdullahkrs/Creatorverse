@@ -23,12 +23,12 @@
 
 /* Preserve the main task as the wide track in both reading directions. */
 @media (min-width: 64rem) {
-  .experience-grid {
+  body .experience-grid {
     grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.75fr);
     grid-template-areas: "play realm";
   }
 
-  html[dir='rtl'] .experience-grid {
+  html[dir='rtl'] body .experience-grid {
     grid-template-columns: minmax(18rem, 0.75fr) minmax(0, 1.45fr);
     grid-template-areas: "realm play";
   }
