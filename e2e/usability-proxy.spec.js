@@ -250,11 +250,16 @@ async function runRecovery(browser, baseURL) {
   const invalidContext = await makeContext(browser, baseURL, profile);
   const invalid = await invalidContext.newPage();
   await invalid.goto('/#invite=v1.invalid!');
+  await expect(invalid.locator('[data-prototype-invite-error]')).toBeVisible();
+  await expect(invalid.locator('#invite-error-title')).toBeFocused();
+  await expect(invalid).toHaveURL(/#invite=v1\.invalid!/u);
+  await expect(invalid.locator('body')).not.toContainText('v1.invalid!');
+  await quality(invalid, { dir: 'ltr', runAxe: true, label: 'invalid invite recovery' });
+  await invalid.locator('[data-action="open-featured-realm"]').click();
+  steps += 1;
   await expect(invalid).not.toHaveURL(/#invite=/u);
-  await expect(invalid.locator('.mission-repaired')).toContainText('Invite repaired. Default mission loaded.');
   await expect(invalid.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
-  await quality(invalid, { dir: 'ltr', runAxe: true, label: 'invalid invite repaired' });
-  states.push({ id: 'invalid-invite', status: 'PASS', recovery: 'Malformed fragment data was removed without reflection and the named safe default mission loaded.' });
+  states.push({ id: 'invalid-invite', status: 'PASS', recovery: 'Malformed fragment data opened a named recovery action without reflection, then loaded the safe default mission.' });
   await invalidContext.close();
 
   const copyContext = await makeContext(browser, baseURL, profile, 'fail-once');
@@ -368,7 +373,7 @@ async function runRecovery(browser, baseURL) {
       steps,
       stepBudget: 18,
       elapsedMs: Date.now() - started,
-      checks: ['fresh-contexts', 'invalid-default-repair', 'copy-retry', 'empty-loading-service-retry', 'mission-source-retry', 'axe-no-serious-critical'],
+      checks: ['fresh-contexts', 'invalid-recovery-action', 'copy-retry', 'empty-loading-service-retry', 'mission-source-retry', 'axe-no-serious-critical'],
       screenshots: [screenshot],
     },
     states,
