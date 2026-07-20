@@ -40,6 +40,15 @@ The browser gate checks horizontal overflow, visible primary actions, minimum 44
 - Production is never accepted as Preview.
 - One exact candidate must pass `/health`, `/version`, branch, commit, non-Production identity, malformed-path safety, and post-request liveness. Verification must not switch candidates between steps.
 
+## Post-merge release identity
+
+- Every `main` SHA must receive the stable `railway-production-identity` status from the trusted default-branch workflow.
+- A pass requires exact Production SHA identity plus healthy, distinct Staging; deployment status alone is insufficient.
+- The canonical `[Ledger] Railway release identity evidence` issue contains one idempotent marker comment per SHA with integrity-checked JSON.
+- QA may use that repository-native marker when direct Railway DNS or workflow-run listing is unavailable.
+- The evidence contract, retry bounds, freshness window, and safety model are defined in `docs/railway-release-identity.md`.
+- This evidence is an operational deployment signal only and must not be presented as user or market validation.
+
 ## Workflow ownership
 
 - Continuity Guard alone repairs automations, duplicate active issues, and stage-label inconsistencies.
