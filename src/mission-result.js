@@ -1,5 +1,6 @@
 import { getMissionResultCopy, normalizeMissionLocale } from './mission-result-i18n.js';
 import { DEFAULT_MISSION_TEMPLATE_ID, normalizeMissionTemplateId } from './mission-templates.js';
+import { parseCompletionReceiptFragment } from './completion-receipt.js';
 
 const ROLE_IDS = new Set(['builder', 'explorer', 'guardian']);
 const ROUTE_IDS = new Set(['sky', 'ocean']);
@@ -57,13 +58,26 @@ export function createMissionResult({
   });
 }
 
-export function getPublicHttpUrl(value) {
+function getValidatedCompletionReceiptFragment(hash) {
+  const raw = String(hash ?? '').replace(/^#/u, '');
+  if (!raw) return '';
+  const parameters = new URLSearchParams(raw);
+  const keys = [...parameters.keys()];
+  if (keys.length !== 1 || keys[0] !== 'receipt') return '';
+  if (parseCompletionReceiptFragment(`#${raw}`).status !== 'valid') return '';
+  return `receipt=${parameters.get('receipt')}`;
+}
+
+export function getPublicHttpUrl(value, { preserveCompletionReceipt = false } = {}) {
   try {
     const url = new URL(String(value));
     if (!['http:', 'https:'].includes(url.protocol)) return null;
     if (url.username || url.password) return null;
+    const receiptFragment = preserveCompletionReceipt
+      ? getValidatedCompletionReceiptFragment(url.hash)
+      : '';
     url.search = '';
-    url.hash = '';
+    url.hash = receiptFragment;
     return url.toString();
   } catch {
     return null;
@@ -94,7 +108,8 @@ export function buildMissionSharePayload(result, { locale = 'en', publicUrl } = 
 
 export function buildClipboardText(payload) {
   const text = String(payload?.text || '').slice(0, 280).trim();
-  return `${text}\n${getPublicHttpUrl(payload?.url) || ''}`.trim();
+  const url = getPublicHttpUrl(payload?.url, { preserveCompletionReceipt: true }) || '';
+  return `${text}\n${url}`.trim();
 }
 
 export function createMissionResultActionController({
