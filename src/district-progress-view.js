@@ -1,5 +1,6 @@
 import { getLocale } from './i18n.js';
 import { getDistrictProgressCopy } from './district-progress-i18n.js';
+import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
 const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
 let restoredFocusApplied = false;
@@ -33,6 +34,43 @@ function lockedMarkup(copy) {
       </div>
     </div>
   `;
+}
+
+function hasValidInvite() {
+  return parsePrototypeInviteFragment(window.location.hash).status === 'valid';
+}
+
+function decorateFollowerRealm(copy) {
+  if (!hasValidInvite()) return;
+  const card = document.querySelector('.realm-card');
+  if (!card) return;
+  const unlocked = Boolean(document.querySelector('[data-mission-result]'));
+  const key = `${getLocale()}:${unlocked ? 'unlocked' : 'locked'}`;
+  if (card.dataset.districtRealmKey === key) return;
+  card.dataset.districtRealmKey = key;
+  card.dataset.districtState = unlocked ? 'unlocked' : 'locked';
+  card.setAttribute('translate', 'no');
+
+  const progressLabel = card.querySelector('.progress-label');
+  const name = progressLabel?.querySelector('span');
+  const value = progressLabel?.querySelector('strong');
+  if (name) name.textContent = copy.districtName;
+  if (value) value.textContent = unlocked ? copy.unlockedValue : copy.lockedValue;
+
+  const progress = card.querySelector('.progress');
+  if (progress) {
+    progress.setAttribute('aria-label', copy.progressLabel);
+    progress.setAttribute('aria-valuemin', '0');
+    progress.setAttribute('aria-valuemax', '3');
+    progress.setAttribute('aria-valuenow', unlocked ? '3' : '0');
+    const fill = progress.querySelector('span');
+    if (fill) fill.style.inlineSize = unlocked ? '100%' : '0%';
+  }
+
+  const map = card.querySelector('.signal-map');
+  if (map) map.setAttribute('aria-label', copy.districtName);
+  const districtCount = card.querySelector('.realm-stats > div:nth-child(2) dd');
+  if (districtCount) districtCount.textContent = '1';
 }
 
 function decorateLockedMission(copy) {
@@ -94,6 +132,7 @@ function applyDistrictView() {
     const copy = getDistrictProgressCopy(getLocale());
     decorateUnlockedResult(copy);
     decorateLockedMission(copy);
+    decorateFollowerRealm(copy);
   } finally {
     applying = false;
   }
