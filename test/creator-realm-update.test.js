@@ -144,5 +144,12 @@ test('keeps Arabic and English keys synchronized and within the issue copy budge
     assert.ok(copy.copyAction.split(/\s+/u).length <= 3);
     assert.ok(copy.waitingBody.length <= 80);
     assert.ok(copy.denied.length <= 80);
+    assert.match(copy.changeTemplate, /\u2066\{total\}\u2069/u);
+    const changed = copy.changeTemplate
+      .replace('{district}', copy.districts['beacon-district'])
+      .replace('{total}', '72');
+    assert.ok(changed.length <= 70);
+    const summary = `${copy.contributions}: 24 · ${copy.energy}: 72`;
+    assert.ok(summary.length <= 45);
   }
 });
