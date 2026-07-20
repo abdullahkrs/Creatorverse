@@ -19,6 +19,16 @@ function captureInteractionState() {
   sessionStorage.setItem(RESTORE_KEY, JSON.stringify({ role, route, completed }));
 }
 
+function restoreCompletedRoute(route) {
+  requestAnimationFrame(() => {
+    const selector = CSS.escape(route);
+    const missionAction = document.querySelector(`[data-mission-command="${selector}"]`);
+    const legacyAction = document.querySelector(`[data-route="${selector}"]`);
+    const action = missionAction || legacyAction;
+    if (action && !action.disabled) action.click();
+  });
+}
+
 function restoreInteractionState() {
   const serialized = sessionStorage.getItem(RESTORE_KEY);
   if (!serialized) return;
@@ -31,9 +41,7 @@ function restoreInteractionState() {
     const roleButton = role ? document.querySelector(`[data-role="${CSS.escape(role)}"]`) : null;
 
     roleButton?.click();
-    if (state.completed && route) {
-      document.querySelector(`[data-route="${CSS.escape(route)}"]`)?.click();
-    }
+    if (state.completed && route) restoreCompletedRoute(route);
   } catch {
     sessionStorage.removeItem(LAST_ROUTE_KEY);
   }
