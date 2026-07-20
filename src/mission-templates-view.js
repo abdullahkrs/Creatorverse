@@ -12,7 +12,9 @@ import {
 
 const STATE_KEY = 'creatorverse-mission-template-state';
 const REPAIRED_KEY = 'creatorverse-mission-invite-repaired';
+const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
 const GLOBAL_KEY = '__creatorverseMissionTemplateId';
+const RESTORING_FLAG = '__creatorverseRestoringLocaleState';
 
 const ICONS = Object.freeze({
   'route-choice': '<path d="M4 18h5V9h6V5l5 7-5 7v-4h-2v5H4v-2Zm0-12h7v2H4V6Z"/>',
@@ -36,16 +38,47 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+function restoreCreatorSelection(value) {
+  if (value == null) return null;
+  try {
+    return normalizeMissionTemplateId(value, { fallback: false });
+  } catch {
+    return null;
+  }
+}
+
+function restoreProgress(templateId, stored) {
+  const base = createMissionProgress(templateId);
+  const completed = stored?.completed === true;
+
+  if (templateId === 'relay-sequence') {
+    const storedStep = Number(stored?.step);
+    const step = completed
+      ? 3
+      : Number.isInteger(storedStep) && storedStep >= 0 && storedStep < 3
+        ? storedStep
+        : 0;
+    return Object.freeze({
+      ...base,
+      step,
+      completed,
+      contribution: completed ? 3 : 0,
+    });
+  }
+
+  return completed
+    ? Object.freeze({ ...base, completed: true, contribution: 3 })
+    : base;
+}
+
 function loadState() {
   try {
     const stored = JSON.parse(sessionStorage.getItem(STATE_KEY) || 'null');
     const templateId = normalizeMissionTemplateId(stored?.templateId);
     return {
       templateId,
-      creatorSelection: null,
-      progress: stored?.completed
-        ? Object.freeze({ templateId, step: Number(stored.step) || 0, completed: true, contribution: 3 })
-        : createMissionProgress(templateId),
+      creatorSelection: restoreCreatorSelection(stored?.creatorSelection),
+      progress: restoreProgress(templateId, stored),
       message: '',
     };
   } catch {
@@ -63,6 +96,7 @@ let renderScheduled = false;
 let applying = false;
 
 const initialInvite = parsePrototypeInviteFragment(window.location.hash);
+const restoringLocale = sessionStorage.getItem(LOCALE_RESTORE_KEY) !== null;
 if (initialInvite.status === 'invalid') {
   sessionStorage.removeItem(REPAIRED_KEY);
   state = {
@@ -73,7 +107,11 @@ if (initialInvite.status === 'invalid') {
   };
 } else if (initialInvite.status === 'valid') {
   const templateId = normalizeMissionTemplateId(initialInvite.invite.missionId);
-  state = { templateId, creatorSelection: null, progress: createMissionProgress(templateId), message: '' };
+  if (!restoringLocale || state.templateId !== templateId) {
+    state = { templateId, creatorSelection: null, progress: createMissionProgress(templateId), message: '' };
+  } else {
+    state = { ...state, templateId, creatorSelection: null };
+  }
 }
 
 globalThis[GLOBAL_KEY] = state.templateId;
@@ -81,6 +119,7 @@ globalThis[GLOBAL_KEY] = state.templateId;
 function saveState() {
   sessionStorage.setItem(STATE_KEY, JSON.stringify({
     templateId: state.templateId,
+    creatorSelection: state.creatorSelection,
     step: state.progress.step,
     completed: state.progress.completed,
   }));
@@ -284,19 +323,33 @@ function focusMissionHeadingAfterRender() {
   queueMicrotask(() => queueMicrotask(() => document.querySelector('#mission-title')?.focus({ preventScroll: true })));
 }
 
+function focusMissionCommandAfterRender(command) {
+  const selector = CSS.escape(String(command));
+  queueMicrotask(() => queueMicrotask(() => {
+    document.querySelector(`[data-mission-command="${selector}"]`)?.focus({ preventScroll: true });
+  }));
+}
+
 function handleCaptureClick(event) {
   const openCreator = event.target.closest?.('[data-action="creator"]');
   if (openCreator) {
     sessionStorage.removeItem(REPAIRED_KEY);
     state.creatorSelection = null;
     state.message = '';
+    saveState();
     return;
   }
 
   const role = event.target.closest?.('[data-role]');
   if (role) {
     sessionStorage.removeItem(REPAIRED_KEY);
-    resetProgress();
+    const isLocaleRestore = globalThis[RESTORING_FLAG] === true;
+    if (!isLocaleRestore || state.progress.completed) {
+      resetProgress();
+    } else {
+      state.message = '';
+      saveState();
+    }
     focusMissionHeadingAfterRender();
     return;
   }
@@ -334,6 +387,7 @@ function handleMissionClick(event) {
   if (state.templateId === 'signal-match' && next === state.progress && activation !== 'wave') {
     state.message = copy().templates['signal-match'].incorrect;
     scheduleEnhancements();
+    focusMissionCommandAfterRender(activation);
     return;
   }
 
