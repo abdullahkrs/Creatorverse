@@ -30,7 +30,7 @@ function realm(count = 1, overrides = {}) {
   const receipts = Array.from({ length: count }, (_, index) => entry(index));
   return {
     id: REALM_ID,
-    name: 'Creator free text must stay private',
+    name: 'Private realm name',
     theme: 'cosmic',
     total: count * 3,
     districtId: 'beacon-district',
@@ -81,7 +81,7 @@ test('builds localized allowlisted payloads with one canonical public URL', () =
     });
     assert.equal(payload.url, 'https://creatorverse.example/play');
     assert.ok(payload.text.length <= 180);
-    assert.doesNotMatch(payload.text, /realm_abcdefghijklmnop|receipt_|Creator free text|route-choice|builder|sky/iu);
+    assert.doesNotMatch(payload.text, /realm_abcdefghijklmnop|receipt_|Private realm name|route-choice|builder|sky/iu);
     assert.doesNotMatch(payload.text, /verified|authentic|owner|popular|rank|approved|guaranteed/iu);
     const manual = buildCreatorRealmUpdateManualText(payload);
     assert.match(manual, /^.+\nhttps:\/\/creatorverse\.example\/play$/su);
