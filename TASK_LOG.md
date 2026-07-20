@@ -10,16 +10,18 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 - Added random non-semantic realm identity to the existing strict invite and persisted only the creator's bounded fictional realm record on the same device.
 - Added a versioned fragment-only completion receipt with exact field, version, size, identifier, mission, role, route, district, and fixed-contribution allowlists; malformed encoding, duplicate parameters, controls, bidi overrides, unknown fields, unsafe URLs, and non-`+3` values fail closed.
+- Tightened the outer fragment decoder to accept exactly one `receipt` parameter; any additional or unknown fragment field now fails closed before token import.
 - Removed receipt fragments from visible URL history after validation and retained only the validated bounded token in session state for refresh and intentional language reload.
 - Added an atomic local creator ledger with exact realm matching, one-write import, duplicate prevention, storage-failure rollback, retry, strict persisted-state restoration, and a 24-entry maximum.
 - Added one integrated mobile-first field record with explicit preview, one **Add +3 / أضف +3** action, success summary, local-device limitation, divider ledger rows, original neutral district artwork, logical properties, intentional RTL/LTR composition, bidi isolation, 44 px targets, focus recovery, live status, and reduced-motion handling.
 - Added synchronized Arabic and English copy for loading, preview, empty, success, invalid, mismatch, duplicate, full-ledger, and storage-error states without raw payload, identifiers, marketing claims, profiles, timestamps, rankings, or authenticity claims.
 - Kept every allowlisted mission, role, route, language, and viewport at the same fixed `+3`; added no free text, social credential, contact discovery, external target, analytics, API, database, account, payment, randomness, urgency, or Production mutation.
 - Added focused unit coverage and deterministic Playwright scenarios for the complete creator → follower → creator path, exact-once import, refresh, language switch, resize, malformed and cross-realm receipts, full ledger, atomic storage failure and retry, keyboard/focus, axe, 200% text zoom, reduced motion, and required bilingual responsive screenshots.
+- Expanded real bilingual recovery evidence across `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`, alternating strict unknown-field rejection and cross-realm states while asserting no reflection, no import action, and no ledger mutation.
 
 ### Validation
 
-- Locked `npm ci`, repository unit/localization/build checks, exact isolated Railway PR Preview `/health` and `/version`, Playwright, axe, RTL/LTR, keyboard, responsive evidence, and artifact-integrity checks remain mandatory on the final unchanged Pull Request #28 head.
+- Focused unit and Playwright repairs for the two QA blockers are committed on Pull Request #28; locked `npm ci`, repository unit/localization/build checks, exact isolated Railway PR Preview `/health` and `/version`, Playwright, axe, RTL/LTR, keyboard, responsive evidence, and artifact-integrity checks remain mandatory on the final unchanged head.
 - Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, trust, fairness, authenticity, fraud resistance, ownership, or market validation.
 - Pull Request #28 links Issue #27 and contains one branch and one coherent vertical slice with no new dependency, schema, secret, paid account, React migration, Tailwind migration, human-only gate, or cross-device promise.
 - Rollback is limited to reverting Pull Request #28 and clearing the versioned local prototype keys; no external data, environment, dependency, credential, or service rollback is required.
