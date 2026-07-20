@@ -137,9 +137,9 @@ for (const locale of ['en', 'ar']) {
       const invalidPage = await invalidContext.newPage();
       const copiedUrl = new URL(inviteUrl);
       await invalidPage.goto(`${copiedUrl.origin}${copiedUrl.pathname}#invite=v1.invalid!`);
-      await expect(invalidPage).not.toHaveURL(/#invite=/u);
-      await expect(invalidPage.locator('.mission-repaired')).toBeVisible();
-      await expect(invalidPage.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
+      await expect(invalidPage.locator('[data-prototype-invite-error]')).toBeVisible();
+      await expect(invalidPage.locator('#invite-error-title')).toBeFocused();
+      await expect(invalidPage).toHaveURL(/#invite=v1\.invalid!/u);
       await expect(invalidPage.locator('body')).not.toContainText('v1.invalid');
       await assertNoPageOverflow(invalidPage);
       await invalidPage.screenshot({
@@ -178,11 +178,15 @@ test('copy denial reveals a selected safe URL for retry', async ({ browser, base
   await context.close();
 });
 
-test('invalid invite repairs to the safe default mission without reflecting input', async ({ page }) => {
+test('invalid invite uses explicit recovery before loading the safe default mission', async ({ page }) => {
   await page.goto('/#invite=v1.invalid!');
+  await expect(page.locator('[data-prototype-invite-error]')).toBeVisible();
+  await expect(page.locator('#invite-error-title')).toBeFocused();
+  await expect(page).toHaveURL(/#invite=v1\.invalid!/u);
+  await expect(page.locator('body')).not.toContainText('v1.invalid');
+
+  await page.locator('[data-action="open-featured-realm"]').click();
   await expect(page).not.toHaveURL(/#invite=/u);
-  await expect(page.locator('.mission-repaired')).toBeVisible();
   await expect(page.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
   await expect(page.locator('[data-role]')).toHaveCount(3);
-  await expect(page.locator('body')).not.toContainText('v1.invalid');
 });
