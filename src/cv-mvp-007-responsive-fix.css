@@ -1,0 +1,53 @@
+/* CV-MVP-007: keep the mission result readable by sizing from semantic regions and the component itself. */
+.signal-result {
+  container-name: mission-result;
+  container-type: inline-size;
+}
+
+/* The legacy viewport breakpoint must not force columns inside a narrow play panel. */
+@media (min-width: 40rem) {
+  .signal-result-heading,
+  .signal-result-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .signal-result-layout {
+    align-items: stretch;
+    gap: var(--cv-space-5);
+  }
+
+  .signal-result-action-area {
+    margin-block-start: var(--cv-space-4);
+  }
+}
+
+/* Preserve the main task as the wide track in both reading directions. */
+@media (min-width: 64rem) {
+  body .experience-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.75fr);
+    grid-template-areas: "play realm";
+  }
+
+  html[dir='rtl'] body .experience-grid {
+    grid-template-columns: minmax(18rem, 0.75fr) minmax(0, 1.45fr);
+    grid-template-areas: "realm play";
+  }
+}
+
+/* Use two result columns only when the result component has enough inline space. */
+@container mission-result (min-width: 42rem) {
+  .signal-result-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .signal-result-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
+    align-items: end;
+    gap: var(--cv-space-6);
+  }
+
+  .signal-result-action-area {
+    margin-block-start: var(--cv-space-3);
+  }
+}

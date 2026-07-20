@@ -187,7 +187,9 @@ async function runCore(browser, baseURL, profile) {
 
   const result = follower.locator('[data-mission-result]');
   await expect(result).toBeVisible();
-  await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '75');
+  const districtProgress = result.locator('[data-district-progress]');
+  await expect(districtProgress).toHaveAttribute('aria-valuemax', '3');
+  await expect(districtProgress).toHaveAttribute('aria-valuenow', '3');
   await expect(result.locator('.signal-result-facts > div')).toHaveCount(4);
   await quality(follower, { dir: profile.dir, runAxe: true, label: `${profile.id} result` });
 
