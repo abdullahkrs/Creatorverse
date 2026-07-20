@@ -34,8 +34,10 @@ function inviteFor(templateId) {
 async function createContext(browser, locale, viewport) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ selectedLocale, initialNow }) => {
-    localStorage.setItem('creatorverse-locale', selectedLocale);
-    sessionStorage.setItem('creatorverse-schedule-test-now', String(initialNow));
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', selectedLocale);
+    if (!sessionStorage.getItem('creatorverse-schedule-test-now')) {
+      sessionStorage.setItem('creatorverse-schedule-test-now', String(initialNow));
+    }
     Object.defineProperty(window, '__creatorverseMissionScheduleNow', {
       configurable: true,
       get: () => Number(sessionStorage.getItem('creatorverse-schedule-test-now')),
