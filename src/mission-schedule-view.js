@@ -11,7 +11,6 @@ import { getMissionScheduleCopy } from './mission-schedule-i18n.js';
 const SELECTION_KEY = 'creatorverse-mission-schedule-selection';
 const GLOBAL_KEY = '__creatorverseMissionScheduleId';
 const CLOCK_KEY = '__creatorverseMissionScheduleNow';
-const RESTORING_FLAG = '__creatorverseRestoringLocaleState';
 const PROGRESS_KEYS = Object.freeze([
   'creatorverse-mission-template-state',
   'creatorverse-district-progress',
@@ -31,10 +30,16 @@ globalThis[GLOBAL_KEY] = creatorSelection;
 function restoreSelection() {
   try {
     const value = sessionStorage.getItem(SELECTION_KEY);
-    return value ? normalizeMissionScheduleId(value) : null;
+    return value ? normalizeMissionScheduleId(value) : MISSION_SCHEDULE_IDS[0];
   } catch {
-    return null;
+    return MISSION_SCHEDULE_IDS[0];
   }
+}
+
+function persistSelection(value) {
+  creatorSelection = normalizeMissionScheduleId(value);
+  sessionStorage.setItem(SELECTION_KEY, creatorSelection);
+  globalThis[GLOBAL_KEY] = creatorSelection;
 }
 
 function currentNow() {
@@ -61,13 +66,19 @@ function scheduleIcon() {
   </svg>`;
 }
 
-function optionLabel(id, label) {
+function optionMarkup(id, label) {
   const checked = creatorSelection === id;
   const [first, second] = label.split('·').map(part => part.trim());
   return `<label class="mission-window-option ${checked ? 'is-selected' : ''}">
     <input type="radio" name="mission-schedule" value="${id}" ${checked ? 'checked' : ''}>
     <span>${escapeHtml(first)}${second ? ` <span aria-hidden="true">·</span> <bdi dir="ltr">${escapeHtml(second)}</bdi>` : ''}</span>
   </label>`;
+}
+
+function synchronizeLaunch(launch, summary) {
+  const ready = Boolean(summary.querySelector('input[name="mission-template"]:checked')) && Boolean(creatorSelection);
+  launch.disabled = !ready;
+  launch.setAttribute('aria-disabled', String(!ready));
 }
 
 function enhanceCreatorSelector() {
@@ -77,7 +88,7 @@ function enhanceCreatorSelector() {
   if (!summary || !missionSelector || !launch) return;
 
   const localized = getMissionScheduleCopy(getLocale());
-  const key = `${getLocale()}:${creatorSelection || 'none'}`;
+  const key = `${getLocale()}:${creatorSelection}`;
   let selector = summary.querySelector('[data-mission-schedule-owned]');
   if (!selector || selector.dataset.scheduleKey !== key) {
     selector?.remove();
@@ -86,24 +97,23 @@ function enhanceCreatorSelector() {
         <legend>${escapeHtml(localized.selectorLegend)}</legend>
         <p id="mission-window-help">${escapeHtml(localized.selectorHelp)}</p>
         <div class="mission-window-options">
-          ${MISSION_SCHEDULE_IDS.map(id => optionLabel(id, localized.options[id])).join('')}
+          ${MISSION_SCHEDULE_IDS.map(id => optionMarkup(id, localized.options[id])).join('')}
         </div>
       </fieldset>
     `);
-    selector = summary.querySelector('[data-mission-schedule-owned]');
   }
 
-  const missionSelected = Boolean(summary.querySelector('input[name="mission-template"]:checked'));
-  const ready = missionSelected && Boolean(creatorSelection);
-  launch.disabled = !ready;
-  launch.setAttribute('aria-disabled', String(!ready));
-  const message = document.querySelector('.creator-studio .form-message');
-  if (message) {
-    const existing = document.querySelector('#mission-window-validation');
-    if (!existing) message.insertAdjacentHTML('beforebegin', '<p id="mission-window-validation" class="form-message mission-window-validation" aria-live="polite"></p>');
-    const validation = document.querySelector('#mission-window-validation');
-    if (creatorSelection && validation?.textContent === localized.selectorValidation) validation.textContent = '';
+  if (!document.querySelector('#mission-window-validation')) {
+    const message = document.querySelector('.creator-studio .form-message');
+    message?.insertAdjacentHTML('beforebegin', '<p id="mission-window-validation" class="form-message mission-window-validation" aria-live="polite"></p>');
   }
+  const validation = document.querySelector('#mission-window-validation');
+  if (validation?.textContent === localized.selectorValidation) validation.textContent = '';
+
+  synchronizeLaunch(launch, summary);
+  queueMicrotask(() => {
+    if (launch.isConnected && summary.isConnected) synchronizeLaunch(launch, summary);
+  });
 }
 
 function clearMissionSession() {
@@ -118,10 +128,7 @@ function readScheduleState() {
   const parsed = parsePrototypeInviteFragment(window.location.hash, { now });
   if (parsed.status !== 'valid') return { parsed, schedule: null };
   try {
-    return {
-      parsed,
-      schedule: classifyMissionSchedule(parsed.invite, now),
-    };
+    return { parsed, schedule: classifyMissionSchedule(parsed.invite, now) };
   } catch {
     return { parsed: { status: 'invalid' }, schedule: null };
   }
@@ -131,7 +138,7 @@ function statusMarkup(scheduleState) {
   const localized = getMissionScheduleCopy(getLocale());
   const stateCopy = localized.states[scheduleState];
   const unavailable = scheduleState !== 'active';
-  return `<section class="mission-window-status is-${scheduleState}" data-mission-window-status data-state="${scheduleState}" aria-labelledby="mission-window-title">
+  return `<section class="mission-window-status is-${scheduleState}" data-mission-window-status data-state="${scheduleState}" data-locale="${getLocale()}" aria-labelledby="mission-window-title">
     ${scheduleIcon()}
     <div class="mission-window-copy">
       <p class="section-kicker">${escapeHtml(localized.kicker)}</p>
@@ -146,12 +153,17 @@ function statusMarkup(scheduleState) {
   </section>`;
 }
 
+function showNormalMission(roleGrid, mission) {
+  roleGrid.hidden = false;
+  mission.querySelector('[data-mission-window-status]')?.remove();
+  [...mission.children].forEach(child => { child.hidden = false; });
+}
+
 function applyFollowerState({ announce = false } = {}) {
   const { parsed, schedule } = readScheduleState();
-  currentInvite = parsed.status === 'valid' ? parsed.invite : null;
-  const nextState = schedule?.state ?? (parsed.status === 'invalid' ? 'invalid' : null);
   const previousState = currentState;
-  currentState = nextState;
+  currentInvite = parsed.status === 'valid' ? parsed.invite : null;
+  currentState = schedule?.state ?? (parsed.status === 'invalid' ? 'invalid' : null);
 
   clearTimeout(boundaryTimer);
   boundaryTimer = null;
@@ -160,10 +172,14 @@ function applyFollowerState({ announce = false } = {}) {
   const mission = document.querySelector('.mission');
   if (!mission || !roleGrid) return;
 
+  if (parsed.status === 'none') {
+    showNormalMission(roleGrid, mission);
+    return;
+  }
+
   if (!schedule) {
-    roleGrid.hidden = nextState === 'invalid';
-    mission.querySelector('[data-mission-window-status]')?.remove();
-    if (nextState === 'invalid') clearMissionSession();
+    roleGrid.hidden = true;
+    clearMissionSession();
     return;
   }
 
@@ -174,13 +190,10 @@ function applyFollowerState({ announce = false } = {}) {
   if (!existing || existing.dataset.state !== schedule.state || existing.dataset.locale !== getLocale()) {
     existing?.remove();
     mission.insertAdjacentHTML('afterbegin', statusMarkup(schedule.state));
-    const inserted = mission.querySelector('[data-mission-window-status]');
-    if (inserted) inserted.dataset.locale = getLocale();
   }
 
   [...mission.children].forEach(child => {
-    if (child.matches('[data-mission-window-status]')) return;
-    child.hidden = schedule.state !== 'active';
+    if (!child.matches('[data-mission-window-status]')) child.hidden = schedule.state !== 'active';
   });
 
   if (announce && previousState && previousState !== schedule.state) {
@@ -217,13 +230,7 @@ function queueApply() {
 }
 
 function handleCaptureClick(event) {
-  const openCreator = event.target.closest?.('[data-action="creator"]');
-  if (openCreator && globalThis[RESTORING_FLAG] !== true) {
-    creatorSelection = null;
-    sessionStorage.removeItem(SELECTION_KEY);
-    globalThis[GLOBAL_KEY] = null;
-    return;
-  }
+  if (event.target.closest?.('[data-action="creator"]')) persistSelection(MISSION_SCHEDULE_IDS[0]);
 
   const launch = event.target.closest?.('.creator-studio [data-action="creator-next"]');
   if (launch && document.querySelector('.creator-studio .launch-summary')) {
@@ -250,9 +257,7 @@ function handleCaptureClick(event) {
 function handleChange(event) {
   const input = event.target.closest?.('input[name="mission-schedule"]');
   if (!input) return;
-  creatorSelection = normalizeMissionScheduleId(input.value);
-  sessionStorage.setItem(SELECTION_KEY, creatorSelection);
-  globalThis[GLOBAL_KEY] = creatorSelection;
+  persistSelection(input.value);
   queueApply();
 }
 
