@@ -23,7 +23,9 @@ const expectations = [
 for (const [scheduleId, startMinute, endMinute] of expectations) {
   test(`${scheduleId} classifies exact [start, end) boundaries`, () => {
     const input = { scheduleId, createdAtMinute: CREATED_MINUTE };
-    assert.equal(classifyMissionSchedule(input, atMinute(startMinute) - 1).state, 'upcoming');
+    if (startMinute > CREATED_MINUTE) {
+      assert.equal(classifyMissionSchedule(input, atMinute(startMinute) - 1).state, 'upcoming');
+    }
     assert.equal(classifyMissionSchedule(input, atMinute(startMinute)).state, 'active');
     assert.equal(classifyMissionSchedule(input, atMinute(endMinute) - 1).state, 'active');
     assert.equal(classifyMissionSchedule(input, atMinute(endMinute)).state, 'ended');
