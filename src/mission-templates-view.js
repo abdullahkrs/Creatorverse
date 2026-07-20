@@ -195,6 +195,7 @@ function enhanceMission() {
 
   const mission = document.querySelector('.mission');
   if (!mission) return;
+  if (state.progress.completed && mission.querySelector('.mission-result strong')) return;
   const selectedRole = document.querySelector('[data-role][aria-pressed="true"]')?.dataset.role || '';
   const currentCopy = copy();
   const template = currentCopy.templates[state.templateId];
