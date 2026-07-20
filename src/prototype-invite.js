@@ -11,6 +11,8 @@ const MAX_DECODED_BYTES = 320;
 const MAX_REALM_NAME = 28;
 const MAX_PROMISE = 90;
 const ALLOWED_THEMES = new Set(['cosmic', 'wild', 'future']);
+const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId']);
+const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm']);
 
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 const URL_CONTACT_OR_HANDLE = /(?:[a-z][a-z0-9+.-]*:\/\/|(?:mailto|tel|sms|data|javascript|file):|www\.|(?:^|[^\p{L}\p{N}._%+-])(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?\.)+[\p{L}]{2,63}(?::\d{1,5})?(?:[/?#][^\s]*)?|\b[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.[\p{L}]{2,}\b|(^|\s)@[\p{L}\p{N}_]{2,}|\+?\d[\d\s().-]{7,}\d)/iu;
@@ -21,6 +23,11 @@ function inviteError(code) {
   const error = new Error(code);
   error.code = code;
   return error;
+}
+
+function assertObjectWithAllowedFields(value, allowedFields, code) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw inviteError(code);
+  if (Object.keys(value).some(key => !allowedFields.has(key))) throw inviteError(code);
 }
 
 function utf8Bytes(value) {
@@ -69,7 +76,9 @@ export function normalizeInviteText(value, { field = 'value', maxLength, require
   return normalized;
 }
 
-export function createPrototypeInvite({ name, theme, promise, missionId } = {}) {
+export function createPrototypeInvite(input = {}) {
+  assertObjectWithAllowedFields(input, CREATE_FIELDS, 'INVITE_FIELDS_INVALID');
+  const { name, theme, promise, missionId } = input;
   const normalizedName = normalizeInviteText(name, { field: 'name', maxLength: MAX_REALM_NAME });
   if (!ALLOWED_THEMES.has(theme)) throw inviteError('INVITE_THEME_INVALID');
   const normalizedPromise = normalizeInviteText(promise ?? '', {
@@ -107,9 +116,8 @@ export function parsePrototypeInviteToken(token) {
 
     const json = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
     const payload = JSON.parse(json);
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload) || payload.v !== INVITE_VERSION) {
-      throw inviteError('INVITE_VERSION_INVALID');
-    }
+    assertObjectWithAllowedFields(payload, PAYLOAD_FIELDS, 'INVITE_FIELDS_INVALID');
+    if (payload.v !== INVITE_VERSION) throw inviteError('INVITE_VERSION_INVALID');
 
     const name = normalizeInviteText(payload.n, { field: 'name', maxLength: MAX_REALM_NAME });
     if (!ALLOWED_THEMES.has(payload.t)) throw inviteError('INVITE_THEME_INVALID');
