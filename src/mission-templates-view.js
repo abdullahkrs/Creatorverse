@@ -141,7 +141,7 @@ function missionActionMarkup(templateId, currentCopy, hasRole) {
   if (templateId === 'route-choice') {
     return `
       <div class="mission-template-actions mission-template-actions-two" aria-label="${escapeHtml(template.name)}">
-        ${Object.entries(template.actions).map(([id, label]) => `<button class="route" type="button" data-mission-command="${id}" ${!hasRole ? 'disabled' : ''}>${escapeHtml(label)}</button>`).join('')}
+        ${Object.entries(template.actions).map(([id, label]) => `<button class="route" type="button" data-route="${id}" data-mission-command="${id}" ${!hasRole ? 'disabled' : ''}>${escapeHtml(label)}</button>`).join('')}
       </div>
     `;
   }
@@ -204,7 +204,8 @@ function enhanceMission() {
   const key = `${getLocale()}:${state.templateId}:${selectedRole}:${state.progress.step}:${state.message}:${repaired}`;
   if (mission.dataset.missionTemplateKey === key) return;
 
-  const legacyButtons = [...mission.querySelectorAll('[data-route]')].filter(button => !button.closest('[data-mission-legacy-triggers]'));
+  const legacyButtons = [...mission.querySelectorAll('[data-route]')]
+    .filter(button => !button.closest('[data-mission-legacy-triggers]') && !button.hasAttribute('data-mission-command'));
   if (!legacyButtons.length) {
     const existing = [...mission.querySelectorAll('[data-mission-legacy-triggers] [data-route]')];
     legacyButtons.push(...existing);
@@ -289,6 +290,7 @@ function handleCaptureClick(event) {
   const role = event.target.closest?.('[data-role]');
   if (role) {
     resetProgress();
+    queueMicrotask(() => document.querySelector('#mission-title')?.focus({ preventScroll: true }));
     return;
   }
 
