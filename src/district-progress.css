@@ -1,0 +1,129 @@
+.district-progress {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 5.5rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cv-space-4);
+  padding-block: var(--cv-space-4);
+  border-block: 1px solid var(--cv-color-border);
+  text-align: start;
+}
+
+.district-progress-copy {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--cv-space-1);
+}
+
+.district-progress-copy strong {
+  overflow-wrap: anywhere;
+  font-size: var(--cv-text-lg);
+  line-height: var(--cv-leading-tight);
+}
+
+.district-progress-status,
+.district-unlock-support {
+  margin: 0;
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.district-progress-status bdi,
+.district-unlock-support bdi {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.district-artwork {
+  inline-size: 100%;
+  max-inline-size: 5.5rem;
+  block-size: auto;
+  color: var(--cv-color-text-muted);
+}
+
+.district-artwork .district-contour,
+.district-artwork .district-seam,
+.district-artwork .district-beacon {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.district-artwork .district-contour { stroke-width: 2; }
+.district-artwork .district-seam { stroke-width: 3; }
+.district-artwork .district-beacon { stroke-width: 2; }
+
+.district-progress[data-district-state='locked'] .district-seam {
+  stroke: var(--cv-color-warning);
+}
+
+.district-progress[data-district-state='unlocked'] {
+  border-block-color: var(--cv-color-success);
+}
+
+.district-progress[data-district-state='unlocked'] .district-artwork,
+.district-progress[data-district-state='unlocked'] .district-progress-status {
+  color: var(--cv-color-success);
+}
+
+.district-progress[data-district-state='unlocked']:not(.is-restored) .district-seam {
+  stroke-dasharray: 26;
+  animation: district-seam-open var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.district-progress[data-district-state='unlocked']:not(.is-restored) .district-beacon {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: district-beacon-rise var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.signal-result .district-progress {
+  margin-block-end: var(--cv-space-4);
+}
+
+.district-unlock-title {
+  margin: 0;
+  max-inline-size: 18ch;
+  font-size: var(--cv-text-2xl);
+  line-height: var(--cv-leading-tight);
+  letter-spacing: -0.03em;
+}
+
+.district-unlock-support {
+  margin-block-start: var(--cv-space-2);
+  max-inline-size: 55ch;
+  color: var(--cv-color-text);
+}
+
+html[dir='rtl'] .district-progress,
+html[dir='rtl'] .district-unlock-title,
+html[dir='rtl'] .district-unlock-support {
+  text-align: start;
+}
+
+@keyframes district-seam-open {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 18; }
+}
+
+@keyframes district-beacon-rise {
+  from { opacity: 0; transform: scaleY(0.4); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+@media (max-width: 22rem) {
+  .district-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .district-artwork {
+    max-inline-size: 4.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .district-progress .district-seam,
+  .district-progress .district-beacon {
+    animation: none !important;
+  }
+}
