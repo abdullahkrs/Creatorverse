@@ -6,7 +6,10 @@
     <meta name="description" content="Creatorverse turns creator communities into living digital realms." />
     <script>
       try {
-        const locale = localStorage.getItem('creatorverse-locale') === 'ar' ? 'ar' : 'en';
+        const storedLocale = localStorage.getItem('creatorverse-locale');
+        const locale = storedLocale === 'ar' || storedLocale === 'en'
+          ? storedLocale
+          : navigator.language?.toLowerCase().startsWith('ar') ? 'ar' : 'en';
         document.documentElement.lang = locale;
         document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
       } catch {
