@@ -1,4 +1,5 @@
 import { getMissionResultCopy, normalizeMissionLocale } from './mission-result-i18n.js';
+import { DEFAULT_MISSION_TEMPLATE_ID, normalizeMissionTemplateId } from './mission-templates.js';
 
 const ROLE_IDS = new Set(['builder', 'explorer', 'guardian']);
 const ROUTE_IDS = new Set(['sky', 'ocean']);
@@ -23,6 +24,7 @@ export function sanitizeResultText(value, maximumLength = 64) {
 export function createMissionResult({
   roleId,
   routeId,
+  templateId,
   energyBefore,
   energyAdded = 3,
   target = 100,
@@ -30,6 +32,10 @@ export function createMissionResult({
 }) {
   if (!ROLE_IDS.has(roleId)) throw new TypeError('INVALID_ROLE');
   if (!ROUTE_IDS.has(routeId)) throw new TypeError('INVALID_ROUTE');
+  const safeTemplateId = normalizeMissionTemplateId(
+    templateId ?? globalThis.__creatorverseMissionTemplateId ?? DEFAULT_MISSION_TEMPLATE_ID,
+    { fallback: false },
+  );
 
   const safeTarget = boundedInteger(target, 1, 1000000);
   const before = boundedInteger(energyBefore, 0, safeTarget);
@@ -42,6 +48,7 @@ export function createMissionResult({
   return Object.freeze({
     roleId,
     routeId,
+    templateId: safeTemplateId,
     energyAdded: requestedGain,
     energyBefore: before,
     energyAfter: after,
@@ -74,13 +81,13 @@ export function buildMissionSharePayload(result, { locale = 'en', publicUrl } = 
   if (!safeUrl) throw new TypeError('INVALID_PUBLIC_URL');
 
   const role = copy.roles[result.roleId];
-  const route = copy.routes[result.routeId];
+  const template = copy.templates[result.templateId || DEFAULT_MISSION_TEMPLATE_ID];
   const district = copy.districts[result.district] || sanitizeResultText(result.district);
-  if (!role || !route || !district) throw new TypeError('INVALID_RESULT_DATA');
+  if (!role || !template || !district) throw new TypeError('INVALID_RESULT_DATA');
 
   const contribution = `${isolate(`+${result.energyAdded}`)} ${copy.energy}`;
   const progress = isolate(`${result.energyBefore} → ${result.energyAfter}`);
-  const text = `${copy.title}: ${role} · ${route} · ${contribution} · ${district} ${progress}.`;
+  const text = `${copy.title}: ${role} · ${template} · ${contribution} · ${district} ${progress}.`;
 
   return Object.freeze({ title: copy.shareTitle, text, url: safeUrl });
 }

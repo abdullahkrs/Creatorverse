@@ -13,6 +13,7 @@ import {
 const result = createMissionResult({
   roleId: 'builder',
   routeId: 'sky',
+  templateId: 'relay-sequence',
   energyBefore: 72,
   target: 100,
   district: 'Signal Harbor',
@@ -22,6 +23,7 @@ test('creates allowlisted, bounded result data', () => {
   assert.deepEqual(result, {
     roleId: 'builder',
     routeId: 'sky',
+    templateId: 'relay-sequence',
     energyAdded: 3,
     energyBefore: 72,
     energyAfter: 75,
@@ -31,6 +33,7 @@ test('creates allowlisted, bounded result data', () => {
   const capped = createMissionResult({
     roleId: 'builder',
     routeId: 'sky',
+    templateId: 'signal-match',
     energyBefore: 99,
     energyAdded: 3,
     target: 100,
@@ -42,6 +45,7 @@ test('creates allowlisted, bounded result data', () => {
 
   assert.throws(() => createMissionResult({ roleId: 'admin', routeId: 'sky' }), /INVALID_ROLE/);
   assert.throws(() => createMissionResult({ roleId: 'builder', routeId: 'external' }), /INVALID_ROUTE/);
+  assert.throws(() => createMissionResult({ roleId: 'builder', routeId: 'sky', templateId: 'unsafe' }), /INVALID_MISSION_TEMPLATE/);
   assert.equal(sanitizeResultText('<b>Harbor</b>\n\u0000'), 'b Harbor /b');
 });
 
@@ -52,7 +56,7 @@ test('builds concise localized payloads and rejects unsafe URLs', () => {
   });
   assert.equal(english.url, 'https://creatorverse.example/play');
   assert.match(english.text, /Builder/);
-  assert.match(english.text, /Sky route/);
+  assert.match(english.text, /Link the Relays/);
   assert.match(english.text, /Signal Harbor/);
   assert.doesNotMatch(english.text, /secret|token/);
 
@@ -61,7 +65,7 @@ test('builds concise localized payloads and rejects unsafe URLs', () => {
     publicUrl: 'https://creatorverse.example/',
   });
   assert.match(arabic.text, /البنّاء/);
-  assert.match(arabic.text, /المسار السماوي/);
+  assert.match(arabic.text, /اربط المرحّلات/);
   assert.match(arabic.text, /ميناء الإشارة/);
   assert.match(arabic.text, /\u2066?72/u);
 

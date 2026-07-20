@@ -101,6 +101,7 @@ for (const locale of ['en', 'ar']) {
     await page.locator('[data-action="creator"]').click();
     await page.locator('[data-action="creator-next"]').click();
     await page.locator('[data-action="creator-next"]').click();
+    await page.locator('input[name="mission-template"][value="route-choice"]').check();
     const checkbox = page.locator('[data-field="safety"]');
     await checkbox.uncheck();
     await page.locator('[data-action="creator-next"]').click();
