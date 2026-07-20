@@ -1,3 +1,9 @@
+import {
+  DEFAULT_MISSION_TEMPLATE_ID,
+  MISSION_TEMPLATE_IDS,
+  normalizeMissionTemplateId,
+} from './mission-templates.js';
+
 const INVITE_VERSION = 1;
 const TOKEN_PREFIX = 'v1.';
 const MAX_TOKEN_LENGTH = 480;
@@ -63,7 +69,7 @@ export function normalizeInviteText(value, { field = 'value', maxLength, require
   return normalized;
 }
 
-export function createPrototypeInvite({ name, theme, promise } = {}) {
+export function createPrototypeInvite({ name, theme, promise, missionId } = {}) {
   const normalizedName = normalizeInviteText(name, { field: 'name', maxLength: MAX_REALM_NAME });
   if (!ALLOWED_THEMES.has(theme)) throw inviteError('INVITE_THEME_INVALID');
   const normalizedPromise = normalizeInviteText(promise ?? '', {
@@ -71,8 +77,17 @@ export function createPrototypeInvite({ name, theme, promise } = {}) {
     maxLength: MAX_PROMISE,
     required: false,
   });
+  let normalizedMission;
+  try {
+    normalizedMission = normalizeMissionTemplateId(
+      missionId ?? globalThis.__creatorverseMissionTemplateId ?? DEFAULT_MISSION_TEMPLATE_ID,
+      { fallback: false },
+    );
+  } catch {
+    throw inviteError('INVITE_MISSION_INVALID');
+  }
 
-  const payload = { v: INVITE_VERSION, n: normalizedName, t: theme };
+  const payload = { v: INVITE_VERSION, n: normalizedName, t: theme, m: normalizedMission };
   if (normalizedPromise) payload.p = normalizedPromise;
 
   const encoded = toBase64Url(utf8Bytes(JSON.stringify(payload)));
@@ -103,10 +118,11 @@ export function parsePrototypeInviteToken(token) {
       maxLength: MAX_PROMISE,
       required: false,
     });
+    const missionId = normalizeMissionTemplateId(payload.m ?? DEFAULT_MISSION_TEMPLATE_ID, { fallback: false });
 
     return {
       status: 'valid',
-      invite: Object.freeze({ name, theme: payload.t, promise }),
+      invite: Object.freeze({ name, theme: payload.t, promise, missionId }),
     };
   } catch {
     return { status: 'invalid' };
@@ -150,4 +166,5 @@ export const prototypeInviteLimits = Object.freeze({
   maxRealmName: MAX_REALM_NAME,
   maxPromise: MAX_PROMISE,
   themes: Object.freeze([...ALLOWED_THEMES]),
+  missions: MISSION_TEMPLATE_IDS,
 });
