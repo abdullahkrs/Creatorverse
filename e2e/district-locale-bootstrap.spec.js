@@ -23,7 +23,7 @@ async function completeMission(page, templateId) {
   await page.locator(`[data-mission-command="${templateId === 'signal-match' ? 'wave' : 'sky'}"]`).click();
 }
 
-test('restored Arabic district result keeps Arabic share payload before localization decorates the page', async ({ browser }) => {
+test('restored Arabic district result keeps Arabic share payload and isolated mixed-direction values', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await context.addInitScript(() => {
     localStorage.setItem('creatorverse-locale', 'ar');
@@ -51,6 +51,9 @@ test('restored Arabic district result keeps Arabic share payload before localiza
   await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('#mission-result-title')).toHaveText('تم فتح الحي');
+  await expect(page.locator('.district-unlock-support bdi[dir="ltr"]')).toHaveText('+٣');
+  await expect(page.locator('.district-progress-status bdi[dir="ltr"]')).toHaveText('٣ / ٣');
+  await expect(page.locator('.realm-card .progress-label strong bdi[dir="ltr"]')).toHaveText('٣ / ٣');
 
   await page.locator('[data-action="mission-result-action"]').click();
   await expect(page.locator('[data-action="mission-result-action"]')).toContainText('تم النسخ');
