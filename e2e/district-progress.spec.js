@@ -47,7 +47,7 @@ const LOCALES = [
 async function newContext(browser, locale, viewport) {
   const context = await browser.newContext({ viewport, reducedMotion: 'no-preference' });
   await context.addInitScript(localeId => {
-    localStorage.setItem('creatorverse-locale', localeId);
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', localeId);
     window.__districtClipboard = '';
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'clipboard', {
