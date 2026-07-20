@@ -2,6 +2,31 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-20 — CV-OPS-001 Railway release identity attestation
+
+**Outcome:** Make the exact Railway Production release identity and distinct healthy Staging discoverable through one stable GitHub status and one canonical evidence ledger without direct agent DNS, private credentials, paid accounts, owner action, or manual evidence.
+
+### Completed
+
+- Added a dependency-free Node verifier for public Production and Staging `/health` and `/version` endpoints with exact full Production SHA matching, environment identity, distinct-origin enforcement, sanitized errors, and bounded retries.
+- Added the stable `railway-production-identity` commit status plus an automatically created canonical `[Ledger] Railway release identity evidence` issue with one idempotent verified-or-failed marker comment per SHA.
+- Added integrity validation for marker SHA, Production SHA, workflow run URL, timestamp freshness, environment identity, distinct origins, malformed JSON, and wording that overstates operational automation.
+- Restricted the write-capable workflow to trusted `main` push, hourly schedule, and `workflow_dispatch`; removed pull-request write execution and used only scoped `GITHUB_TOKEN` permissions for contents read, issues write, and statuses write.
+- Retired the weaker duplicate Production Smoke workflow and preserved the existing isolated Railway PR Preview and browser gates in CI.
+- Added `docs/railway-release-identity.md` and updated the Quality Pipeline with the evidence schema, bounded timing, freshness window, canonical marker, and QA discovery contract.
+- Added no dependency, product UI, product copy, gameplay, localization, account, secret, private data, external participant, or Production-data mutation.
+
+### Validation
+
+- Added 11 deterministic Node tests covering healthy exact identity, wrong Production SHA, wrong environment, identical origins, unhealthy endpoint, malformed response, bounded timeout, stale/future/wrong-SHA/missing-run integrity, prohibited claims, duplicate-ledger prevention, duplicate-comment prevention, and the eight-line summary budget.
+- Pull Request #21 links the one active cycle and preserves one branch and one vertical slice.
+- Exact-head GitHub CI and isolated Railway PR Preview remain required before release-stage handoff; Railway deployment status alone is insufficient and is not treated as passing evidence.
+- Repository-native endpoint verification is operational deployment evidence only, not evidence of human comprehension, demand, retention, preference, fairness, or market validation.
+
+### Next best task
+
+Use exact-head GitHub CI and isolated Railway PR Preview evidence, repair only reproducible failures on Pull Request #21, then move Issue #20 to `stage:release` without merging.
+
 ## 2026-07-19 — CV-MVP-005A automated usability proxy gate
 
 **Outcome:** Add a deterministic engineering proxy for the creator-to-follower loop without presenting automation as human research. The current decision is `AUTOMATED_PROXY_PASS` on exact head `a4350de85c8246b8df0836865c8612c42bc1f140`.
@@ -52,7 +77,7 @@ Run independent QA on the unchanged final PR head and exact Railway Preview; do 
 - The focused repair prevents the generic Arabic localizer from rewriting invite-owned localized components and follower realm values, preserving dynamic text and stopping the microtask loop without weakening tests.
 - CI run #152 on implementation head `733a29151cc4fc688d638852aa8a94c77f2e6b3e` passed locked `npm ci`, `npm run check`, the production build, exact isolated Railway Preview verification, the complete English/Arabic browser matrix, axe, keyboard flow, fresh-session invite entry, invalid recovery, 200% text zoom, and responsive screenshot gates.
 - A P2 review on earlier head `314c4d8a5c` identified that bare domains and non-HTTP external schemes could bypass the original external-text denylist.
-- CI run #155 on focused repair head `68dd06f139267bcc1287b7d5d6cc1e119d65943e` passed locked installation, the expanded unit and localization gates, `npm run check`, production build, exact isolated Railway Preview `/health` and `/version`, branch and commit identity, malformed-path safety, post-request liveness, bilingual Playwright, axe, keyboard, text zoom, responsive evidence, and artifact upload.
+- CI run #155 on focused repair head `68dd06f139267bcc1287b7d5d6cc1e119d65943e` passed locked installation, the expanded unit and localization gates, `npm run check`, production build, exact isolated Railway Preview `/health`, `/version`, branch and commit identity, malformed-path safety, post-request liveness, bilingual Playwright, axe, keyboard, text zoom, responsive evidence, and artifact upload.
 - Browser evidence artifact `browser-quality-68dd06f139267bcc1287b7d5d6cc1e119d65943e` is retained through 2026-08-01; the safety repair changed validation only and preserved the approved visual, responsive, Arabic/English, state, and interaction behavior.
 - Rollback is limited to reverting Pull Request #15; no database, dependency, secret, account, environment, or external-service rollback is required.
 
