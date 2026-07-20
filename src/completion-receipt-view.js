@@ -164,9 +164,6 @@ function actionMarkup(localeCopy) {
   if (status === 'storage-error') {
     return `<button class="primary completion-import-action" type="button" data-action="retry-completion-receipt"><span>${escapeHtml(localeCopy.retryAction)}</span></button>`;
   }
-  if (status === 'loading') {
-    return `<button class="primary completion-import-action" type="button" disabled aria-busy="true"><span>${escapeHtml(localeCopy.checkingTitle)}</span></button>`;
-  }
   return '';
 }
 
@@ -228,13 +225,14 @@ function renderView() {
   document.querySelector('.creator-tools')?.setAttribute('hidden', '');
   document.querySelector('.creator-studio')?.remove();
 
+  const nextFocusKey = `${status}:${activeReceipt?.receiptId || 'invalid'}`;
+  const shouldAnnounceSuccess = status === 'success';
   queueMicrotask(() => {
-    const nextFocusKey = `${status}:${activeReceipt?.receiptId || 'invalid'}`;
     if (focusKey !== nextFocusKey) {
       focusKey = nextFocusKey;
       experience.querySelector('#completion-receipt-title')?.focus({ preventScroll: true });
     }
-    if (status === 'success' && !successAnnounced) {
+    if (shouldAnnounceSuccess && !successAnnounced) {
       successAnnounced = true;
       const live = experience.querySelector('[data-completion-announcement]');
       if (live) live.textContent = localeCopy.successTitle;
