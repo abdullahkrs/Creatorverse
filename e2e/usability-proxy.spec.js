@@ -110,17 +110,37 @@ async function activate(page, selector, input) {
   }
 }
 
-async function creatorInvite(page, profile, { expectInitialCopyFailure = false } = {}) {
+async function selectMission(page, profile, templateId) {
+  const selector = `input[name="mission-template"][value="${templateId}"]`;
+  if (profile.input === 'keyboard') {
+    await tabTo(page, selector);
+    await page.keyboard.press('Space');
+  } else {
+    await page.locator(selector).check();
+  }
+  await expect(page.locator(selector)).toBeChecked();
+}
+
+async function creatorInvite(page, profile, { expectInitialCopyFailure = false, templateId = 'route-choice' } = {}) {
   let steps = 0;
   await activate(page, '[data-action="creator"]', profile.input);
   steps += 1;
   await expect(page.locator('#creator-studio')).toBeVisible();
   await quality(page, { dir: profile.dir });
-  for (let index = 0; index < 3; index += 1) {
-    await activate(page, '[data-action="creator-next"]', profile.input);
-    steps += 1;
-  }
+
+  await activate(page, '[data-action="creator-next"]', profile.input);
+  steps += 1;
+  await activate(page, '[data-action="creator-next"]', profile.input);
+  steps += 1;
+  await expect(page.locator('.mission-template-selector')).toBeVisible();
+  await expect(page.locator('[data-action="creator-next"]')).toBeDisabled();
+  await selectMission(page, profile, templateId);
+  steps += 1;
+  await activate(page, '[data-action="creator-next"]', profile.input);
+  steps += 1;
+
   await expect(page.locator('[data-prototype-invite-receipt]')).toBeVisible();
+  await expect(page.locator('[data-mission-receipt]')).toBeVisible();
   await quality(page, { dir: profile.dir, runAxe: true, label: `${profile.id} invite receipt` });
   const copyAction = page.locator('[data-action="copy-prototype-invite"]');
   await activate(page, '[data-action="copy-prototype-invite"]', profile.input);
@@ -156,6 +176,7 @@ async function runCore(browser, baseURL, profile) {
   await follower.goto(receipt.invite);
   await expect(follower.locator('[data-prototype-follower-entry]')).toBeVisible();
   await expect(follower.locator('[data-role]')).toHaveCount(3);
+  await expect(follower.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
   await quality(follower, { dir: profile.dir, runAxe: true, label: `${profile.id} follower entry` });
 
   await activate(follower, '[data-role="builder"]', profile.input);
@@ -212,7 +233,7 @@ async function runCore(browser, baseURL, profile) {
       'single-primary-action',
       'accessible-names-keyboard-focus',
       '44px-targets-no-overflow',
-      'creator-invite-follower-role-route-result-share',
+      'creator-mission-invite-follower-result-share',
       'language-direction-state-preservation',
       'axe-no-serious-critical',
     ],
@@ -229,13 +250,11 @@ async function runRecovery(browser, baseURL) {
   const invalidContext = await makeContext(browser, baseURL, profile);
   const invalid = await invalidContext.newPage();
   await invalid.goto('/#invite=v1.invalid!');
-  await expect(invalid.locator('[data-prototype-invite-error]')).toBeVisible();
-  await expect(invalid.locator('#invite-error-title')).toBeFocused();
-  await quality(invalid, { dir: 'ltr', runAxe: true, label: 'invalid invite' });
-  await invalid.locator('[data-action="open-featured-realm"]').click();
-  steps += 1;
   await expect(invalid).not.toHaveURL(/#invite=/u);
-  states.push({ id: 'invalid-invite', status: 'PASS', recovery: 'The named featured-realm action removed the malformed fragment and restored the role view.' });
+  await expect(invalid.locator('.mission-repaired')).toContainText('Invite repaired. Default mission loaded.');
+  await expect(invalid.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
+  await quality(invalid, { dir: 'ltr', runAxe: true, label: 'invalid invite repaired' });
+  states.push({ id: 'invalid-invite', status: 'PASS', recovery: 'Malformed fragment data was removed without reflection and the named safe default mission loaded.' });
   await invalidContext.close();
 
   const copyContext = await makeContext(browser, baseURL, profile, 'fail-once');
@@ -349,7 +368,7 @@ async function runRecovery(browser, baseURL) {
       steps,
       stepBudget: 18,
       elapsedMs: Date.now() - started,
-      checks: ['fresh-contexts', 'invalid-recovery', 'copy-retry', 'empty-loading-service-retry', 'mission-source-retry', 'axe-no-serious-critical'],
+      checks: ['fresh-contexts', 'invalid-default-repair', 'copy-retry', 'empty-loading-service-retry', 'mission-source-retry', 'axe-no-serious-critical'],
       screenshots: [screenshot],
     },
     states,
