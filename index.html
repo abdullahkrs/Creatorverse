@@ -4,19 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Creatorverse turns creator communities into living digital realms." />
-    <script>
-      try {
-        const storedLocale = localStorage.getItem('creatorverse-locale');
-        const locale = storedLocale === 'ar' || storedLocale === 'en'
-          ? storedLocale
-          : navigator.language?.toLowerCase().startsWith('ar') ? 'ar' : 'en';
-        document.documentElement.lang = locale;
-        document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
-      } catch {
-        document.documentElement.lang = 'en';
-        document.documentElement.dir = 'ltr';
-      }
-    </script>
     <link rel="stylesheet" href="/src/design-system/tokens.css" />
     <link rel="stylesheet" href="/src/mission-result.css" />
     <link rel="stylesheet" href="/src/district-progress.css" />
@@ -25,6 +12,7 @@
   </head>
   <body>
     <div id="app"></div>
+    <script type="module" src="/src/localize.js"></script>
     <script type="module" src="/src/main.js"></script>
     <script type="module" src="/src/safety-gate.js"></script>
     <script type="module" src="/src/profile-import.js"></script>
@@ -32,7 +20,6 @@
     <script type="module" src="/src/mission-legacy-route-bridge.js"></script>
     <script type="module" src="/src/mission-result-view.js"></script>
     <script type="module" src="/src/district-progress-view.js"></script>
-    <script type="module" src="/src/localize.js"></script>
     <script type="module" src="/src/prototype-invite-view.js"></script>
   </body>
 </html>
