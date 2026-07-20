@@ -2,6 +2,33 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-20 — CV-MVP-007 Beacon District unlock
+
+**Outcome:** Make one successful allowlisted follower mission produce one visible fictional-world consequence by moving Beacon District / حيّ المنارة from locked `0 / 3` to open `3 / 3` with the existing equal `+3` contribution.
+
+### Completed
+
+- Added one strict versioned session-only district state scoped to the current invite, with exact fields, one allowlisted district identity, fixed threshold `3`, fixed contribution `3`, and fail-closed restoration for malformed, unknown-field, cross-invite, or invalid states.
+- Connected every allowlisted mission template to the same idempotent completion rule; repeated role or mission actions cannot add another contribution or unlock another district.
+- Added one compact locked district state and one integrated unlocked result with an original neutral contour-and-beacon SVG, existing design tokens, semantic progress state, logical properties, intrinsic mobile-first composition, intentional RTL/LTR behavior, 44 px actions, one purposeful transition, and reduced-motion removal.
+- Aligned the invited follower realm card with Beacon District so the visible world state and mission result both move from `0 / 3` to `3 / 3` instead of retaining the legacy Signal Harbor progress.
+- Preserved the static unlocked result through ordinary refresh and Arabic/English reloads without replaying the contribution, motion, or live announcement; focus returns to the localized result summary after an intentional language reload.
+- Kept fresh contexts locked, cleared malformed-invite progress, retained one localized share/copy action, and excluded accounts, durable persistence, rankings, randomness, timers, follower-count advantage, free text, external targets, social credentials, scraping, paid services, and Production mutation.
+- Added synchronized Arabic and English district copy within the issue budgets and preserved safe bounded result payload generation.
+- Added focused unit coverage plus bilingual Playwright, axe, keyboard/focus, text-zoom, reduced-motion, refresh, locale, malformed-state, idempotency, responsive screenshot, and exact invite-scope scenarios.
+- Added real browser captures for locked, unlocked, and share-ready states at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in both languages.
+
+### Validation
+
+- Locked dependency installation, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, Playwright, axe, RTL/LTR, keyboard, 200% text zoom, reduced motion, recovery, screenshot, and artifact-integrity checks remain authoritative on the final unchanged Pull Request #26 head.
+- Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, fairness perception, or market validation.
+- Pull Request #26 links Issue #25 and contains one branch and one coherent vertical slice with no new dependency, database, account, credential, private data, paid service, React migration, Tailwind migration, or human-only gate.
+- Rollback is limited to reverting Pull Request #26; no schema, secret, account, dependency, environment, or external-service rollback is required.
+
+### Next best task
+
+Use exact-head GitHub CI, isolated Railway Preview, and the uploaded bilingual browser evidence for independent QA; move Issue #25 to `stage:release` only when every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-20 — CV-MVP-006 controlled mission templates
 
 **Outcome:** Carry one of exactly three allowlisted fictional mission templates from creator setup through one bounded fragment-only invite to follower completion and a localized result, while keeping every successful path at the same fixed `+3` realm contribution.
