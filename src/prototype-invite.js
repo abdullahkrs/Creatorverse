@@ -6,13 +6,14 @@ import {
 
 const INVITE_VERSION = 1;
 const TOKEN_PREFIX = 'v1.';
-const MAX_TOKEN_LENGTH = 480;
-const MAX_DECODED_BYTES = 320;
+const MAX_TOKEN_LENGTH = 560;
+const MAX_DECODED_BYTES = 360;
 const MAX_REALM_NAME = 28;
 const MAX_PROMISE = 90;
 const ALLOWED_THEMES = new Set(['cosmic', 'wild', 'future']);
-const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId']);
-const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm']);
+const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId', 'realmId']);
+const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm', 'r']);
+const OPAQUE_ID = /^[A-Za-z0-9_-]{16,64}$/u;
 
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 const URL_CONTACT_OR_HANDLE = /(?:[a-z][a-z0-9+.-]*:\/\/|(?:mailto|tel|sms|data|javascript|file):|www\.|(?:^|[^\p{L}\p{N}._%+-])(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?\.)+[\p{L}]{2,63}(?::\d{1,5})?(?:[/?#][^\s]*)?|\b[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.[\p{L}]{2,}\b|(^|\s)@[\p{L}\p{N}_]{2,}|\+?\d[\d\s().-]{7,}\d)/iu;
@@ -76,9 +77,20 @@ export function normalizeInviteText(value, { field = 'value', maxLength, require
   return normalized;
 }
 
+function normalizeRealmId(value, { required = false } = {}) {
+  if (value == null || value === '') {
+    if (required) throw inviteError('INVITE_REALM_INVALID');
+    return null;
+  }
+  if (typeof value !== 'string' || CONTROL_OR_BIDI.test(value) || !OPAQUE_ID.test(value)) {
+    throw inviteError('INVITE_REALM_INVALID');
+  }
+  return value;
+}
+
 export function createPrototypeInvite(input = {}) {
   assertObjectWithAllowedFields(input, CREATE_FIELDS, 'INVITE_FIELDS_INVALID');
-  const { name, theme, promise, missionId } = input;
+  const { name, theme, promise, missionId, realmId } = input;
   const normalizedName = normalizeInviteText(name, { field: 'name', maxLength: MAX_REALM_NAME });
   if (!ALLOWED_THEMES.has(theme)) throw inviteError('INVITE_THEME_INVALID');
   const normalizedPromise = normalizeInviteText(promise ?? '', {
@@ -86,6 +98,7 @@ export function createPrototypeInvite(input = {}) {
     maxLength: MAX_PROMISE,
     required: false,
   });
+  const normalizedRealmId = normalizeRealmId(realmId);
   let normalizedMission;
   try {
     normalizedMission = normalizeMissionTemplateId(
@@ -98,6 +111,7 @@ export function createPrototypeInvite(input = {}) {
 
   const payload = { v: INVITE_VERSION, n: normalizedName, t: theme, m: normalizedMission };
   if (normalizedPromise) payload.p = normalizedPromise;
+  if (normalizedRealmId) payload.r = normalizedRealmId;
 
   const encoded = toBase64Url(utf8Bytes(JSON.stringify(payload)));
   const token = `${TOKEN_PREFIX}${encoded}`;
@@ -127,10 +141,13 @@ export function parsePrototypeInviteToken(token) {
       required: false,
     });
     const missionId = normalizeMissionTemplateId(payload.m ?? DEFAULT_MISSION_TEMPLATE_ID, { fallback: false });
+    const realmId = normalizeRealmId(payload.r);
+    const invite = { name, theme: payload.t, promise, missionId };
+    if (realmId) invite.realmId = realmId;
 
     return {
       status: 'valid',
-      invite: Object.freeze({ name, theme: payload.t, promise, missionId }),
+      invite: Object.freeze(invite),
     };
   } catch {
     return { status: 'invalid' };

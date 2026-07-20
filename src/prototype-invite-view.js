@@ -7,6 +7,8 @@ import {
   parsePrototypeInviteFragment,
   parsePrototypeInviteToken,
 } from './prototype-invite.js';
+import { createOpaqueIdentifier } from './completion-receipt.js';
+import { saveCreatorRealm } from './creator-ledger.js';
 import { getPrototypeInviteCopy } from './prototype-invite-i18n.js';
 
 const RECEIPT_KEY = 'creatorverse-prototype-invite-receipt';
@@ -22,10 +24,15 @@ let draftRealm = {
   name: 'Nova Guild',
   theme: 'cosmic',
   promise: 'A community built around bold ideas.',
+  realmId: '',
 };
 let renderScheduled = false;
 let applying = false;
 let invalidHeadingFocused = false;
+
+function completionReceiptActive() {
+  return Boolean(globalThis.__creatorverseCompletionReceiptActive || document.querySelector('[data-completion-receipt-view]'));
+}
 
 function icon(path, className = '') {
   return `<svg class="cv-icon ${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg>`;
@@ -69,23 +76,23 @@ function syncDraftFromDom() {
   if (theme?.dataset.theme) draftRealm.theme = theme.dataset.theme;
 }
 
-function getReceiptPresentation(receipt, copy) {
-  if (receipt.state === 'pending') return { label: copy.copyPending, message: '', disabled: true, busy: true, manual: false };
-  if (receipt.state === 'success') return { label: copy.copySuccessLabel, message: copy.copySuccess, disabled: false, busy: false, manual: false };
-  if (receipt.state === 'manual') return { label: copy.retry, message: copy.copyManual, disabled: false, busy: false, manual: true };
-  if (receipt.state === 'failure') return { label: copy.retry, message: copy.copyFailure, disabled: false, busy: false, manual: true };
-  return { label: copy.copyIdle, message: '', disabled: false, busy: false, manual: false };
+function getReceiptPresentation(receipt, localeCopy) {
+  if (receipt.state === 'pending') return { label: localeCopy.copyPending, message: '', disabled: true, busy: true, manual: false };
+  if (receipt.state === 'success') return { label: localeCopy.copySuccessLabel, message: localeCopy.copySuccess, disabled: false, busy: false, manual: false };
+  if (receipt.state === 'manual') return { label: localeCopy.retry, message: localeCopy.copyManual, disabled: false, busy: false, manual: true };
+  if (receipt.state === 'failure') return { label: localeCopy.retry, message: localeCopy.copyFailure, disabled: false, busy: false, manual: true };
+  return { label: localeCopy.copyIdle, message: '', disabled: false, busy: false, manual: false };
 }
 
 function receiptMarkup(receipt) {
-  const copy = currentCopy();
-  const presentation = getReceiptPresentation(receipt, copy);
-  const themeLabel = copy.themes[receipt.invite.theme];
+  const localeCopy = currentCopy();
+  const presentation = getReceiptPresentation(receipt, localeCopy);
+  const themeLabel = localeCopy.themes[receipt.invite.theme];
   return `
     <div class="invite-receipt" data-prototype-invite-receipt data-render-key="${escapeInviteHtml(`${getLocale()}:${receipt.state}:${receipt.token}`)}">
       <div class="invite-receipt-copy">
-        <h2 id="creator-studio-title">${escapeInviteHtml(copy.receiptTitle)}</h2>
-        <p>${escapeInviteHtml(copy.receiptSupport)}</p>
+        <h2 id="creator-studio-title">${escapeInviteHtml(localeCopy.receiptTitle)}</h2>
+        <p>${escapeInviteHtml(localeCopy.receiptSupport)}</p>
         <div class="invite-signal-stamp theme-${escapeInviteHtml(receipt.invite.theme)}">
           ${icon(THEME_ICONS[receipt.invite.theme], 'invite-signal-icon')}
           <strong><bdi>${escapeInviteHtml(receipt.invite.name)}</bdi></strong>
@@ -94,7 +101,7 @@ function receiptMarkup(receipt) {
         <button class="primary invite-copy-action" type="button" data-action="copy-prototype-invite" ${presentation.disabled ? 'disabled' : ''} aria-busy="${presentation.busy}">
           <span>${escapeInviteHtml(presentation.label)}</span>
         </button>
-        ${presentation.manual ? `<input class="invite-manual-url" data-invite-manual-url value="${escapeInviteHtml(receipt.url)}" readonly dir="ltr" aria-label="${escapeInviteHtml(copy.copyManual)}">` : ''}
+        ${presentation.manual ? `<input class="invite-manual-url" data-invite-manual-url value="${escapeInviteHtml(receipt.url)}" readonly dir="ltr" aria-label="${escapeInviteHtml(localeCopy.copyManual)}">` : ''}
         <p class="invite-copy-status" aria-live="polite" aria-atomic="true">${escapeInviteHtml(presentation.message)}</p>
       </div>
       <p class="cv-visually-hidden" data-invite-receipt-announcement aria-live="polite" aria-atomic="true"></p>
@@ -103,7 +110,7 @@ function receiptMarkup(receipt) {
 }
 
 function ensureReceipt({ focus = false, announce = false, selectManual = false } = {}) {
-  if (followerState.status !== 'none') return;
+  if (completionReceiptActive() || followerState.status !== 'none') return;
   const receipt = readReceipt();
   if (!receipt) return;
 
@@ -136,7 +143,7 @@ function ensureReceipt({ focus = false, announce = false, selectManual = false }
   });
 }
 
-function updateRealmCard(invite, copy) {
+function updateRealmCard(invite, localeCopy) {
   const card = document.querySelector('.realm-card');
   if (!card) return;
 
@@ -145,21 +152,21 @@ function updateRealmCard(invite, copy) {
   const title = card.querySelector('.realm-heading h2');
   if (title && title.textContent !== invite.name) title.innerHTML = `<bdi>${escapeInviteHtml(invite.name)}</bdi>`;
   const creator = card.querySelector('.realm-creator bdi, .realm-creator');
-  if (creator && creator.textContent !== copy.creatorLabel) creator.textContent = copy.creatorLabel;
+  if (creator && creator.textContent !== localeCopy.creatorLabel) creator.textContent = localeCopy.creatorLabel;
   const promise = card.querySelector('.realm-tagline');
-  const promiseText = invite.promise || copy.featuredPromise;
+  const promiseText = invite.promise || localeCopy.featuredPromise;
   if (promise && promise.textContent !== promiseText) promise.innerHTML = `<bdi>${escapeInviteHtml(promiseText)}</bdi>`;
 }
 
 function followerEntryMarkup(invite) {
-  const copy = currentCopy();
-  const promise = invite.promise || copy.featuredPromise;
+  const localeCopy = currentCopy();
+  const promise = invite.promise || localeCopy.featuredPromise;
   return `
     <header class="follower-entry" data-prototype-follower-entry data-render-key="${escapeInviteHtml(`${getLocale()}:${invite.name}:${invite.theme}:${promise}`)}">
-      <h1 id="experience-title">${escapeInviteHtml(copy.entryTitle(''))}<bdi>${escapeInviteHtml(invite.name)}</bdi></h1>
-      <div class="follower-entry-facts" aria-label="${escapeInviteHtml(copy.creatorLabel)}">
-        <span>${icon(THEME_ICONS[invite.theme], 'follower-fact-icon')}<strong>${escapeInviteHtml(copy.themes[invite.theme])}</strong></span>
-        <span>${icon('<path d="M5 6h7v4H9v4h7v4H5V6Zm7 0h7v12h-7v-4h3v-4h-3V6Z"/>', 'follower-fact-icon')}<strong>${escapeInviteHtml(copy.creatorLabel)}</strong></span>
+      <h1 id="experience-title">${escapeInviteHtml(localeCopy.entryTitle(''))}<bdi>${escapeInviteHtml(invite.name)}</bdi></h1>
+      <div class="follower-entry-facts" aria-label="${escapeInviteHtml(localeCopy.creatorLabel)}">
+        <span>${icon(THEME_ICONS[invite.theme], 'follower-fact-icon')}<strong>${escapeInviteHtml(localeCopy.themes[invite.theme])}</strong></span>
+        <span>${icon('<path d="M5 6h7v4H9v4h7v4H5V6Zm7 0h7v12h-7v-4h3v-4h-3V6Z"/>', 'follower-fact-icon')}<strong>${escapeInviteHtml(localeCopy.creatorLabel)}</strong></span>
       </div>
       <p><bdi>${escapeInviteHtml(promise)}</bdi></p>
     </header>
@@ -167,14 +174,14 @@ function followerEntryMarkup(invite) {
 }
 
 function applyValidFollowerEntry(invite) {
-  const copy = currentCopy();
+  const localeCopy = currentCopy();
   const intro = document.querySelector('.experience-intro');
-  const desiredKey = `${getLocale()}:${invite.name}:${invite.theme}:${invite.promise || copy.featuredPromise}`;
+  const desiredKey = `${getLocale()}:${invite.name}:${invite.theme}:${invite.promise || localeCopy.featuredPromise}`;
   if (intro && intro.querySelector('[data-prototype-follower-entry]')?.dataset.renderKey !== desiredKey) {
     intro.innerHTML = followerEntryMarkup(invite);
   }
 
-  updateRealmCard(invite, copy);
+  updateRealmCard(invite, localeCopy);
   const resultReady = Boolean(document.querySelector('[data-mission-result]'));
   const createAction = document.querySelector('.nav-create');
   const tools = document.querySelector('.creator-tools');
@@ -183,7 +190,7 @@ function applyValidFollowerEntry(invite) {
 }
 
 function applyInvalidFollowerEntry() {
-  const copy = currentCopy();
+  const localeCopy = currentCopy();
   const experience = document.querySelector('.experience');
   if (!experience) return;
 
@@ -191,9 +198,9 @@ function applyInvalidFollowerEntry() {
   if (experience.querySelector('[data-prototype-invite-error]')?.dataset.renderKey !== key) {
     experience.innerHTML = `
       <section class="invite-error" data-prototype-invite-error data-render-key="${escapeInviteHtml(key)}" aria-labelledby="invite-error-title">
-        <h1 id="invite-error-title" tabindex="-1">${escapeInviteHtml(copy.invalidTitle)}</h1>
-        <p>${escapeInviteHtml(copy.invalidBody)}</p>
-        <button class="primary" type="button" data-action="open-featured-realm">${escapeInviteHtml(copy.invalidRecovery)}</button>
+        <h1 id="invite-error-title" tabindex="-1">${escapeInviteHtml(localeCopy.invalidTitle)}</h1>
+        <p>${escapeInviteHtml(localeCopy.invalidBody)}</p>
+        <button class="primary" type="button" data-action="open-featured-realm">${escapeInviteHtml(localeCopy.invalidRecovery)}</button>
       </section>
     `;
   }
@@ -207,7 +214,7 @@ function applyInvalidFollowerEntry() {
 }
 
 function applyEnhancements() {
-  if (applying) return;
+  if (completionReceiptActive() || applying) return;
   applying = true;
   try {
     syncDraftFromDom();
@@ -252,10 +259,16 @@ async function copyInvite() {
 }
 
 function handleCaptureClick(event) {
+  if (completionReceiptActive()) return;
   const createAction = event.target.closest?.('[data-action="creator"]');
   if (createAction) {
     clearReceipt();
-    draftRealm = { name: 'Nova Guild', theme: 'cosmic', promise: 'A community built around bold ideas.' };
+    draftRealm = {
+      name: 'Nova Guild',
+      theme: 'cosmic',
+      promise: 'A community built around bold ideas.',
+      realmId: '',
+    };
     return;
   }
 
@@ -271,6 +284,12 @@ function handleCaptureClick(event) {
   syncDraftFromDom();
 
   try {
+    if (!draftRealm.realmId) draftRealm.realmId = createOpaqueIdentifier();
+    saveCreatorRealm(localStorage, {
+      realmId: draftRealm.realmId,
+      name: draftRealm.name,
+      theme: draftRealm.theme,
+    });
     const token = createPrototypeInvite(draftRealm);
     saveReceipt(token, 'idle');
     ensureReceipt({ focus: true, announce: true });

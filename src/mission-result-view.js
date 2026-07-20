@@ -14,8 +14,15 @@ import {
   serializeDistrictProgress,
 } from './district-progress.js';
 import { parsePrototypeInviteFragment } from './prototype-invite.js';
+import {
+  buildCompletionReceiptUrl,
+  createCompletionReceipt,
+  createOpaqueIdentifier,
+} from './completion-receipt.js';
 
 const RESULT_ACTION = 'mission-result-action';
+const COMPLETION_ID_KEY = 'creatorverse-completion-receipt-id';
+const OPAQUE_ID = /^[A-Za-z0-9_-]{16,64}$/u;
 const ROLE_ICONS = Object.freeze({
   builder: '<path d="M5 18V9l7-4 7 4v9h-5v-5h-4v5H5Zm5-7h4V9h-4v2Z"/>',
   explorer: '<path d="m12 4 7 4-3 9-4 3-4-3-3-9 7-4Zm0 4-3 2 2 5 1 1 1-1 2-5-3-2Z"/>',
@@ -91,6 +98,18 @@ function writeDistrictProgress(progress) {
   sessionStorage.setItem(DISTRICT_SESSION_KEY, serializeDistrictProgress(progress, { scope }));
 }
 
+function ensureCompletionReceiptId(scope) {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(COMPLETION_ID_KEY) || 'null');
+    if (stored?.scope === scope && typeof stored.id === 'string' && OPAQUE_ID.test(stored.id)) return stored.id;
+  } catch {
+    sessionStorage.removeItem(COMPLETION_ID_KEY);
+  }
+  const id = createOpaqueIdentifier();
+  sessionStorage.setItem(COMPLETION_ID_KEY, JSON.stringify({ scope, id }));
+  return id;
+}
+
 async function copyText(text) {
   if (typeof navigator.clipboard?.writeText === 'function') {
     await navigator.clipboard.writeText(text);
@@ -116,10 +135,27 @@ function hasCopyCapability() {
 
 function createController(result) {
   try {
-    activePayload = buildMissionSharePayload(result, {
+    const basePayload = buildMissionSharePayload(result, {
       locale: getLocale(),
       publicUrl: getCurrentPublicUrl(),
     });
+    const { parsed, scope } = currentDistrictContext();
+    const progress = readDistrictProgress();
+    if (parsed.status !== 'valid' || !parsed.invite.realmId || !scope || !progress?.unlocked) {
+      activePayload = basePayload;
+    } else {
+      const token = createCompletionReceipt({
+        realmId: parsed.invite.realmId,
+        receiptId: ensureCompletionReceiptId(scope),
+        missionId: result.templateId,
+        roleId: result.roleId,
+        routeId: result.routeId,
+      });
+      activePayload = Object.freeze({
+        ...basePayload,
+        url: buildCompletionReceiptUrl(getCurrentPublicUrl(), token),
+      });
+    }
     activeController = createMissionResultActionController({
       navigatorLike: navigator,
       payload: activePayload,
@@ -135,32 +171,32 @@ function resultKey(result) {
   return `${result.roleId}:${result.routeId}:${result.templateId}:${result.district}:${result.energyAfter}`;
 }
 
-function getActionPresentation(copy) {
+function getActionPresentation(localeCopy) {
   const mode = activeController?.mode || 'copy';
-  if (!activeController) return { label: copy.copy, message: copy.invalidUrl, disabled: true, visibleMessage: true };
+  if (!activeController) return { label: localeCopy.copy, message: localeCopy.invalidUrl, disabled: true, visibleMessage: true };
   if (actionState === 'pending') {
-    return { label: mode === 'share' ? copy.sharing : copy.copying, message: '', disabled: true, visibleMessage: false };
+    return { label: mode === 'share' ? localeCopy.sharing : localeCopy.copying, message: '', disabled: true, visibleMessage: false };
   }
-  if (actionState === 'shared') return { label: copy.shared, message: copy.shareSuccess, disabled: false, visibleMessage: false };
-  if (actionState === 'copied') return { label: copy.copied, message: copy.copySuccess, disabled: false, visibleMessage: false };
-  if (actionState === 'cancelled') return { label: copy.share, message: copy.cancelled, disabled: false, visibleMessage: true };
-  if (actionState === 'denied') return { label: copy.share, message: copy.denied, disabled: false, visibleMessage: true };
+  if (actionState === 'shared') return { label: localeCopy.shared, message: localeCopy.shareSuccess, disabled: false, visibleMessage: false };
+  if (actionState === 'copied') return { label: localeCopy.copied, message: localeCopy.copySuccess, disabled: false, visibleMessage: false };
+  if (actionState === 'cancelled') return { label: localeCopy.share, message: localeCopy.cancelled, disabled: false, visibleMessage: true };
+  if (actionState === 'denied') return { label: localeCopy.share, message: localeCopy.denied, disabled: false, visibleMessage: true };
   if (actionState === 'failed') {
-    return { label: mode === 'share' ? copy.share : copy.copy, message: mode === 'share' ? copy.shareFailed : copy.copyFailed, disabled: false, visibleMessage: true };
+    return { label: mode === 'share' ? localeCopy.share : localeCopy.copy, message: mode === 'share' ? localeCopy.shareFailed : localeCopy.copyFailed, disabled: false, visibleMessage: true };
   }
-  if (actionState === 'unsupported') return { label: copy.copy, message: copy.unsupported, disabled: false, visibleMessage: true };
-  if (actionState === 'invalid') return { label: copy.copy, message: copy.invalidUrl, disabled: true, visibleMessage: true };
-  return { label: mode === 'share' ? copy.share : copy.copy, message: '', disabled: false, visibleMessage: false };
+  if (actionState === 'unsupported') return { label: localeCopy.copy, message: localeCopy.unsupported, disabled: false, visibleMessage: true };
+  if (actionState === 'invalid') return { label: localeCopy.copy, message: localeCopy.invalidUrl, disabled: true, visibleMessage: true };
+  return { label: mode === 'share' ? localeCopy.share : localeCopy.copy, message: '', disabled: false, visibleMessage: false };
 }
 
 function renderResultMarkup(result) {
   const locale = getLocale();
-  const copy = getMissionResultCopy(locale);
+  const localeCopy = getMissionResultCopy(locale);
   const districtCopy = getDistrictProgressCopy(locale);
-  const role = copy.roles[result.roleId];
-  const route = copy.routes[result.routeId];
-  const district = copy.districts[result.district] || result.district;
-  const action = getActionPresentation(copy);
+  const role = localeCopy.roles[result.roleId];
+  const route = localeCopy.routes[result.routeId];
+  const district = localeCopy.districts[result.district] || result.district;
+  const action = getActionPresentation(localeCopy);
   const mode = activeController?.mode || 'copy';
   const restoredClass = activeResultRestored || hasRenderedResult ? 'is-restored' : '';
 
@@ -170,14 +206,14 @@ function renderResultMarkup(result) {
         <div class="signal-result-main">
           <header class="signal-result-heading">
             <div>
-              <p class="section-kicker">${escapeHtml(copy.kicker)}</p>
+              <p class="section-kicker">${escapeHtml(localeCopy.kicker)}</p>
               <h2 class="district-unlock-title" id="mission-result-title" tabindex="-1">${escapeHtml(districtCopy.unlockedTitle)}</h2>
               <p class="district-unlock-support">${escapeHtml(districtCopy.unlockedSupport)}</p>
             </div>
-            <div class="signal-contribution" aria-label="${escapeHtml(`${copy.energy} +${result.energyAdded}`)}">
+            <div class="signal-contribution" aria-label="${escapeHtml(`${localeCopy.energy} +${result.energyAdded}`)}">
               ${icon(ROLE_ICONS[result.roleId], 'signal-role-icon')}
               <strong><bdi dir="ltr">+${result.energyAdded}</bdi></strong>
-              <span>${escapeHtml(copy.energy)}</span>
+              <span>${escapeHtml(localeCopy.energy)}</span>
             </div>
           </header>
 
@@ -192,10 +228,10 @@ function renderResultMarkup(result) {
 
         <div class="signal-result-side">
           <dl class="signal-result-facts">
-            <div><dt>${escapeHtml(copy.role)}</dt><dd>${escapeHtml(role)}</dd></div>
-            <div><dt>${escapeHtml(copy.route)}</dt><dd>${escapeHtml(route)}</dd></div>
-            <div><dt>${escapeHtml(copy.energy)}</dt><dd><bdi dir="ltr">+${result.energyAdded}</bdi></dd></div>
-            <div><dt>${escapeHtml(copy.district)}</dt><dd>${escapeHtml(district)}</dd></div>
+            <div><dt>${escapeHtml(localeCopy.role)}</dt><dd>${escapeHtml(role)}</dd></div>
+            <div><dt>${escapeHtml(localeCopy.route)}</dt><dd>${escapeHtml(route)}</dd></div>
+            <div><dt>${escapeHtml(localeCopy.energy)}</dt><dd><bdi dir="ltr">+${result.energyAdded}</bdi></dd></div>
+            <div><dt>${escapeHtml(localeCopy.district)}</dt><dd>${escapeHtml(district)}</dd></div>
           </dl>
 
           <div class="signal-result-action-area">
