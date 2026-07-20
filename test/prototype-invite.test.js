@@ -20,6 +20,7 @@ test('creates a minimal versioned invite without creator identity', () => {
     name: '  Nova   Guild  ',
     theme: 'cosmic',
     promise: 'A community built around bold ideas.',
+    missionId: 'relay-sequence',
     creator: '@creator',
     secret: 'ignored',
   });
@@ -31,6 +32,7 @@ test('creates a minimal versioned invite without creator identity', () => {
       name: 'Nova Guild',
       theme: 'cosmic',
       promise: 'A community built around bold ideas.',
+      missionId: 'relay-sequence',
     },
   });
   assert.ok(token.length <= prototypeInviteLimits.maxTokenLength);
@@ -41,6 +43,7 @@ test('accepts only allowlisted bounded fictional fields', () => {
   assert.throws(() => createPrototypeInvite({ name: '', theme: 'cosmic', promise: 'Safe' }), /INVITE_NAME_REQUIRED/);
   assert.throws(() => createPrototypeInvite({ name: 'N'.repeat(29), theme: 'cosmic', promise: 'Safe' }), /INVITE_NAME_TOO_LONG/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'political', promise: 'Safe' }), /INVITE_THEME_INVALID/);
+  assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'Safe', missionId: 'open-text' }), /INVITE_MISSION_INVALID/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'P'.repeat(91) }), /INVITE_PROMISE_TOO_LONG/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'Join https://example.com' }), /INVITE_PRIVATE_OR_EXTERNAL_TEXT/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'Contact team@example.com' }), /INVITE_PRIVATE_OR_EXTERNAL_TEXT/);
@@ -70,16 +73,17 @@ test('rejects bare domains and external URL schemes during creation and parsing'
 });
 
 test('parses one invite fragment, ignores unrelated data, and rejects malformed input', () => {
-  const token = createPrototypeInvite({ name: 'Harbor Lab', theme: 'future', promise: 'Build a calm fictional signal.' });
+  const token = createPrototypeInvite({ name: 'Harbor Lab', theme: 'future', promise: 'Build a calm fictional signal.', missionId: 'signal-match' });
   assert.equal(parsePrototypeInviteFragment('').status, 'none');
   assert.equal(parsePrototypeInviteFragment('#section=join').status, 'none');
   assert.deepEqual(parsePrototypeInviteFragment(`#noise=discard&invite=${token}&campaign=discard`), parsePrototypeInviteToken(token));
   assert.equal(parsePrototypeInviteFragment(`#invite=${token}&invite=${token}`).status, 'invalid');
   assert.equal(parsePrototypeInviteFragment('#invite=v1.not-base64!').status, 'invalid');
   assert.equal(parsePrototypeInviteFragment(`#invite=${'x'.repeat(600)}`).status, 'invalid');
+  assert.equal(parsePrototypeInviteToken(encodePayload({ v: 1, n: 'Nova', t: 'cosmic', m: 'unsafe' })).status, 'invalid');
 });
 
-test('ignores unknown payload keys and uses a deterministic optional-promise fallback', () => {
+test('ignores unknown payload keys and safely defaults legacy invites to route choice', () => {
   const token = encodePayload({
     v: 1,
     n: 'Canopy Works',
@@ -89,10 +93,11 @@ test('ignores unknown payload keys and uses a deterministic optional-promise fal
   });
   assert.deepEqual(parsePrototypeInviteToken(token), {
     status: 'valid',
-    invite: { name: 'Canopy Works', theme: 'wild', promise: null },
+    invite: { name: 'Canopy Works', theme: 'wild', promise: null, missionId: 'route-choice' },
   });
   assert.equal(getPrototypeInviteCopy('en').featuredPromise, 'A community built around bold ideas.');
   assert.equal(getPrototypeInviteCopy('ar').featuredPromise, 'مجتمع مبني حول أفكار جريئة.');
+  assert.deepEqual(prototypeInviteLimits.missions, ['route-choice', 'relay-sequence', 'signal-match']);
 });
 
 test('strips query data from the same-origin public invite URL', () => {
