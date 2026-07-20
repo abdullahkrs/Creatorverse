@@ -7,7 +7,7 @@ import { createPrototypeInvite } from '../src/prototype-invite.js';
 mkdirSync('test-results/mission-schedule', { recursive: true });
 test.setTimeout(90_000);
 
-const CREATED_MINUTE = 30_000_000;
+const CREATED_MINUTE = Math.floor(Date.now() / 60_000);
 const CREATED_MS = CREATED_MINUTE * 60_000;
 const ACTIVE_MS = (CREATED_MINUTE + 60) * 60_000;
 const ENDED_MS = (CREATED_MINUTE + 90) * 60_000;
