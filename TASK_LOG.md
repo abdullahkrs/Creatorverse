@@ -17,10 +17,12 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - Added synchronized Arabic and English district copy within the issue budgets and preserved safe bounded result payload generation.
 - Added focused unit coverage plus bilingual Playwright, axe, keyboard/focus, text-zoom, reduced-motion, refresh, locale, malformed-state, idempotency, responsive screenshot, and exact invite-scope scenarios.
 - Added real browser captures for locked, unlocked, and share-ready states at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in both languages.
+- Repaired the Arabic wide-layout release blocker by preserving the mission/result region as the wide semantic track in RTL and making its internal columns depend on component width, with a readable single-column fallback when the available inline size is constrained.
 
 ### Validation
 
 - Locked dependency installation, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, Playwright, axe, RTL/LTR, keyboard, 200% text zoom, reduced motion, recovery, screenshot, and artifact-integrity checks remain authoritative on the final unchanged Pull Request #26 head.
+- Added deterministic Arabic `1024×768` and `1440×900` browser regressions that require the play/result track to remain wider than realm context, enforce readable line budgets and bounded result height, reject horizontal overflow, and capture real exact-head screenshots.
 - Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, fairness perception, or market validation.
 - Pull Request #26 links Issue #25 and contains one branch and one coherent vertical slice with no new dependency, database, account, credential, private data, paid service, React migration, Tailwind migration, or human-only gate.
 - Rollback is limited to reverting Pull Request #26; no schema, secret, account, dependency, environment, or external-service rollback is required.
@@ -188,7 +190,7 @@ Run independent QA on the unchanged final PR head; do not add product scope or r
 - CI run #142 on head `a84a133c542b1456c21ca37d29d8d1009374d0ac` again passed locked build, `/health`, `/version`, malformed-path safety, and post-request identity on the exact PR environment, but browser quality reproduced the same zoom failures.
 - Source-order review established that `src/quality-responsive.css` is linked before `src/main.js` imports `src/styles.css`; equal-specificity mobile declarations such as `.role-grid` therefore lose to the later base rules. The remaining fix is a narrow cascade-order or selector-specificity repair, not a reason to weaken the browser gate.
 - Three focused repair attempts were exhausted. The branch remains preserved, the issue remains `stage:build`, and the cycle is marked `ci:blocked` with artifact `browser-quality-a84a133c542b1456c21ca37d29d8d1009374d0ac` retained for 14 days.
-- Rollback is limited to reverting commits `e7a236fd2f10e3c058b2877ae9f44af200e5c082`, `82e6ce2472de5cac15173cef712f772c7c6583fa`, `787d53052e6bf5ea6ced98a38ecb7f0bb955bd95`, `041124122778ae9ea7eda44c50895f12b35338d6`, and `a84a133c542b1456c21ca37d29d8d1009374d0ac`; no data or dependency rollback is required.
+- Rollback is limited to reverting commits `e7a236fd2f10e3c058b2877ae9f44af200e5c082`, `82e6ce2472de5cac15173cef712f772c7c6583fa`, `787d53052e6fb5ea6ced98a38ecb7f0bb955bd95`, `041124122778ae9ea7eda44c50895f12b35338d6`, and `a84a133c542b1456c21ca37d29d8d1009374d0ac`; no data or dependency rollback is required.
 
 ### Next best task
 
