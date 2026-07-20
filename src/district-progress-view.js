@@ -4,6 +4,7 @@ import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
 const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
 let restoredFocusApplied = false;
+let freshCompletionPending = false;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -124,6 +125,29 @@ function decorateUnlockedResult(copy) {
   restoreResultFocus(title);
 }
 
+function applyFreshCompletion(copy) {
+  const result = document.querySelector('[data-mission-result]');
+  if (!freshCompletionPending || !result) return;
+  freshCompletionPending = false;
+  result.querySelector('[data-district-progress]')?.classList.remove('is-restored');
+  const title = result.querySelector('#mission-result-title');
+  const announcement = result.querySelector('[data-result-announcement]');
+  queueMicrotask(() => {
+    title?.focus({ preventScroll: true });
+    if (!announcement) return;
+    announcement.textContent = copy.announcement;
+    setTimeout(() => {
+      if (announcement.isConnected) announcement.textContent = '';
+    }, 1200);
+  });
+}
+
+function markFreshCompletion(event) {
+  const action = event.target.closest?.('[data-mission-command]');
+  if (!action || action.disabled || action.closest('[data-mission-legacy-triggers]')) return;
+  if (!document.querySelector('[data-mission-result]')) freshCompletionPending = true;
+}
+
 let applying = false;
 function applyDistrictView() {
   if (applying) return;
@@ -133,10 +157,13 @@ function applyDistrictView() {
     decorateUnlockedResult(copy);
     decorateLockedMission(copy);
     decorateFollowerRealm(copy);
+    applyFreshCompletion(copy);
   } finally {
     applying = false;
   }
 }
+
+document.addEventListener('click', markFreshCompletion, true);
 
 const app = document.querySelector('#app');
 if (app) {
