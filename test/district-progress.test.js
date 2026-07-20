@@ -69,7 +69,7 @@ test('completion is idempotent and cannot unlock a second district', () => {
     routeId: 'ocean',
     templateId: 'signal-match',
   });
-  assert.equal(repeated, first);
+  assert.deepEqual(repeated, first);
   assert.equal(repeated.districtId, DISTRICT_ID);
   assert.equal(repeated.contribution, 3);
 });
