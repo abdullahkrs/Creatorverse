@@ -14,11 +14,14 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - Restricted the write-capable workflow to trusted `main` push, hourly schedule, and `workflow_dispatch`; removed pull-request write execution and used only scoped `GITHUB_TOKEN` permissions for contents read, issues write, and statuses write.
 - Retired the weaker duplicate Production Smoke workflow and preserved the existing isolated Railway PR Preview and browser gates in CI.
 - Added `docs/railway-release-identity.md` and updated the Quality Pipeline with the evidence schema, bounded timing, freshness window, canonical marker, and QA discovery contract.
+- Added a hardened publication entrypoint that requires GitHub to return the exact Staging `/version` commit before any passing marker or status can be published.
+- Added bounded pagination across all GitHub issue and ledger-comment pages so a canonical ledger or existing SHA marker beyond the first 100 results is reused instead of duplicated.
 - Added no dependency, product UI, product copy, gameplay, localization, account, secret, private data, external participant, or Production-data mutation.
 
 ### Validation
 
-- Added 11 deterministic Node tests covering healthy exact identity, wrong Production SHA, wrong environment, identical origins, unhealthy endpoint, malformed response, bounded timeout, stale/future/wrong-SHA/missing-run integrity, prohibited claims, duplicate-ledger prevention, duplicate-comment prevention, and the eight-line summary budget.
+- Existing deterministic coverage remains for healthy exact identity, wrong Production SHA, wrong environment, identical origins, unhealthy or malformed responses, bounded timeout, stale or future evidence, wrong-SHA integrity, missing workflow URL, prohibited claims, duplicate prevention, and the eight-line summary budget.
+- Added five focused repair tests for an exact repository-recognized Staging commit, a non-repository 40-character SHA, a mismatched GitHub commit response, a marker on comment page two, and a canonical ledger on issue page two.
 - Pull Request #21 links the one active cycle and preserves one branch and one vertical slice.
 - Exact-head GitHub CI and isolated Railway PR Preview remain required before release-stage handoff; Railway deployment status alone is insufficient and is not treated as passing evidence.
 - Repository-native endpoint verification is operational deployment evidence only, not evidence of human comprehension, demand, retention, preference, fairness, or market validation.
