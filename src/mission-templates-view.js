@@ -207,7 +207,9 @@ function enhanceMission() {
   const legacyButtons = [...mission.querySelectorAll('[data-route]')]
     .filter(button => !button.closest('[data-mission-legacy-triggers]') && !button.hasAttribute('data-mission-command'));
   if (!legacyButtons.length) {
-    const existing = [...mission.querySelectorAll('[data-mission-legacy-triggers] [data-route]')];
+    const existing = [...mission.querySelectorAll(
+      '[data-mission-legacy-triggers] [data-route], [data-mission-legacy-triggers] [data-legacy-route]',
+    )];
     legacyButtons.push(...existing);
   }
 
