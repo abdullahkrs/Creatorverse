@@ -3,6 +3,7 @@ import { getDistrictProgressCopy } from './district-progress-i18n.js';
 import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
 const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
+const MIXED_DIRECTION_TOKEN = /(\+[0-9٠-٩]+|[0-9٠-٩]+\s*\/\s*[0-9٠-٩]+)/gu;
 let restoredFocusApplied = false;
 let freshCompletionPending = false;
 
@@ -13,6 +14,17 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function mixedDirectionMarkup(value) {
+  return escapeHtml(value).replace(
+    MIXED_DIRECTION_TOKEN,
+    token => `<bdi dir="ltr">${token}</bdi>`,
+  );
+}
+
+function isolatedValueMarkup(value) {
+  return `<bdi dir="ltr">${escapeHtml(value)}</bdi>`;
 }
 
 function districtArtwork() {
@@ -31,7 +43,7 @@ function lockedMarkup(copy) {
       ${districtArtwork()}
       <div class="district-progress-copy">
         <strong>${escapeHtml(copy.districtName)}</strong>
-        <p class="district-progress-status"><bdi>${escapeHtml(copy.lockedStatus)}</bdi></p>
+        <p class="district-progress-status">${mixedDirectionMarkup(copy.lockedStatus)}</p>
       </div>
     </div>
   `;
@@ -56,7 +68,7 @@ function decorateFollowerRealm(copy) {
   const name = progressLabel?.querySelector('span');
   const value = progressLabel?.querySelector('strong');
   if (name) name.textContent = copy.districtName;
-  if (value) value.textContent = unlocked ? copy.unlockedValue : copy.lockedValue;
+  if (value) value.innerHTML = isolatedValueMarkup(unlocked ? copy.unlockedValue : copy.lockedValue);
 
   const progress = card.querySelector('.progress');
   if (progress) {
@@ -110,7 +122,7 @@ function decorateUnlockedResult(copy) {
   result.setAttribute('translate', 'no');
   if (title) title.textContent = copy.unlockedTitle;
   const support = result.querySelector('.district-unlock-support');
-  if (support) support.textContent = copy.unlockedSupport;
+  if (support) support.innerHTML = mixedDirectionMarkup(copy.unlockedSupport);
   const progress = result.querySelector('[data-district-progress]');
   if (progress) {
     progress.setAttribute('aria-label', copy.progressLabel);
@@ -120,7 +132,7 @@ function decorateUnlockedResult(copy) {
     const name = progress.querySelector('.district-progress-copy strong');
     const status = progress.querySelector('.district-progress-status');
     if (name) name.textContent = copy.districtName;
-    if (status) status.textContent = copy.unlockedStatus;
+    if (status) status.innerHTML = mixedDirectionMarkup(copy.unlockedStatus);
   }
   restoreResultFocus(title);
 }
