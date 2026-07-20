@@ -129,7 +129,9 @@ function applyFreshCompletion(copy) {
   const result = document.querySelector('[data-mission-result]');
   if (!freshCompletionPending || !result) return;
   freshCompletionPending = false;
-  result.querySelector('[data-district-progress]')?.classList.remove('is-restored');
+  const progress = result.querySelector('[data-district-progress]');
+  if (!progress?.classList.contains('is-restored')) return;
+  progress.classList.remove('is-restored');
   const title = result.querySelector('#mission-result-title');
   const announcement = result.querySelector('[data-result-announcement]');
   queueMicrotask(() => {
