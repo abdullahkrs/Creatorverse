@@ -158,16 +158,20 @@ test('refresh and both locale directions restore the static result without repla
   await expectRealmDistrict(page, LOCALES[0], true);
   expect(await page.locator('[data-district-progress]').count()).toBe(1);
 
-  await page.locator('[data-locale="ar"]').click();
-  await page.waitForLoadState('load');
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+    page.locator('[data-locale="ar"]').click(),
+  ]);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('#mission-result-title')).toHaveText('تم فتح الحي');
   await expect(page.locator('#mission-result-title')).toBeFocused();
   await expect(page.locator('[data-district-progress]')).toHaveAttribute('aria-valuenow', '3');
   await expectRealmDistrict(page, LOCALES[1], true);
 
-  await page.locator('[data-locale="en"]').click();
-  await page.waitForLoadState('load');
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+    page.locator('[data-locale="en"]').click(),
+  ]);
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
   await expect(page.locator('#mission-result-title')).toHaveText('District unlocked');
   await expect(page.locator('#mission-result-title')).toBeFocused();
@@ -188,9 +192,18 @@ test('fresh context and malformed invite fail closed to locked 0 / 3', async ({ 
 
   await completedPage.goto('/#invite=broken');
   await expect(completedPage.locator('[data-mission-result]')).toHaveCount(0);
+  await expect(completedPage.locator('[data-prototype-invite-error]')).toBeVisible();
+  await expect(completedPage.locator('#invite-error-title')).toBeFocused();
+  expect(await completedPage.evaluate(() => sessionStorage.getItem('creatorverse-district-progress'))).toBeNull();
+
+  await Promise.all([
+    completedPage.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+    completedPage.locator('[data-action="open-featured-realm"]').click(),
+  ]);
+  await expect(completedPage).not.toHaveURL(/#invite=/u);
+  await expect(completedPage.locator('[data-mission-result]')).toHaveCount(0);
   await expect(completedPage.locator('[data-district-progress]')).toHaveAttribute('data-district-state', 'locked');
   await expect(completedPage.locator('[data-district-progress]')).toHaveAttribute('aria-valuenow', '0');
-  expect(await completedPage.evaluate(() => sessionStorage.getItem('creatorverse-district-progress'))).toBeNull();
   await first.close();
 
   const fresh = await newContext(browser, LOCALES[0], VIEWPORTS[0]);
