@@ -1,6 +1,9 @@
 import { getLocale } from './i18n.js';
 import { getDistrictProgressCopy } from './district-progress-i18n.js';
 
+const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
+let restoredFocusApplied = false;
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -47,16 +50,25 @@ function decorateLockedMission(copy) {
   if (inserted) inserted.dataset.districtCopyKey = key;
 }
 
+function restoreResultFocus(title) {
+  if (restoredFocusApplied || !title || sessionStorage.getItem(LOCALE_RESTORE_KEY) === null) return;
+  restoredFocusApplied = true;
+  queueMicrotask(() => title.focus({ preventScroll: true }));
+}
+
 function decorateUnlockedResult(copy) {
   const result = document.querySelector('[data-mission-result]');
   if (!result) return;
   const key = `${getLocale()}:unlocked`;
-  if (result.dataset.districtCopyKey === key) return;
+  const title = result.querySelector('#mission-result-title');
+  if (result.dataset.districtCopyKey === key) {
+    restoreResultFocus(title);
+    return;
+  }
 
   result.dataset.districtResult = '';
   result.dataset.districtCopyKey = key;
   result.setAttribute('translate', 'no');
-  const title = result.querySelector('#mission-result-title');
   if (title) title.textContent = copy.unlockedTitle;
   const support = result.querySelector('.district-unlock-support');
   if (support) support.textContent = copy.unlockedSupport;
@@ -71,6 +83,7 @@ function decorateUnlockedResult(copy) {
     if (name) name.textContent = copy.districtName;
     if (status) status.textContent = copy.unlockedStatus;
   }
+  restoreResultFocus(title);
 }
 
 let applying = false;
