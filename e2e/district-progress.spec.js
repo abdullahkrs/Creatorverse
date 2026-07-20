@@ -22,8 +22,26 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ];
 const LOCALES = [
-  { id: 'en', dir: 'ltr', district: 'Beacon District', title: 'District unlocked', copied: 'Copied' },
-  { id: 'ar', dir: 'rtl', district: 'حيّ المنارة', title: 'تم فتح الحي', copied: 'تم النسخ' },
+  {
+    id: 'en',
+    dir: 'ltr',
+    district: 'Beacon District',
+    legacyDistrict: 'Signal Harbor',
+    lockedValue: '0 / 3',
+    unlockedValue: '3 / 3',
+    title: 'District unlocked',
+    copied: 'Copied',
+  },
+  {
+    id: 'ar',
+    dir: 'rtl',
+    district: 'حيّ المنارة',
+    legacyDistrict: 'ميناء الإشارة',
+    lockedValue: '٠ / ٣',
+    unlockedValue: '٣ / ٣',
+    title: 'تم فتح الحي',
+    copied: 'تم النسخ',
+  },
 ];
 
 async function newContext(browser, locale, viewport) {
@@ -64,6 +82,17 @@ async function capture(page, locale, viewport, state) {
   });
 }
 
+async function expectRealmDistrict(page, locale, unlocked) {
+  const card = page.locator('.realm-card');
+  const progress = card.locator('.progress');
+  await expect(card).toHaveAttribute('data-district-state', unlocked ? 'unlocked' : 'locked');
+  await expect(card.locator('.progress-label span')).toHaveText(locale.district);
+  await expect(card.locator('.progress-label strong')).toHaveText(unlocked ? locale.unlockedValue : locale.lockedValue);
+  await expect(progress).toHaveAttribute('aria-valuemax', '3');
+  await expect(progress).toHaveAttribute('aria-valuenow', unlocked ? '3' : '0');
+  await expect(card).not.toContainText(locale.legacyDistrict);
+}
+
 for (const locale of LOCALES) {
   for (const viewport of VIEWPORTS) {
     test(`${locale.id} ${viewport.width} shows one locked district then one share-ready unlock`, async ({ browser }) => {
@@ -78,6 +107,7 @@ for (const locale of LOCALES) {
       await expect(locked).toHaveAttribute('data-district-state', 'locked');
       await expect(locked).toHaveAttribute('aria-valuenow', '0');
       await expect(locked).toContainText(locale.district);
+      await expectRealmDistrict(page, locale, false);
       await expectQuality(page, `${locale.id} ${viewport.width} locked`);
       await capture(page, locale, viewport, 'locked');
 
@@ -94,6 +124,7 @@ for (const locale of LOCALES) {
       await expect(result).toContainText('+3');
       await expect(result.locator('#mission-result-title')).toBeFocused();
       await expect(page.locator('[data-role]:disabled')).toHaveCount(3);
+      await expectRealmDistrict(page, locale, true);
       await expectQuality(page, `${locale.id} ${viewport.width} unlocked`);
       await capture(page, locale, viewport, 'unlocked');
 
@@ -124,6 +155,7 @@ test('refresh and both locale directions restore the static result without repla
   await expect(page.locator('[data-district-progress]')).toHaveClass(/is-restored/u);
   await expect(page.locator('[data-result-announcement]')).toBeEmpty();
   await expect(page.locator('[data-district-progress]')).toHaveAttribute('aria-valuenow', '3');
+  await expectRealmDistrict(page, LOCALES[0], true);
   expect(await page.locator('[data-district-progress]').count()).toBe(1);
 
   await page.locator('[data-locale="ar"]').click();
@@ -132,12 +164,14 @@ test('refresh and both locale directions restore the static result without repla
   await expect(page.locator('#mission-result-title')).toHaveText('تم فتح الحي');
   await expect(page.locator('#mission-result-title')).toBeFocused();
   await expect(page.locator('[data-district-progress]')).toHaveAttribute('aria-valuenow', '3');
+  await expectRealmDistrict(page, LOCALES[1], true);
 
   await page.locator('[data-locale="en"]').click();
   await page.waitForLoadState('load');
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
   await expect(page.locator('#mission-result-title')).toHaveText('District unlocked');
   await expect(page.locator('#mission-result-title')).toBeFocused();
+  await expectRealmDistrict(page, LOCALES[0], true);
 
   const stored = await page.evaluate(() => JSON.parse(sessionStorage.getItem('creatorverse-district-progress')));
   expect(stored.contribution).toBe(3);
@@ -165,6 +199,7 @@ test('fresh context and malformed invite fail closed to locked 0 / 3', async ({ 
   await expect(freshPage.locator('[data-mission-result]')).toHaveCount(0);
   await expect(freshPage.locator('[data-district-progress]')).toHaveAttribute('data-district-state', 'locked');
   await expect(freshPage.locator('[data-district-progress]')).toHaveAttribute('aria-valuenow', '0');
+  await expectRealmDistrict(freshPage, LOCALES[0], false);
   await fresh.close();
 });
 
@@ -181,6 +216,7 @@ test('200% text zoom and reduced motion preserve the unlocked state without over
   await page.locator('[data-mission-command="sky"]').click();
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
   await expect(page.locator('[data-mission-result]')).toBeVisible();
+  await expectRealmDistrict(page, LOCALES[1], true);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   const animations = await page.locator('[data-district-progress]').evaluate(node => node.getAnimations().length);
