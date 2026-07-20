@@ -72,8 +72,10 @@ async function createContext(browser, {
 } = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ localeId, serializedLedger, shareEnabled }) => {
-    localStorage.setItem('creatorverse-locale', localeId);
-    localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', localeId);
+    if (!localStorage.getItem('creatorverse-creator-ledger-v1')) {
+      localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+    }
     window.__realmUpdateClipboard = '';
     window.__realmUpdateClipboardMode = 'success';
     window.__realmUpdateShare = null;
