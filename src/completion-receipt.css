@@ -1,17 +1,19 @@
 .completion-receipt-view {
   display: grid;
-  gap: var(--cv-space-6);
+  gap: 0;
   inline-size: min(100%, var(--cv-page-max));
   margin-inline: auto;
-  padding-block: var(--cv-space-4) var(--cv-space-8);
+  margin-block: var(--cv-space-4) var(--cv-space-8);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-color-surface);
+  overflow: hidden;
 }
 
 .completion-context,
 .completion-record {
   min-inline-size: 0;
-  border: 1px solid var(--cv-color-border);
-  background: var(--cv-color-surface);
-  border-radius: var(--cv-radius-lg);
+  background: transparent;
 }
 
 .completion-context {
@@ -19,6 +21,8 @@
   gap: var(--cv-space-4);
   align-content: start;
   padding: var(--cv-space-4);
+  border-block-end: 1px solid var(--cv-color-border);
+  background: var(--cv-color-surface-raised);
   overflow: hidden;
 }
 
@@ -63,7 +67,7 @@
   justify-content: space-between;
   gap: var(--cv-space-3);
   padding-block-start: var(--cv-space-4);
-  border-block-start: 1px solid var(--cv-color-border);
+  border-block-start: 2px solid var(--cv-color-action);
 }
 
 .completion-total span { color: var(--cv-color-text-muted); }
@@ -231,7 +235,12 @@
 @media (min-width: 64rem) {
   .completion-receipt-view {
     grid-template-columns: minmax(15rem, var(--cv-context-width)) minmax(0, 1fr);
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .completion-context {
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--cv-color-border);
   }
 
   [dir="rtl"] .completion-receipt-view {
@@ -240,12 +249,10 @@
 
   [dir="rtl"] .completion-context { grid-column: 2; }
   [dir="rtl"] .completion-record { grid-column: 1; grid-row: 1; }
-
-  .completion-record { max-inline-size: 50rem; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .completion-record.is-success .completion-total,
+  .completion-record.is-success h1,
   .completion-record.is-success .completion-ledger-list li:first-child {
     animation: completion-state-in var(--cv-duration-normal) var(--cv-ease-standard);
   }
