@@ -1,0 +1,239 @@
+.completion-record {
+  container-type: inline-size;
+}
+
+.creator-realm-update {
+  display: grid;
+  gap: var(--cv-space-4);
+  min-inline-size: 0;
+  padding-block-start: var(--cv-space-6);
+  border-block-start: 2px solid var(--cv-color-action);
+}
+
+.creator-realm-update.is-waiting {
+  border-block-start-color: var(--cv-color-border);
+}
+
+.creator-realm-update-copy {
+  display: grid;
+  gap: var(--cv-space-2);
+  min-inline-size: 0;
+  max-inline-size: var(--cv-reading-max);
+  text-align: start;
+}
+
+.creator-realm-update-copy h2,
+.creator-realm-update-copy p,
+.creator-realm-update-facts {
+  margin: 0;
+}
+
+.creator-realm-update-copy h2 {
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.creator-realm-location {
+  color: var(--cv-color-action);
+  font-size: var(--cv-text-sm);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+[dir="rtl"] .creator-realm-location {
+  letter-spacing: 0;
+}
+
+.creator-realm-change,
+.creator-realm-update-status,
+.creator-realm-manual-copy > span,
+.creator-realm-update.is-waiting p {
+  color: var(--cv-color-text-muted);
+}
+
+.creator-realm-update-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 5.5rem;
+  block-size: 5.5rem;
+  align-self: start;
+  color: var(--cv-color-action);
+}
+
+.creator-realm-update-seal svg {
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.realm-seal-boundary,
+.realm-seal-district,
+.realm-seal-signal {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.realm-seal-boundary {
+  stroke: var(--cv-color-border);
+}
+
+.realm-seal-district {
+  stroke: var(--cv-color-action);
+}
+
+.realm-seal-signal {
+  stroke: var(--cv-color-success);
+}
+
+.creator-realm-update-seal strong {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  display: grid;
+  place-items: center;
+  min-inline-size: var(--cv-target-min);
+  min-block-size: var(--cv-target-min);
+  border: 2px solid var(--cv-color-surface);
+  border-radius: var(--cv-radius-round);
+  background: var(--cv-color-success);
+  color: var(--cv-color-canvas);
+  font-size: var(--cv-text-sm);
+}
+
+.creator-realm-update-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2) var(--cv-space-6);
+  padding-block-start: var(--cv-space-2);
+}
+
+.creator-realm-update-facts > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--cv-space-2);
+  min-inline-size: min(100%, 10rem);
+}
+
+.creator-realm-update-facts dt {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.creator-realm-update-facts dd {
+  margin: 0;
+  color: var(--cv-color-success);
+  font-size: var(--cv-text-lg);
+  font-weight: 800;
+}
+
+.creator-realm-energy {
+  inline-size: 100%;
+  block-size: 0.625rem;
+  margin-block-start: var(--cv-space-2);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-round);
+  background: var(--cv-color-surface-raised);
+  overflow: hidden;
+  appearance: none;
+}
+
+.creator-realm-energy::-webkit-progress-bar {
+  background: var(--cv-color-surface-raised);
+}
+
+.creator-realm-energy::-webkit-progress-value {
+  background: var(--cv-color-success);
+}
+
+.creator-realm-energy::-moz-progress-bar {
+  background: var(--cv-color-success);
+}
+
+.creator-realm-update-action-area {
+  display: grid;
+  gap: var(--cv-space-2);
+  min-inline-size: 0;
+}
+
+.creator-realm-update-action {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+}
+
+.creator-realm-update-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.creator-realm-update-status {
+  min-block-size: 1.5em;
+  margin: 0;
+  font-size: var(--cv-text-sm);
+  text-align: start;
+}
+
+.creator-realm-manual-copy {
+  display: grid;
+  gap: var(--cv-space-2);
+  min-inline-size: 0;
+  font-size: var(--cv-text-sm);
+  text-align: start;
+}
+
+.creator-realm-manual-copy textarea {
+  inline-size: 100%;
+  min-block-size: 5.5rem;
+  resize: vertical;
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  padding: var(--cv-space-3);
+  background: var(--cv-color-canvas);
+  color: var(--cv-color-text);
+  font: inherit;
+  line-height: var(--cv-leading-normal);
+  overflow-wrap: anywhere;
+}
+
+@container (min-width: 34rem) {
+  .creator-realm-update.is-ready {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .creator-realm-update-action-area {
+    grid-column: 1 / -1;
+  }
+}
+
+@container (min-width: 48rem) {
+  .creator-realm-update.is-ready {
+    grid-template-columns: auto minmax(0, 1fr) minmax(12rem, 16rem);
+    column-gap: var(--cv-space-6);
+  }
+
+  .creator-realm-update-action-area {
+    grid-column: auto;
+    align-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .completion-record.is-success .creator-realm-update-seal,
+  .completion-record.is-success .creator-realm-energy {
+    animation: creator-realm-signal-in var(--cv-duration-normal) var(--cv-ease-standard);
+  }
+}
+
+@keyframes creator-realm-signal-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--cv-space-1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
