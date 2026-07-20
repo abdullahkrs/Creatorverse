@@ -1,6 +1,8 @@
 const COPY = Object.freeze({
   en: Object.freeze({
     districtName: 'Beacon District',
+    lockedValue: '0 / 3',
+    unlockedValue: '3 / 3',
     lockedStatus: 'Locked · 0 / 3',
     unlockedStatus: 'Open · 3 / 3',
     unlockedTitle: 'District unlocked',
@@ -10,6 +12,8 @@ const COPY = Object.freeze({
   }),
   ar: Object.freeze({
     districtName: 'حيّ المنارة',
+    lockedValue: '٠ / ٣',
+    unlockedValue: '٣ / ٣',
     lockedStatus: 'مغلق · ٠ / ٣',
     unlockedStatus: 'مفتوح · ٣ / ٣',
     unlockedTitle: 'تم فتح الحي',
