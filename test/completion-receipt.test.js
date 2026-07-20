@@ -82,7 +82,10 @@ test('clipboard fallback preserves only one validated receipt fragment', () => {
 });
 
 test('rejects malformed, duplicate, unknown, oversized, bidi, and non-fixed contribution input', () => {
-  assert.equal(parseCompletionReceiptFragment(`#receipt=${createCompletionReceipt(validReceipt())}&receipt=duplicate`).status, 'invalid');
+  const token = createCompletionReceipt(validReceipt());
+  assert.equal(parseCompletionReceiptFragment(`#receipt=${token}&receipt=duplicate`).status, 'invalid');
+  assert.equal(parseCompletionReceiptFragment(`#receipt=${token}&creator=hidden`).status, 'invalid');
+  assert.equal(parseCompletionReceiptFragment(`#creator=hidden&receipt=${token}`).status, 'invalid');
   assert.equal(parseCompletionReceiptFragment('#receipt=cr1.not-base64!').status, 'invalid');
   assert.equal(parseCompletionReceiptFragment(`#receipt=${'x'.repeat(700)}`).status, 'invalid');
   assert.equal(parseCompletionReceiptToken(encode({ v: 1, rid: realmId, id: receiptId, m: 'route-choice', ro: 'builder', rt: 'sky', c: 3, d: 'beacon-district', extra: 'hidden' })).status, 'invalid');
