@@ -280,10 +280,21 @@ function handleClick(event) {
   if (event.target.closest?.('[data-action="leave-completion-receipt"]')) leaveReceipt();
 }
 
-document.addEventListener('click', handleClick);
-
-if (initializeFromLocation()) {
+function activateFromLocation({ fromHashChange = false } = {}) {
+  if (fromHashChange && parseCompletionReceiptFragment(window.location.hash).status === 'none') return false;
+  if (!initializeFromLocation()) return false;
+  realmSnapshot = null;
+  focusKey = '';
+  successAnnounced = false;
   globalThis.__creatorverseCompletionReceiptActive = true;
   scheduleRender();
   queueMicrotask(runValidation);
+  return true;
 }
+
+document.addEventListener('click', handleClick);
+window.addEventListener('hashchange', () => {
+  activateFromLocation({ fromHashChange: true });
+});
+
+activateFromLocation();
