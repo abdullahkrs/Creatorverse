@@ -15,6 +15,8 @@ const REPAIRED_KEY = 'creatorverse-mission-invite-repaired';
 const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
 const GLOBAL_KEY = '__creatorverseMissionTemplateId';
 const RESTORING_FLAG = '__creatorverseRestoringLocaleState';
+const SIGNAL_ERROR_CODE = 'signal-match-incorrect';
+const SIGNAL_ERROR_COMMANDS = new Set(['pulse', 'beam']);
 
 const ICONS = Object.freeze({
   'route-choice': '<path d="M4 18h5V9h6V5l5 7-5 7v-4h-2v5H4v-2Zm0-12h7v2H4V6Z"/>',
@@ -45,6 +47,14 @@ function restoreCreatorSelection(value) {
   } catch {
     return null;
   }
+}
+
+function restoreMessageCode(value) {
+  return value === SIGNAL_ERROR_CODE ? value : '';
+}
+
+function restoreMessageCommand(value) {
+  return SIGNAL_ERROR_COMMANDS.has(value) ? value : '';
 }
 
 function restoreProgress(templateId, stored) {
@@ -79,14 +89,16 @@ function loadState() {
       templateId,
       creatorSelection: restoreCreatorSelection(stored?.creatorSelection),
       progress: restoreProgress(templateId, stored),
-      message: '',
+      messageCode: restoreMessageCode(stored?.messageCode),
+      messageCommand: restoreMessageCommand(stored?.messageCommand),
     };
   } catch {
     return {
       templateId: DEFAULT_MISSION_TEMPLATE_ID,
       creatorSelection: null,
       progress: createMissionProgress(DEFAULT_MISSION_TEMPLATE_ID),
-      message: '',
+      messageCode: '',
+      messageCommand: '',
     };
   }
 }
@@ -103,12 +115,19 @@ if (initialInvite.status === 'invalid') {
     templateId: DEFAULT_MISSION_TEMPLATE_ID,
     creatorSelection: null,
     progress: createMissionProgress(DEFAULT_MISSION_TEMPLATE_ID),
-    message: '',
+    messageCode: '',
+    messageCommand: '',
   };
 } else if (initialInvite.status === 'valid') {
   const templateId = normalizeMissionTemplateId(initialInvite.invite.missionId);
   if (!restoringLocale || state.templateId !== templateId) {
-    state = { templateId, creatorSelection: null, progress: createMissionProgress(templateId), message: '' };
+    state = {
+      templateId,
+      creatorSelection: null,
+      progress: createMissionProgress(templateId),
+      messageCode: '',
+      messageCommand: '',
+    };
   } else {
     state = { ...state, templateId, creatorSelection: null };
   }
@@ -122,12 +141,20 @@ function saveState() {
     creatorSelection: state.creatorSelection,
     step: state.progress.step,
     completed: state.progress.completed,
+    messageCode: state.messageCode,
+    messageCommand: state.messageCommand,
   }));
   globalThis[GLOBAL_KEY] = state.templateId;
 }
 
 function copy() {
   return getMissionTemplateCopy(getLocale());
+}
+
+function currentMessage(currentCopy) {
+  return state.messageCode === SIGNAL_ERROR_CODE
+    ? currentCopy.templates['signal-match'].incorrect
+    : '';
 }
 
 function templateOptionMarkup(templateId, currentCopy) {
@@ -240,7 +267,8 @@ function enhanceMission() {
   const template = currentCopy.templates[state.templateId];
   const repaired = sessionStorage.getItem(REPAIRED_KEY) === '1';
   const status = selectedRole ? (state.progress.step > 0 ? currentCopy.active : currentCopy.ready) : currentCopy.chooseRole;
-  const key = `${getLocale()}:${state.templateId}:${selectedRole}:${state.progress.step}:${state.message}:${repaired}`;
+  const message = currentMessage(currentCopy);
+  const key = `${getLocale()}:${state.templateId}:${selectedRole}:${state.progress.step}:${state.messageCode}:${state.messageCommand}:${repaired}`;
   if (mission.dataset.missionTemplateKey === key) return;
 
   const legacyButtons = [...mission.querySelectorAll('[data-route]')]
@@ -266,7 +294,7 @@ function enhanceMission() {
     ${repaired ? `<p class="mission-repaired" role="status">${escapeHtml(currentCopy.repaired)}</p>` : ''}
     <p class="mission-prompt">${escapeHtml(selectedRole ? template.prompt : currentCopy.chooseRole)}</p>
     ${missionActionMarkup(state.templateId, currentCopy, Boolean(selectedRole))}
-    <p class="mission-template-message" role="status" aria-live="polite">${escapeHtml(state.message)}</p>
+    <p class="mission-template-message" role="status" aria-live="polite">${escapeHtml(message)}</p>
     <div hidden data-mission-legacy-triggers></div>
   `;
   const legacyHost = mission.querySelector('[data-mission-legacy-triggers]');
@@ -306,7 +334,8 @@ function scheduleEnhancements() {
 
 function resetProgress(templateId = state.templateId) {
   state.progress = createMissionProgress(templateId);
-  state.message = '';
+  state.messageCode = '';
+  state.messageCommand = '';
   saveState();
 }
 
@@ -314,7 +343,8 @@ function completeThroughLegacy(routeId) {
   const trigger = document.querySelector(`[data-mission-legacy-triggers] [data-route="${CSS.escape(routeId)}"]`);
   if (!trigger || trigger.disabled) return;
   state.progress = Object.freeze({ ...state.progress, completed: true, contribution: 3 });
-  state.message = '';
+  state.messageCode = '';
+  state.messageCommand = '';
   saveState();
   trigger.click();
 }
@@ -334,8 +364,11 @@ function handleCaptureClick(event) {
   const openCreator = event.target.closest?.('[data-action="creator"]');
   if (openCreator) {
     sessionStorage.removeItem(REPAIRED_KEY);
-    state.creatorSelection = null;
-    state.message = '';
+    if (globalThis[RESTORING_FLAG] !== true) {
+      state.creatorSelection = null;
+      state.messageCode = '';
+      state.messageCommand = '';
+    }
     saveState();
     return;
   }
@@ -347,7 +380,6 @@ function handleCaptureClick(event) {
     if (!isLocaleRestore || state.progress.completed) {
       resetProgress();
     } else {
-      state.message = '';
       saveState();
     }
     focusMissionHeadingAfterRender();
@@ -385,7 +417,9 @@ function handleMissionClick(event) {
   const next = applyMissionActivation(state.progress, activation);
 
   if (state.templateId === 'signal-match' && next === state.progress && activation !== 'wave') {
-    state.message = copy().templates['signal-match'].incorrect;
+    state.messageCode = SIGNAL_ERROR_CODE;
+    state.messageCommand = restoreMessageCommand(activation);
+    saveState();
     scheduleEnhancements();
     focusMissionCommandAfterRender(activation);
     return;
@@ -393,7 +427,8 @@ function handleMissionClick(event) {
 
   if (next === state.progress) return;
   state.progress = next;
-  state.message = '';
+  state.messageCode = '';
+  state.messageCommand = '';
   saveState();
 
   if (next.completed) {
