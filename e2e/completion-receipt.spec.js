@@ -180,6 +180,22 @@ test('creator → follower → creator imports one anonymous +3 exactly once acr
   await creatorContext.close();
 });
 
+test('same-tab receipt hash navigation activates preview without a document reload', async ({ browser }) => {
+  const context = await createContext(browser);
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.evaluate(() => { window.__sameDocumentReceiptMarker = 'preserved'; });
+  await page.evaluate(token => { window.location.hash = `receipt=${token}`; }, receiptToken());
+  await expect(page).not.toHaveURL(/#receipt=/u);
+  await expect(page.locator('#completion-receipt-title')).toHaveText('Completion receipt');
+  await expect(page.locator('#completion-receipt-title')).toBeFocused();
+  await expect(page.locator('[data-action="import-completion-receipt"]')).toBeVisible();
+  expect(await page.evaluate(() => window.__sameDocumentReceiptMarker)).toBe('preserved');
+  await page.locator('[data-action="import-completion-receipt"]').click();
+  await expect(page.locator('[data-ledger-list] li')).toHaveCount(1);
+  await context.close();
+});
+
 for (const locale of LOCALES) {
   for (const viewport of VIEWPORTS) {
     test(`${locale.id} ${viewport.width} receipt preview and success remain responsive`, async ({ browser }) => {
