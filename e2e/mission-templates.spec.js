@@ -56,6 +56,13 @@ async function expectQuality(page, testCase, label) {
   expect(axe.violations.filter(item => ['critical', 'serious'].includes(item.impact)), label).toEqual([]);
 }
 
+async function captureState(page, testCase, state) {
+  await page.screenshot({
+    path: `test-results/mission-templates/${testCase.locale}-${testCase.templateId}-${testCase.viewport.width}x${testCase.viewport.height}-${state}.png`,
+    fullPage: true,
+  });
+}
+
 async function activate(page, selector, input, { radio = false } = {}) {
   const target = page.locator(selector);
   await target.scrollIntoViewIfNeeded();
@@ -83,6 +90,7 @@ async function buildInvite(page, testCase) {
   await expect(page.locator(`input[name="mission-template"][value="${testCase.templateId}"]`)).toBeChecked();
   await expect(page.locator('[data-action="creator-next"]')).toBeEnabled();
   await expectQuality(page, testCase, `${testCase.locale} ${testCase.templateId} selector`);
+  await captureState(page, testCase, 'creator-selection');
 
   await page.locator('[data-action="creator-next"]').click();
   await expect(page.locator('[data-prototype-invite-receipt]')).toBeVisible();
@@ -97,6 +105,8 @@ async function completeTemplate(page, testCase) {
   await activate(page, '[data-role="builder"]', testCase.input);
   await expect(page.locator('.mission')).toHaveAttribute('data-mission-template', testCase.templateId);
   await expect(page.locator('#mission-title')).toContainText(testCase.name);
+  await expectQuality(page, testCase, `${testCase.locale} ${testCase.templateId} ready`);
+  await captureState(page, testCase, 'follower-ready');
 
   if (testCase.templateId === 'route-choice') {
     await activate(page, '[data-mission-command="sky"]', testCase.input);
@@ -108,9 +118,11 @@ async function completeTemplate(page, testCase) {
     await expect(page.locator('[data-mission-command="3"]')).toBeEnabled();
     await activate(page, '[data-mission-command="3"]', testCase.input);
   } else {
+    const mismatch = page.locator('[data-mission-command="pulse"]');
     await activate(page, '[data-mission-command="pulse"]', testCase.input);
     await expect(page.locator('[data-mission-result]')).toHaveCount(0);
     await expect(page.locator('.mission-template-message')).not.toBeEmpty();
+    await expect(mismatch).toBeFocused();
     await activate(page, '[data-mission-command="wave"]', testCase.input);
   }
 
@@ -121,15 +133,11 @@ async function completeTemplate(page, testCase) {
   await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '75');
   await expect(result.locator('.signal-contribution')).toContainText('+3');
   await expectQuality(page, testCase, `${testCase.locale} ${testCase.templateId} result`);
+  await captureState(page, testCase, 'completed-result');
 
   await page.locator('[data-action="mission-result-action"]').click();
   const shared = await page.evaluate(() => window.__missionTemplateClipboard);
   expect(shared).toContain(testCase.name);
-
-  await page.screenshot({
-    path: `test-results/mission-templates/${testCase.locale}-${testCase.templateId}-${testCase.viewport.width}x${testCase.viewport.height}.png`,
-    fullPage: true,
-  });
 }
 
 for (const testCase of CASES) {
