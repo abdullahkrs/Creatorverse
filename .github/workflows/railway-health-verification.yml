@@ -3,154 +3,46 @@ name: Railway Health Verification
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/railway-health-verification.yml'
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
-    inputs:
-      expected_sha:
-        description: Optional production commit SHA expected from /version
-        required: false
-        type: string
 
 permissions:
   contents: read
+  issues: write
+  statuses: write
 
 concurrency:
-  group: railway-health-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: railway-production-identity-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   verify:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 12
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - environment: staging
-            base_url: https://creatorverse-app-staging.up.railway.app
-          - environment: production
-            base_url: https://creatorverse-app-production.up.railway.app
     env:
-      BASE_URL: ${{ matrix.base_url }}
-      EXPECTED_ENVIRONMENT: ${{ matrix.environment }}
-      STAGING_URL: https://creatorverse-app-staging.up.railway.app
-      PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
-      EXPECTED_PRODUCTION_SHA: ${{ inputs.expected_sha || (github.event_name == 'pull_request' && github.event.pull_request.base.sha) || github.sha }}
+      EXPECTED_SHA: ${{ github.sha }}
       GITHUB_TOKEN: ${{ github.token }}
+      PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
+      STAGING_URL: https://creatorverse-app-staging.up.railway.app
+      MAX_ATTEMPTS: 18
+      RETRY_DELAY_MS: 20000
+      HTTP_TIMEOUT_MS: 12000
 
     steps:
-      - name: Enforce environment isolation
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "${STAGING_URL%/}" != "${PRODUCTION_URL%/}"
-          if [ "$EXPECTED_ENVIRONMENT" = "staging" ]; then
-            test "${BASE_URL%/}" != "${PRODUCTION_URL%/}"
-          fi
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - name: Resolve Railway domain
-        shell: bash
-        run: |
-          set -euo pipefail
-          host="$(node -e "console.log(new URL(process.env.BASE_URL).hostname)")"
-          for attempt in {1..8}; do
-            if getent ahosts "$host"; then
-              exit 0
-            fi
-            echo "DNS attempt $attempt/8 failed for $host"
-            sleep 5
-          done
-          echo "Unable to resolve $host"
-          exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Verify health, environment, and deployed commit
-        shell: bash
-        run: |
-          set -euo pipefail
+      - name: Install locked dependencies
+        run: npm ci
 
-          curl_json() {
-            curl --fail --silent --show-error --location \
-              --retry 5 --retry-all-errors --retry-delay 3 \
-              --connect-timeout 10 --max-time 30 \
-              "$1"
-          }
-
-          matches_sha() {
-            local actual="$1"
-            local expected="$2"
-            [ "$actual" = "$expected" ] || [[ "$actual" == "$expected"* ]] || [[ "$expected" == "$actual"* ]]
-          }
-
-          for attempt in {1..30}; do
-            curl_json "${BASE_URL%/}/health" > /tmp/health.json
-            curl_json "${BASE_URL%/}/version" > /tmp/version.json
-
-            readarray -t values < <(node <<'NODE'
-          const fs = require('fs');
-          const health = JSON.parse(fs.readFileSync('/tmp/health.json', 'utf8'));
-          const version = JSON.parse(fs.readFileSync('/tmp/version.json', 'utf8'));
-          console.log(String(health.status || ''));
-          console.log(String(version.environment || '').toLowerCase());
-          console.log(String(version.commitSha || version.commit || '').trim());
-          NODE
-            )
-
-            health_status="${values[0]:-}"
-            actual_environment="${values[1]:-}"
-            actual_sha="${values[2]:-}"
-
-            if [ "$health_status" != "ok" ]; then
-              echo "Unexpected /health response"
-              cat /tmp/health.json
-              exit 1
-            fi
-            if [ -z "$actual_sha" ]; then
-              echo "/version does not expose commitSha or commit"
-              exit 1
-            fi
-            if [ "$actual_environment" != "$EXPECTED_ENVIRONMENT" ]; then
-              echo "Expected environment $EXPECTED_ENVIRONMENT, received ${actual_environment:-empty}"
-              exit 1
-            fi
-
-            if [ "$EXPECTED_ENVIRONMENT" = "staging" ]; then
-              status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
-                --header "Authorization: Bearer $GITHUB_TOKEN" \
-                --header 'Accept: application/vnd.github+json' \
-                --header 'X-GitHub-Api-Version: 2022-11-28' \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$actual_sha")"
-              if [ "$status" != "200" ]; then
-                echo "Staging reports commit $actual_sha, but it is not a commit in $GITHUB_REPOSITORY"
-                exit 1
-              fi
-              break
-            fi
-
-            if [ -z "$EXPECTED_PRODUCTION_SHA" ]; then
-              echo "EXPECTED_PRODUCTION_SHA must not be empty"
-              exit 1
-            fi
-            if matches_sha "$actual_sha" "$EXPECTED_PRODUCTION_SHA"; then
-              break
-            fi
-
-            if [ "$attempt" -eq 30 ]; then
-              echo "Production did not reach expected commit $EXPECTED_PRODUCTION_SHA; still serving $actual_sha"
-              exit 1
-            fi
-            echo "Deployment attempt $attempt/30: waiting for production commit $EXPECTED_PRODUCTION_SHA (currently $actual_sha)"
-            sleep 15
-          done
-
-          echo "Environment: $EXPECTED_ENVIRONMENT"
-          echo 'Health response:'
-          cat /tmp/health.json
-          echo
-          echo 'Version response:'
-          cat /tmp/version.json
-          echo
+      - name: Verify and publish Railway release identity
+        run: node scripts/verify-railway-release.mjs
