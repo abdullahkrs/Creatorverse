@@ -22,7 +22,7 @@ A passing attestation requires all of the following in one bounded run:
 2. Production `/health` returns JSON with `status: "ok"`.
 3. Production `/version` reports environment `production` and the exact full triggering `main` SHA.
 4. Staging `/health` returns JSON with `status: "ok"`.
-5. Staging `/version` reports environment `staging` and a full Git commit SHA.
+5. Staging `/version` reports environment `staging`, a full Git commit SHA, and GitHub returns that exact commit from `abdullahkrs/Creatorverse`.
 6. The attestation passes the repository integrity validator before publication.
 
 Deployment status alone is never sufficient. Production is never accepted as Staging or as a pull-request Preview.
@@ -41,6 +41,8 @@ For each exact SHA, the workflow publishes:
   - `RAILWAY-IDENTITY-VERIFIED:<sha>` on success;
   - `RAILWAY-IDENTITY-FAILED:<sha>` on failure.
 
+The workflow follows all GitHub issue and comment pages before choosing the canonical ledger or marker, with a bounded 100-page limit. A marker beyond the first 100 comments is updated rather than duplicated.
+
 The marker comment contains JSON with schema version, evidence kind, exact SHA, sanitized origins, environment identities, health result, verification timestamp, workflow run URL, and bounded attempt count. Endpoint response bodies and headers are not copied into the ledger.
 
 ## Integrity and freshness
@@ -49,6 +51,7 @@ A verified marker is accepted only when:
 
 - its marker and JSON both match the expected full SHA;
 - Production identity matches that SHA exactly;
+- Staging identity names a commit GitHub recognizes in this repository;
 - Production and Staging origins remain distinct;
 - the workflow run URL is present and identifies one GitHub Actions run;
 - the timestamp is no more than 30 minutes old and no more than 5 minutes in the future;
