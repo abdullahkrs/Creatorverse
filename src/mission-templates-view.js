@@ -230,7 +230,6 @@ function enhanceMission() {
   `;
   const legacyHost = mission.querySelector('[data-mission-legacy-triggers]');
   legacyButtons.forEach(button => legacyHost?.append(button));
-  if (repaired) sessionStorage.removeItem(REPAIRED_KEY);
 }
 
 function enhanceReceipt() {
@@ -279,9 +278,14 @@ function completeThroughLegacy(routeId) {
   trigger.click();
 }
 
+function focusMissionHeadingAfterRender() {
+  queueMicrotask(() => queueMicrotask(() => document.querySelector('#mission-title')?.focus({ preventScroll: true })));
+}
+
 function handleCaptureClick(event) {
   const openCreator = event.target.closest?.('[data-action="creator"]');
   if (openCreator) {
+    sessionStorage.removeItem(REPAIRED_KEY);
     state.creatorSelection = null;
     state.message = '';
     return;
@@ -289,8 +293,9 @@ function handleCaptureClick(event) {
 
   const role = event.target.closest?.('[data-role]');
   if (role) {
+    sessionStorage.removeItem(REPAIRED_KEY);
     resetProgress();
-    queueMicrotask(() => document.querySelector('#mission-title')?.focus({ preventScroll: true }));
+    focusMissionHeadingAfterRender();
     return;
   }
 
