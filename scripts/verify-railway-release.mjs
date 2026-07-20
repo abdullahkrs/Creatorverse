@@ -1,5 +1,3 @@
-import { appendFile } from 'node:fs/promises';
-
 export const ATTESTATION_SCHEMA_VERSION = 1;
 export const LEDGER_TITLE = '[Ledger] Railway release identity evidence';
 export const STATUS_CONTEXT = 'railway-production-identity';
@@ -11,7 +9,8 @@ const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const PROHIBITED_CLAIM_PATTERN = /human research|human validation|user comprehension|market validation|market evidence|demand evidence|retention evidence|preference evidence/i;
 const DEFAULT_MAX_AGE_MS = 30 * 60 * 1000;
 const DEFAULT_FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
-
+const DEFAULT_PAGE_SIZE = 100;
+const DEFAULT_MAX_PAGES = 100;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export class ReleaseIdentityError extends Error {
@@ -31,9 +30,18 @@ function safeInteger(value, fallback, { min = 1, max = Number.MAX_SAFE_INTEGER }
   return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : fallback;
 }
 
+function encodedRepository(repository) {
+  if (!REPOSITORY_PATTERN.test(String(repository || ''))) {
+    fail('INVALID_REPOSITORY', 'GitHub repository must use owner/name form.');
+  }
+  return repository.split('/').map(encodeURIComponent).join('/');
+}
+
 export function assertExactSha(value, label = 'SHA') {
   const normalized = String(value || '').trim().toLowerCase();
-  if (!SHA_PATTERN.test(normalized)) fail('INVALID_SHA', `${label} must be a full 40-character Git commit SHA.`);
+  if (!SHA_PATTERN.test(normalized)) {
+    fail('INVALID_SHA', `${label} must be a full 40-character Git commit SHA.`);
+  }
   return normalized;
 }
 
@@ -56,20 +64,19 @@ export function normalizeRailwayOrigin(value, label = 'Railway origin') {
     || url.hash
     || !url.hostname.toLowerCase().endsWith('.up.railway.app')
   ) {
-    fail('INVALID_ORIGIN', `${label} must be a public HTTPS *.up.railway.app origin without credentials, port, path, query, or fragment.`);
+    fail(
+      'INVALID_ORIGIN',
+      `${label} must be a public HTTPS *.up.railway.app origin without credentials, port, path, query, or fragment.`,
+    );
   }
 
   return url.origin;
 }
 
 export function assertDistinctOrigins(productionOrigin, stagingOrigin) {
-  if (productionOrigin === stagingOrigin) fail('ORIGIN_COLLISION', 'Production and Staging origins must be distinct.');
-}
-
-function workflowRunUrl(repository, runId) {
-  if (!REPOSITORY_PATTERN.test(String(repository || ''))) fail('INVALID_REPOSITORY', 'GITHUB_REPOSITORY is invalid.');
-  if (!/^\d+$/.test(String(runId || ''))) fail('INVALID_WORKFLOW_URL', 'GITHUB_RUN_ID is invalid.');
-  return `https://github.com/${repository}/actions/runs/${runId}`;
+  if (productionOrigin === stagingOrigin) {
+    fail('ORIGIN_COLLISION', 'Production and Staging origins must be distinct.');
+  }
 }
 
 export function validateWorkflowRunUrl(value) {
@@ -79,6 +86,7 @@ export function validateWorkflowRunUrl(value) {
   } catch {
     fail('INVALID_WORKFLOW_URL', 'Workflow run URL must be a valid GitHub Actions URL.');
   }
+
   if (
     url.protocol !== 'https:'
     || url.hostname !== 'github.com'
@@ -91,7 +99,10 @@ export function validateWorkflowRunUrl(value) {
   return url.toString();
 }
 
-async function requestJson(origin, path, label, { fetchImpl = fetch, timeoutMs = 12_000 } = {}) {
+async function requestJson(origin, path, label, {
+  fetchImpl = fetch,
+  timeoutMs = 12_000,
+} = {}) {
   let response;
   try {
     response = await fetchImpl(`${origin}${path}`, {
@@ -100,11 +111,15 @@ async function requestJson(origin, path, label, { fetchImpl = fetch, timeoutMs =
       signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
-    const suffix = error?.name === 'TimeoutError' || error?.name === 'AbortError' ? ' timed out' : ' was unavailable';
+    const suffix = error?.name === 'TimeoutError' || error?.name === 'AbortError'
+      ? ' timed out'
+      : ' was unavailable';
     fail('ENDPOINT_UNAVAILABLE', `${label}${suffix}.`);
   }
 
-  if (!response?.ok) fail('UNHEALTHY_ENDPOINT', `${label} returned HTTP ${response?.status || 'unknown'}.`);
+  if (!response?.ok) {
+    fail('UNHEALTHY_ENDPOINT', `${label} returned HTTP ${response?.status || 'unknown'}.`);
+  }
 
   let body;
   try {
@@ -112,17 +127,24 @@ async function requestJson(origin, path, label, { fetchImpl = fetch, timeoutMs =
   } catch {
     fail('MALFORMED_RESPONSE', `${label} did not return valid JSON.`);
   }
-  if (!body || typeof body !== 'object' || Array.isArray(body)) fail('MALFORMED_RESPONSE', `${label} returned an invalid JSON object.`);
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    fail('MALFORMED_RESPONSE', `${label} returned an invalid JSON object.`);
+  }
   return body;
 }
 
 function assertHealthy(health, label) {
-  if (health.status !== 'ok') fail('UNHEALTHY_ENDPOINT', `${label} did not report status ok.`);
+  if (health.status !== 'ok') {
+    fail('UNHEALTHY_ENDPOINT', `${label} did not report status ok.`);
+  }
 }
 
 function assertEnvironment(version, expected, label) {
   const actual = String(version.environment || '').trim().toLowerCase();
-  if (actual !== expected) fail('WRONG_ENVIRONMENT', `${label} reported environment ${actual || '<missing>'}; expected ${expected}.`);
+  if (actual !== expected) {
+    fail('WRONG_ENVIRONMENT', `${label} reported environment ${actual || '<missing>'}; expected ${expected}.`);
+  }
 }
 
 export async function verifyReleaseOnce({
@@ -155,7 +177,6 @@ export async function verifyReleaseOnce({
   }
 
   const stagingSha = assertExactSha(stagingVersion.commitSha, 'Staging /version commitSha');
-
   return {
     production: {
       origin: productionOrigin,
@@ -208,12 +229,11 @@ export function buildAttestation(verification, {
   now = () => new Date(),
 } = {}) {
   const expectedSha = assertExactSha(sha, 'Attestation SHA');
-  const verifiedAt = now().toISOString();
   const attestation = {
     schemaVersion: ATTESTATION_SCHEMA_VERSION,
     evidenceKind: 'operational-deployment-identity',
     sha: expectedSha,
-    verifiedAt,
+    verifiedAt: now().toISOString(),
     workflowRunUrl: validateWorkflowRunUrl(workflowUrl),
     attempts: safeInteger(verification?.attempts, 1, { min: 1, max: 30 }),
     production: {
@@ -239,19 +259,33 @@ export function validateAttestation(attestation, {
   maxAgeMs = DEFAULT_MAX_AGE_MS,
   futureToleranceMs = DEFAULT_FUTURE_TOLERANCE_MS,
 } = {}) {
-  if (!attestation || typeof attestation !== 'object' || Array.isArray(attestation)) fail('INVALID_ATTESTATION', 'Attestation must be a JSON object.');
-  if (attestation.schemaVersion !== ATTESTATION_SCHEMA_VERSION) fail('INVALID_ATTESTATION', 'Attestation schema version is unsupported.');
-  if (attestation.evidenceKind !== 'operational-deployment-identity') fail('INVALID_ATTESTATION', 'Attestation evidence kind is invalid.');
+  if (!attestation || typeof attestation !== 'object' || Array.isArray(attestation)) {
+    fail('INVALID_ATTESTATION', 'Attestation must be a JSON object.');
+  }
+  if (attestation.schemaVersion !== ATTESTATION_SCHEMA_VERSION) {
+    fail('INVALID_ATTESTATION', 'Attestation schema version is unsupported.');
+  }
+  if (attestation.evidenceKind !== 'operational-deployment-identity') {
+    fail('INVALID_ATTESTATION', 'Attestation evidence kind is invalid.');
+  }
 
   const normalizedExpectedSha = assertExactSha(expectedSha, 'Expected attestation SHA');
   const attestedSha = assertExactSha(attestation.sha, 'Attested SHA');
-  if (attestedSha !== normalizedExpectedSha) fail('ATTESTATION_SHA_MISMATCH', `Attestation is for ${attestedSha}; expected ${normalizedExpectedSha}.`);
+  if (attestedSha !== normalizedExpectedSha) {
+    fail('ATTESTATION_SHA_MISMATCH', `Attestation is for ${attestedSha}; expected ${normalizedExpectedSha}.`);
+  }
 
   const timestamp = Date.parse(attestation.verifiedAt);
-  if (!Number.isFinite(timestamp)) fail('INVALID_ATTESTATION_TIME', 'Attestation timestamp is invalid.');
+  if (!Number.isFinite(timestamp)) {
+    fail('INVALID_ATTESTATION_TIME', 'Attestation timestamp is invalid.');
+  }
   const currentTime = now().getTime();
-  if (timestamp > currentTime + futureToleranceMs) fail('FUTURE_ATTESTATION', 'Attestation timestamp is too far in the future.');
-  if (currentTime - timestamp > maxAgeMs) fail('STALE_ATTESTATION', 'Attestation timestamp is outside the accepted freshness window.');
+  if (timestamp > currentTime + futureToleranceMs) {
+    fail('FUTURE_ATTESTATION', 'Attestation timestamp is too far in the future.');
+  }
+  if (currentTime - timestamp > maxAgeMs) {
+    fail('STALE_ATTESTATION', 'Attestation timestamp is outside the accepted freshness window.');
+  }
 
   validateWorkflowRunUrl(attestation.workflowRunUrl);
   const productionOrigin = normalizeRailwayOrigin(attestation.production?.origin, 'Attested Production origin');
@@ -321,9 +355,15 @@ export function renderLedgerComment(kind, record) {
 export function extractVerifiedEvidence(commentBody, expectedSha, options = {}) {
   const normalizedSha = assertExactSha(expectedSha, 'Expected marker SHA');
   const marker = new RegExp(`^${VERIFIED_MARKER}:${escapeRegExp(normalizedSha)}$`, 'm');
-  if (!marker.test(String(commentBody || ''))) fail('MISSING_MARKER', 'Verified ledger marker is missing or belongs to another SHA.');
+  if (!marker.test(String(commentBody || ''))) {
+    fail('MISSING_MARKER', 'Verified ledger marker is missing or belongs to another SHA.');
+  }
+
   const match = String(commentBody || '').match(/```json\s*([\s\S]*?)\s*```/i);
-  if (!match) fail('INVALID_ATTESTATION', 'Ledger marker does not contain machine-readable JSON.');
+  if (!match) {
+    fail('INVALID_ATTESTATION', 'Ledger marker does not contain machine-readable JSON.');
+  }
+
   let attestation;
   try {
     attestation = JSON.parse(match[1]);
@@ -352,8 +392,12 @@ export function chooseEvidenceComments(comments, sha) {
 }
 
 export function createGithubClient({ repository, token, fetchImpl = fetch } = {}) {
-  if (!REPOSITORY_PATTERN.test(String(repository || ''))) fail('INVALID_REPOSITORY', 'GitHub repository must use owner/name form.');
-  if (!String(token || '').trim()) fail('MISSING_GITHUB_TOKEN', 'GITHUB_TOKEN is required.');
+  if (!REPOSITORY_PATTERN.test(String(repository || ''))) {
+    fail('INVALID_REPOSITORY', 'GitHub repository must use owner/name form.');
+  }
+  if (!String(token || '').trim()) {
+    fail('MISSING_GITHUB_TOKEN', 'GITHUB_TOKEN is required.');
+  }
 
   async function request(method, path, body) {
     let response;
@@ -373,8 +417,11 @@ export function createGithubClient({ repository, token, fetchImpl = fetch } = {}
       fail('GITHUB_API_UNAVAILABLE', `GitHub API ${method} ${path.split('?')[0]} was unavailable.`);
     }
 
-    if (!response.ok) fail('GITHUB_API_ERROR', `GitHub API ${method} ${path.split('?')[0]} returned HTTP ${response.status}.`);
+    if (!response.ok) {
+      fail('GITHUB_API_ERROR', `GitHub API ${method} ${path.split('?')[0]} returned HTTP ${response.status}.`);
+    }
     if (response.status === 204) return null;
+
     try {
       return await response.json();
     } catch {
@@ -385,24 +432,45 @@ export function createGithubClient({ repository, token, fetchImpl = fetch } = {}
   return { repository, request };
 }
 
+export async function listGithubPages(client, path, {
+  perPage = DEFAULT_PAGE_SIZE,
+  maxPages = DEFAULT_MAX_PAGES,
+} = {}) {
+  const pageSize = safeInteger(perPage, DEFAULT_PAGE_SIZE, { min: 1, max: 100 });
+  const pageLimit = safeInteger(maxPages, DEFAULT_MAX_PAGES, { min: 1, max: 100 });
+  const separator = path.includes('?') ? '&' : '?';
+  const items = [];
+
+  for (let page = 1; page <= pageLimit; page += 1) {
+    const batch = await client.request('GET', `${path}${separator}per_page=${pageSize}&page=${page}`);
+    if (!Array.isArray(batch)) {
+      fail('GITHUB_API_ERROR', `GitHub API GET ${path.split('?')[0]} did not return a list.`);
+    }
+    items.push(...batch);
+    if (batch.length < pageSize) return items;
+  }
+
+  fail('PAGINATION_LIMIT', `GitHub API GET ${path.split('?')[0]} exceeded ${pageLimit} pages.`);
+}
+
 export async function ensureReleaseLedger(client) {
-  const encodedRepo = client.repository.split('/').map(encodeURIComponent).join('/');
-  const issues = await client.request('GET', `/repos/${encodedRepo}/issues?state=all&per_page=100`);
+  const repo = encodedRepository(client.repository);
+  const issues = await listGithubPages(client, `/repos/${repo}/issues?state=all`);
   const ledgers = chooseCanonicalLedger(issues);
   let primary = ledgers[0];
 
   if (!primary) {
-    primary = await client.request('POST', `/repos/${encodedRepo}/issues`, {
+    primary = await client.request('POST', `/repos/${repo}/issues`, {
       title: LEDGER_TITLE,
       body: 'Automated operational evidence for Railway Production and Staging identity. Entries are machine-generated deployment checks only.',
     });
   } else if (primary.state !== 'open') {
-    primary = await client.request('PATCH', `/repos/${encodedRepo}/issues/${primary.number}`, { state: 'open' });
+    primary = await client.request('PATCH', `/repos/${repo}/issues/${primary.number}`, { state: 'open' });
   }
 
   for (const duplicate of ledgers.slice(1)) {
     if (duplicate.state === 'open') {
-      await client.request('PATCH', `/repos/${encodedRepo}/issues/${duplicate.number}`, {
+      await client.request('PATCH', `/repos/${repo}/issues/${duplicate.number}`, {
         state: 'closed',
         state_reason: 'not_planned',
       });
@@ -413,17 +481,17 @@ export async function ensureReleaseLedger(client) {
 }
 
 export async function upsertEvidenceComment(client, issueNumber, sha, body) {
-  const encodedRepo = client.repository.split('/').map(encodeURIComponent).join('/');
-  const comments = await client.request('GET', `/repos/${encodedRepo}/issues/${issueNumber}/comments?per_page=100`);
+  const repo = encodedRepository(client.repository);
+  const comments = await listGithubPages(client, `/repos/${repo}/issues/${issueNumber}/comments`);
   const existing = chooseEvidenceComments(comments, sha);
   let comment;
 
   if (existing.length === 0) {
-    comment = await client.request('POST', `/repos/${encodedRepo}/issues/${issueNumber}/comments`, { body });
+    comment = await client.request('POST', `/repos/${repo}/issues/${issueNumber}/comments`, { body });
   } else {
-    comment = await client.request('PATCH', `/repos/${encodedRepo}/issues/comments/${existing[0].id}`, { body });
+    comment = await client.request('PATCH', `/repos/${repo}/issues/comments/${existing[0].id}`, { body });
     for (const duplicate of existing.slice(1)) {
-      await client.request('DELETE', `/repos/${encodedRepo}/issues/comments/${duplicate.id}`);
+      await client.request('DELETE', `/repos/${repo}/issues/comments/${duplicate.id}`);
     }
   }
 
@@ -437,9 +505,12 @@ export async function publishCommitStatus(client, sha, {
 } = {}) {
   const normalizedSha = assertExactSha(sha, 'Status SHA');
   const allowedStates = new Set(['pending', 'success', 'failure', 'error']);
-  if (!allowedStates.has(state)) fail('INVALID_STATUS', 'Commit status state is invalid.');
-  const encodedRepo = client.repository.split('/').map(encodeURIComponent).join('/');
-  return client.request('POST', `/repos/${encodedRepo}/statuses/${normalizedSha}`, {
+  if (!allowedStates.has(state)) {
+    fail('INVALID_STATUS', 'Commit status state is invalid.');
+  }
+
+  const repo = encodedRepository(client.repository);
+  return client.request('POST', `/repos/${repo}/statuses/${normalizedSha}`, {
     state,
     context: STATUS_CONTEXT,
     description: String(description || '').slice(0, 140),
@@ -453,8 +524,9 @@ export function renderSummary({ state, sha, record, ledgerNumber }) {
     ? `production / ok / ${record.production.commitSha}`
     : `failed / ${record.reason.code}`;
   const staging = state === 'success'
-    ? `staging / ok / distinct origin`
+    ? 'staging / ok / distinct origin'
     : 'not attested';
+
   return [
     `## Railway release identity: ${title}`,
     `- SHA: \`${sha}\``,
@@ -464,80 +536,4 @@ export function renderSummary({ state, sha, record, ledgerNumber }) {
     `- Ledger: issue #${ledgerNumber || 'unavailable'}`,
     `- Result: ${state === 'success' ? 'stable status and canonical marker published' : record.reason.message}`,
   ].join('\n');
-}
-
-async function appendSummary(summary) {
-  if (!process.env.GITHUB_STEP_SUMMARY) return;
-  await appendFile(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
-}
-
-async function main() {
-  const repository = process.env.GITHUB_REPOSITORY;
-  const sha = assertExactSha(process.env.EXPECTED_SHA || process.env.GITHUB_SHA, 'Expected main SHA');
-  const runUrl = workflowRunUrl(repository, process.env.GITHUB_RUN_ID);
-  const productionUrl = process.env.PRODUCTION_URL;
-  const stagingUrl = process.env.STAGING_URL;
-  const client = createGithubClient({ repository, token: process.env.GITHUB_TOKEN });
-  let ledger;
-
-  try {
-    await publishCommitStatus(client, sha, {
-      state: 'pending',
-      description: 'Verifying Railway Production identity and distinct Staging health',
-      targetUrl: runUrl,
-    });
-
-    const verification = await verifyReleaseWithRetry({
-      sha,
-      productionUrl,
-      stagingUrl,
-      maxAttempts: process.env.MAX_ATTEMPTS,
-      retryDelayMs: process.env.RETRY_DELAY_MS,
-      timeoutMs: safeInteger(process.env.HTTP_TIMEOUT_MS, 12_000, { min: 1_000, max: 30_000 }),
-      onAttempt: ({ attempt, maxAttempts, code }) => console.log(`Verification attempt ${attempt}/${maxAttempts}: ${code}`),
-    });
-    const attestation = buildAttestation(verification, { sha, workflowUrl: runUrl });
-    const commentBody = renderLedgerComment('verified', attestation);
-    extractVerifiedEvidence(commentBody, sha);
-
-    ledger = await ensureReleaseLedger(client);
-    await upsertEvidenceComment(client, ledger.number, sha, commentBody);
-    await publishCommitStatus(client, sha, {
-      state: 'success',
-      description: 'Production exact SHA and distinct healthy Staging verified',
-      targetUrl: runUrl,
-    });
-    await appendSummary(renderSummary({ state: 'success', sha, record: attestation, ledgerNumber: ledger.number }));
-    console.log(`Published ${VERIFIED_MARKER}:${sha} to release ledger #${ledger.number}.`);
-  } catch (error) {
-    const failure = buildFailureRecord(error, {
-      sha,
-      workflowUrl: runUrl,
-      productionUrl,
-      stagingUrl,
-    });
-
-    try {
-      ledger = ledger || await ensureReleaseLedger(client);
-      await upsertEvidenceComment(client, ledger.number, sha, renderLedgerComment('failed', failure));
-      await publishCommitStatus(client, sha, {
-        state: 'failure',
-        description: `${failure.reason.code}: Railway release identity not verified`,
-        targetUrl: runUrl,
-      });
-    } catch (publishError) {
-      console.error(`Evidence publication failed: ${publishError.code || 'GITHUB_API_ERROR'}`);
-    }
-
-    await appendSummary(renderSummary({ state: 'failure', sha, record: failure, ledgerNumber: ledger?.number }));
-    console.error(`${failure.reason.code}: ${failure.reason.message}`);
-    process.exitCode = 1;
-  }
-}
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
-    console.error(`${error.code || 'VERIFICATION_ERROR'}: ${error.message || 'Release identity verification failed.'}`);
-    process.exit(1);
-  });
 }
