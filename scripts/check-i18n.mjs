@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { getMissionResultCopy } from '../src/mission-result-i18n.js';
+import { getCreatorRealmUpdateCopy } from '../src/creator-realm-update-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -9,22 +10,31 @@ function flatten(value, prefix = '') {
   });
 }
 
-const english = new Map(flatten(getMissionResultCopy('en')));
-const arabic = new Map(flatten(getMissionResultCopy('ar')));
-assert.deepEqual([...arabic.keys()].sort(), [...english.keys()].sort(), 'Mission-result Arabic and English keys must match exactly.');
-for (const [key, value] of [...english, ...arabic]) {
-  assert.equal(typeof value, 'string', `${key} must be a string.`);
-  assert.ok(value.trim(), `${key} must not be empty.`);
+function assertParity(name, getCopy) {
+  const english = new Map(flatten(getCopy('en')));
+  const arabic = new Map(flatten(getCopy('ar')));
+  assert.deepEqual([...arabic.keys()].sort(), [...english.keys()].sort(), `${name} Arabic and English keys must match exactly.`);
+  for (const [key, value] of [...english, ...arabic]) {
+    assert.equal(typeof value, 'string', `${name}.${key} must be a string.`);
+    assert.ok(value.trim(), `${name}.${key} must not be empty.`);
+  }
+  return english.size;
 }
 
-const viewSource = await readFile(new URL('../src/mission-result-view.js', import.meta.url), 'utf8');
+const missionResultKeys = assertParity('Mission result', getMissionResultCopy);
+const creatorRealmUpdateKeys = assertParity('Creator realm update', getCreatorRealmUpdateCopy);
+
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
   /innerHTML\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
   /aria-label=["'][A-Za-z][^"']*["']/,
 ];
-for (const pattern of forbidden) {
-  assert.doesNotMatch(viewSource, pattern, 'New mission-result visible copy must come from mission-result-i18n.js.');
+
+for (const path of ['../src/mission-result-view.js', '../src/completion-receipt-view.js']) {
+  const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
+  for (const pattern of forbidden) {
+    assert.doesNotMatch(viewSource, pattern, `Visible copy in ${path} must come from a localization module.`);
+  }
 }
 
-console.log(`i18n parity passed for ${english.size} mission-result keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys and ${creatorRealmUpdateKeys} creator-update keys.`);
