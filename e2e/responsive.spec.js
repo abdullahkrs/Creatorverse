@@ -106,8 +106,10 @@ for (const locale of ['en', 'ar']) {
       await completeMission(page);
       const result = page.locator('[data-mission-result]');
       const resultAction = result.locator('[data-action="mission-result-action"]');
+      const districtProgress = result.locator('[role="progressbar"]');
       await expect(result.locator('.signal-result-facts > div')).toHaveCount(4);
-      await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '75');
+      await expect(districtProgress).toHaveAttribute('aria-valuemax', '3');
+      await expect(districtProgress).toHaveAttribute('aria-valuenow', '3');
       await expect(result.locator('#mission-result-action-status')).toHaveAttribute('aria-live', 'polite');
       await expect(result.locator('[data-result-announcement]')).toHaveAttribute('aria-live', 'polite');
       await expect(resultAction).toBeVisible();
