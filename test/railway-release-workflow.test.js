@@ -27,7 +27,7 @@ test('release identity uses minimal explicit write permissions and locked instal
   assert.match(source, /persist-credentials:\s*false/);
   assert.match(source, /node-version:\s*22\.12/);
   assert.match(source, /run:\s*npm ci/);
-  assert.match(source, /run:\s*node scripts\/verify-railway-release\.mjs/);
+  assert.match(source, /run:\s*node scripts\/publish-railway-release-evidence\.mjs/);
   assert.doesNotMatch(source, /secrets\./);
 });
 
