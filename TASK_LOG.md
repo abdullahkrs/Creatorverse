@@ -10,15 +10,19 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 - Added the immutable `route-choice`, `relay-sequence`, and `signal-match` registry with synchronized English and Arabic names, prompts, actions, and deterministic completion rules.
 - Added a compact native fieldset/radio selector to creator setup step 3; launch remains disabled until one template is selected and the existing fictional-world safety acknowledgement remains required.
-- Added allowlisted mission identity to the existing bounded versioned invite payload; legacy payloads safely use `route-choice`, while unknown mission identifiers fail closed without reflecting rejected input.
+- Added allowlisted mission identity to the existing bounded versioned invite payload; clean legacy payloads safely use `route-choice`, while unknown mission identifiers and unknown hidden payload fields fail closed without reflecting rejected input.
 - Added follower interactions for one route choice, three ordered relays, and one visible fixed signal match with a recoverable wrong attempt, idempotent completion, and no timer, random reward, free-text mission, external target, or follower-count advantage.
+- Preserved the selected template, role, incomplete relay step, completion, and result through intentional Arabic/English reloads using bounded session-only state.
+- Restored keyboard focus to the same signal action after a recoverable mismatch and preserved predictable focus at role, relay, and result transitions.
 - Preserved the existing result and safe share/copy flow while localizing the selected mission identity and retaining one fixed `+3` contribution for every template, role, language, viewport, and interaction path.
 - Used existing design tokens, semantic HTML, logical properties, custom SVG icons, intrinsic mobile-first layout, intentional RTL/LTR composition, 44 px controls, reduced-motion handling, disabled states, live status, focus recovery, and flat structural styling without new dependencies.
 - Updated the existing invite, accessibility, responsive, and automated-proxy browser paths and added six focused Arabic/English template scenarios spanning touch, keyboard, mobile, tablet, and desktop evidence.
+- Added real full-page browser captures for creator selection, follower ready, and completed result in every template/locale scenario at the required 320, 390, 768, 1024, and 1440 widths.
 
 ### Validation
 
-- Focused unit coverage locks the three-item allowlist, bilingual key parity, bounded invite transfer, legacy fallback, invalid-ID rejection, deterministic ordered progression, recoverable mismatch, idempotency, localized result identity, and equal `+3` contribution.
+- Focused unit coverage locks the three-item allowlist, bilingual key parity, bounded invite transfer, clean legacy fallback, unknown-field rejection, invalid-ID rejection, deterministic ordered progression, recoverable mismatch, idempotency, localized result identity, and equal `+3` contribution.
+- Focused browser regressions cover Ocean-route identity, malformed-invite recovery, unknown hidden-field rejection without reflection, partial relay progress across English-to-Arabic reload, and focus retention after a signal mismatch.
 - Pull Request #24 links Issue #23 and contains one branch and one vertical slice; no database, account, credential, paid service, analytics, Production mutation, dependency, React migration, or Tailwind migration was added.
 - Exact-head GitHub CI, isolated Railway PR Preview `/health` and `/version`, Playwright, axe, keyboard, responsive screenshots, recovery states, and artifact integrity remain authoritative release evidence.
 - Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, fairness, or market validation.
