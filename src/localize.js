@@ -98,4 +98,8 @@ if (app) {
 }
 
 localizeApplication();
-queueMicrotask(restoreInteractionState);
+if (document.readyState === 'complete') {
+  setTimeout(restoreInteractionState, 0);
+} else {
+  window.addEventListener('load', restoreInteractionState, { once: true });
+}
