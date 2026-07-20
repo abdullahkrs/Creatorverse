@@ -1,5 +1,6 @@
 import { getLocale } from './i18n.js';
 import { getDistrictProgressCopy } from './district-progress-i18n.js';
+import { DISTRICT_SESSION_KEY } from './district-progress.js';
 import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
 const LOCALE_RESTORE_KEY = 'creatorverse-locale-restore';
@@ -49,8 +50,12 @@ function lockedMarkup(copy) {
   `;
 }
 
+function inviteStatus() {
+  return parsePrototypeInviteFragment(window.location.hash).status;
+}
+
 function hasValidInvite() {
-  return parsePrototypeInviteFragment(window.location.hash).status === 'valid';
+  return inviteStatus() === 'valid';
 }
 
 function decorateFollowerRealm(copy) {
@@ -112,7 +117,20 @@ function decorateUnlockedResult(copy) {
   if (!result) return;
   const key = `${getLocale()}:unlocked`;
   const title = result.querySelector('#mission-result-title');
-  if (result.dataset.districtCopyKey === key) {
+  const support = result.querySelector('.district-unlock-support');
+  const progress = result.querySelector('[data-district-progress]');
+  const name = progress?.querySelector('.district-progress-copy strong');
+  const status = progress?.querySelector('.district-progress-status');
+  const supportMarkup = mixedDirectionMarkup(copy.unlockedSupport);
+  const statusMarkup = mixedDirectionMarkup(copy.unlockedStatus);
+  const canonical = result.dataset.districtCopyKey === key
+    && title?.textContent === copy.unlockedTitle
+    && support?.innerHTML === supportMarkup
+    && progress?.getAttribute('aria-label') === copy.progressLabel
+    && name?.textContent === copy.districtName
+    && status?.innerHTML === statusMarkup;
+
+  if (canonical) {
     restoreResultFocus(title);
     return;
   }
@@ -120,19 +138,15 @@ function decorateUnlockedResult(copy) {
   result.dataset.districtResult = '';
   result.dataset.districtCopyKey = key;
   result.setAttribute('translate', 'no');
-  if (title) title.textContent = copy.unlockedTitle;
-  const support = result.querySelector('.district-unlock-support');
-  if (support) support.innerHTML = mixedDirectionMarkup(copy.unlockedSupport);
-  const progress = result.querySelector('[data-district-progress]');
+  if (title && title.textContent !== copy.unlockedTitle) title.textContent = copy.unlockedTitle;
+  if (support && support.innerHTML !== supportMarkup) support.innerHTML = supportMarkup;
   if (progress) {
     progress.setAttribute('aria-label', copy.progressLabel);
     progress.setAttribute('aria-valuemin', '0');
     progress.setAttribute('aria-valuemax', '3');
     progress.setAttribute('aria-valuenow', '3');
-    const name = progress.querySelector('.district-progress-copy strong');
-    const status = progress.querySelector('.district-progress-status');
-    if (name) name.textContent = copy.districtName;
-    if (status) status.innerHTML = mixedDirectionMarkup(copy.unlockedStatus);
+    if (name && name.textContent !== copy.districtName) name.textContent = copy.districtName;
+    if (status && status.innerHTML !== statusMarkup) status.innerHTML = statusMarkup;
   }
   restoreResultFocus(title);
 }
@@ -162,11 +176,18 @@ function markFreshCompletion(event) {
   if (!document.querySelector('[data-mission-result]')) freshCompletionPending = true;
 }
 
+function clearMalformedInviteProgress() {
+  if (inviteStatus() !== 'invalid') return;
+  sessionStorage.removeItem(DISTRICT_SESSION_KEY);
+  freshCompletionPending = false;
+}
+
 let applying = false;
 function applyDistrictView() {
   if (applying) return;
   applying = true;
   try {
+    clearMalformedInviteProgress();
     const copy = getDistrictProgressCopy(getLocale());
     decorateUnlockedResult(copy);
     decorateLockedMission(copy);
@@ -178,6 +199,7 @@ function applyDistrictView() {
 }
 
 document.addEventListener('click', markFreshCompletion, true);
+window.addEventListener('hashchange', () => queueMicrotask(applyDistrictView));
 
 const app = document.querySelector('#app');
 if (app) {
