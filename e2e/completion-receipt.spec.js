@@ -20,6 +20,13 @@ const LOCALES = [
   { id: 'en', dir: 'ltr', preview: 'Completion receipt', empty: 'No contributions yet', action: 'Add +3', success: '+3 added', duplicate: 'Already added', mismatch: 'Different realm', invalid: 'Receipt unavailable' },
   { id: 'ar', dir: 'rtl', preview: 'إيصال إنجاز', empty: 'لا مساهمات بعد', action: 'أضف +3', success: 'تمت إضافة +3', duplicate: 'تمت إضافته', mismatch: 'عالم مختلف', invalid: 'الإيصال غير متاح' },
 ];
+const RECOVERY_EVIDENCE = [
+  { viewport: VIEWPORTS[0], kind: 'invalid', state: 'invalid-extra-field' },
+  { viewport: VIEWPORTS[1], kind: 'mismatch', state: 'mismatch' },
+  { viewport: VIEWPORTS[2], kind: 'invalid', state: 'invalid-extra-field' },
+  { viewport: VIEWPORTS[3], kind: 'mismatch', state: 'mismatch' },
+  { viewport: VIEWPORTS[4], kind: 'invalid', state: 'invalid-extra-field' },
+];
 
 function receiptToken(overrides = {}) {
   return createCompletionReceipt({
@@ -224,26 +231,43 @@ for (const locale of LOCALES) {
 }
 
 for (const locale of LOCALES) {
-  test(`${locale.id} mismatch and malformed receipts fail closed without reflection`, async ({ browser }) => {
-    const mismatchContext = await createContext(browser, { locale: locale.id, ledger: { version: 1, realms: [] } });
-    const mismatchPage = await mismatchContext.newPage();
-    await mismatchPage.goto(`/#receipt=${receiptToken()}`);
-    await expect(mismatchPage.locator('#completion-receipt-title')).toHaveText(locale.mismatch);
-    await expect(mismatchPage.locator('[data-action="import-completion-receipt"]')).toHaveCount(0);
-    expect(await mismatchPage.evaluate(key => localStorage.getItem(key), LEDGER_KEY)).toBe(JSON.stringify({ version: 1, realms: [] }));
-    await expectQuality(mismatchPage, `${locale.id} mismatch`);
-    await capture(mismatchPage, locale, VIEWPORTS[1], 'mismatch');
-    await mismatchContext.close();
+  for (const evidence of RECOVERY_EVIDENCE) {
+    test(`${locale.id} ${evidence.viewport.width} ${evidence.kind} receipt recovery remains safe and responsive`, async ({ browser }) => {
+      const ledger = evidence.kind === 'mismatch' ? { version: 1, realms: [] } : realmState();
+      const context = await createContext(browser, { locale: locale.id, viewport: evidence.viewport, ledger });
+      const page = await context.newPage();
+      const before = JSON.stringify(ledger);
 
-    const invalidContext = await createContext(browser, { locale: locale.id, viewport: VIEWPORTS[0] });
-    const invalidPage = await invalidContext.newPage();
-    await invalidPage.goto('/#receipt=cr1.%3Cscript%3Ealert(1)%3C/script%3E');
-    await expect(invalidPage.locator('#completion-receipt-title')).toHaveText(locale.invalid);
-    await expect(invalidPage.locator('body')).not.toContainText('<script>alert(1)</script>');
-    await expect(invalidPage).not.toHaveURL(/#receipt=/u);
-    await expectQuality(invalidPage, `${locale.id} invalid`);
-    await capture(invalidPage, locale, VIEWPORTS[0], 'invalid');
-    await invalidContext.close();
+      if (evidence.kind === 'mismatch') {
+        await page.goto(`/#receipt=${receiptToken()}`);
+        await expect(page.locator('#completion-receipt-title')).toHaveText(locale.mismatch);
+      } else {
+        await page.goto(`/#receipt=${receiptToken()}&creator=hidden`);
+        await expect(page.locator('#completion-receipt-title')).toHaveText(locale.invalid);
+        await expect(page.locator('body')).not.toContainText('hidden');
+        await expect(page).not.toHaveURL(/(?:receipt|creator)=/u);
+      }
+
+      await expect(page.locator('[data-action="import-completion-receipt"]')).toHaveCount(0);
+      expect(await page.evaluate(key => localStorage.getItem(key), LEDGER_KEY)).toBe(before);
+      await expectQuality(page, `${locale.id} ${evidence.viewport.width} ${evidence.kind}`);
+      await capture(page, locale, evidence.viewport, evidence.state);
+      await context.close();
+    });
+  }
+
+  test(`${locale.id} malformed receipt fails closed without reflection`, async ({ browser }) => {
+    const ledger = realmState();
+    const context = await createContext(browser, { locale: locale.id, viewport: VIEWPORTS[0], ledger });
+    const page = await context.newPage();
+    await page.goto('/#receipt=cr1.%3Cscript%3Ealert(1)%3C/script%3E');
+    await expect(page.locator('#completion-receipt-title')).toHaveText(locale.invalid);
+    await expect(page.locator('body')).not.toContainText('<script>alert(1)</script>');
+    await expect(page).not.toHaveURL(/#receipt=/u);
+    await expect(page.locator('[data-action="import-completion-receipt"]')).toHaveCount(0);
+    expect(await page.evaluate(key => localStorage.getItem(key), LEDGER_KEY)).toBe(JSON.stringify(ledger));
+    await expectQuality(page, `${locale.id} malformed`);
+    await context.close();
   });
 }
 
