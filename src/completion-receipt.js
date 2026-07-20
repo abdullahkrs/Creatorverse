@@ -139,9 +139,9 @@ export function parseCompletionReceiptFragment(fragment) {
   const parameters = new URLSearchParams(raw);
   const receipts = parameters.getAll('receipt');
   if (receipts.length === 0) return { status: 'none' };
-  if (receipts.length !== 1) return { status: 'invalid' };
-  for (const key of new Set(parameters.keys())) {
-    if (parameters.getAll(key).length > 1) return { status: 'invalid' };
+  const entries = [...parameters.entries()];
+  if (entries.length !== 1 || entries[0][0] !== 'receipt' || receipts.length !== 1) {
+    return { status: 'invalid' };
   }
   return parseCompletionReceiptToken(receipts[0]);
 }
