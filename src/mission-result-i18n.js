@@ -5,6 +5,7 @@ const COPY = Object.freeze({
     ready: 'Mission result ready.',
     role: 'Role',
     route: 'Route',
+    mission: 'Mission',
     energy: 'Energy',
     district: 'District',
     realmChange: 'Realm energy change',
@@ -25,6 +26,11 @@ const COPY = Object.freeze({
     shareTitle: 'Creatorverse signal result',
     roles: Object.freeze({ builder: 'Builder', explorer: 'Explorer', guardian: 'Guardian' }),
     routes: Object.freeze({ sky: 'Sky route', ocean: 'Ocean route' }),
+    templates: Object.freeze({
+      'route-choice': 'Choose a Route',
+      'relay-sequence': 'Link the Relays',
+      'signal-match': 'Match the Signal',
+    }),
     districts: Object.freeze({ 'Signal Harbor': 'Signal Harbor' }),
   }),
   ar: Object.freeze({
@@ -33,6 +39,7 @@ const COPY = Object.freeze({
     ready: 'نتيجة المهمة جاهزة.',
     role: 'الدور',
     route: 'المسار',
+    mission: 'المهمة',
     energy: 'الطاقة',
     district: 'المنطقة',
     realmChange: 'تغير طاقة العالم',
@@ -53,6 +60,11 @@ const COPY = Object.freeze({
     shareTitle: 'نتيجة إشارة Creatorverse',
     roles: Object.freeze({ builder: 'البنّاء', explorer: 'المستكشف', guardian: 'الحارس' }),
     routes: Object.freeze({ sky: 'المسار السماوي', ocean: 'المسار البحري' }),
+    templates: Object.freeze({
+      'route-choice': 'اختر مسارًا',
+      'relay-sequence': 'اربط المرحّلات',
+      'signal-match': 'طابق الإشارة',
+    }),
     districts: Object.freeze({ 'Signal Harbor': 'ميناء الإشارة' }),
   }),
 });
