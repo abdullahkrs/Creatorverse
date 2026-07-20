@@ -31,13 +31,17 @@ async function installClipboard(context, mode = 'success') {
   }, mode);
 }
 
-async function completeCreatorOnboarding(page) {
+async function completeCreatorOnboarding(page, templateId = 'route-choice') {
   await page.goto('/');
   await page.locator('[data-action="creator"]').click();
   await page.locator('[data-action="creator-next"]').click();
   await page.locator('[data-action="creator-next"]').click();
+  await expect(page.locator('[data-action="creator-next"]')).toBeDisabled();
+  await page.locator(`input[name="mission-template"][value="${templateId}"]`).check();
+  await expect(page.locator('[data-action="creator-next"]')).toBeEnabled();
   await page.locator('[data-action="creator-next"]').click();
   await expect(page.locator('[data-prototype-invite-receipt]')).toBeVisible();
+  await expect(page.locator('[data-mission-receipt]')).toBeVisible();
   await expect(page.locator('[data-action="copy-prototype-invite"]')).toBeFocused();
 }
 
@@ -92,6 +96,7 @@ for (const locale of ['en', 'ar']) {
       await expect(followerPage.locator('.nav-create')).toBeHidden();
       await expect(followerPage.locator('.creator-tools')).toBeHidden();
       await expect(followerPage.locator('[data-role]')).toHaveCount(3);
+      await expect(followerPage.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
       await expect(followerPage.locator('body')).not.toContainText('@creator');
       await assertNoPageOverflow(followerPage);
       await followerPage.screenshot({
@@ -108,7 +113,7 @@ for (const locale of ['en', 'ar']) {
         fullPage: true,
       });
 
-      const firstRoute = followerPage.locator('[data-route]').first();
+      const firstRoute = followerPage.locator('[data-route]:visible').first();
       await firstRoute.focus();
       await firstRoute.press('Enter');
       await expect(followerPage.locator('[data-mission-result]')).toBeVisible();
@@ -132,8 +137,9 @@ for (const locale of ['en', 'ar']) {
       const invalidPage = await invalidContext.newPage();
       const copiedUrl = new URL(inviteUrl);
       await invalidPage.goto(`${copiedUrl.origin}${copiedUrl.pathname}#invite=v1.invalid!`);
-      await expect(invalidPage.locator('[data-prototype-invite-error]')).toBeVisible();
-      await expect(invalidPage.locator('#invite-error-title')).toBeFocused();
+      await expect(invalidPage).not.toHaveURL(/#invite=/u);
+      await expect(invalidPage.locator('.mission-repaired')).toBeVisible();
+      await expect(invalidPage.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
       await expect(invalidPage.locator('body')).not.toContainText('v1.invalid');
       await assertNoPageOverflow(invalidPage);
       await invalidPage.screenshot({
@@ -172,10 +178,11 @@ test('copy denial reveals a selected safe URL for retry', async ({ browser, base
   await context.close();
 });
 
-test('invalid invite recovery opens the normal featured realm', async ({ page }) => {
+test('invalid invite repairs to the safe default mission without reflecting input', async ({ page }) => {
   await page.goto('/#invite=v1.invalid!');
-  await page.locator('[data-action="open-featured-realm"]').click();
   await expect(page).not.toHaveURL(/#invite=/u);
+  await expect(page.locator('.mission-repaired')).toBeVisible();
+  await expect(page.locator('.mission')).toHaveAttribute('data-mission-template', 'route-choice');
   await expect(page.locator('[data-role]')).toHaveCount(3);
-  await expect(page.locator('[data-prototype-invite-error]')).toHaveCount(0);
+  await expect(page.locator('body')).not.toContainText('v1.invalid');
 });
