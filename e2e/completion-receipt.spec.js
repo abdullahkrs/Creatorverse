@@ -68,8 +68,10 @@ async function createContext(browser, {
 } = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ localeId, serializedLedger, failWrites }) => {
-    localStorage.setItem('creatorverse-locale', localeId);
-    localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+    if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', localeId);
+    if (!localStorage.getItem('creatorverse-creator-ledger-v1')) {
+      localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+    }
     window.__completionClipboard = '';
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'clipboard', {
