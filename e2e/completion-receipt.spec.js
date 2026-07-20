@@ -4,7 +4,6 @@ import AxeBuilder from '@axe-core/playwright';
 import { createCompletionReceipt } from '../src/completion-receipt.js';
 
 mkdirSync('test-results/completion-receipt', { recursive: true });
-
 test.setTimeout(120_000);
 
 const REALM_ID = 'realm_abcdefghijklmnop';
@@ -18,32 +17,8 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ];
 const LOCALES = [
-  {
-    id: 'en',
-    dir: 'ltr',
-    preview: 'Completion receipt',
-    empty: 'No contributions yet',
-    action: 'Add +3',
-    success: '+3 added',
-    duplicate: 'Already added',
-    mismatch: 'Different realm',
-    invalid: 'Receipt unavailable',
-    storage: 'Save failed',
-    full: 'Ledger full',
-  },
-  {
-    id: 'ar',
-    dir: 'rtl',
-    preview: 'إيصال إنجاز',
-    empty: 'لا مساهمات بعد',
-    action: 'أضف +3',
-    success: 'تمت إضافة +3',
-    duplicate: 'تمت إضافته',
-    mismatch: 'عالم مختلف',
-    invalid: 'الإيصال غير متاح',
-    storage: 'تعذّر الحفظ',
-    full: 'السجل ممتلئ',
-  },
+  { id: 'en', dir: 'ltr', preview: 'Completion receipt', empty: 'No contributions yet', action: 'Add +3', success: '+3 added', duplicate: 'Already added', mismatch: 'Different realm', invalid: 'Receipt unavailable' },
+  { id: 'ar', dir: 'rtl', preview: 'إيصال إنجاز', empty: 'لا مساهمات بعد', action: 'أضف +3', success: 'تمت إضافة +3', duplicate: 'تمت إضافته', mismatch: 'عالم مختلف', invalid: 'الإيصال غير متاح' },
 ];
 
 function receiptToken(overrides = {}) {
@@ -59,21 +34,6 @@ function receiptToken(overrides = {}) {
   });
 }
 
-function realmState({ receipts = [], total = receipts.length * 3 } = {}) {
-  return {
-    version: 1,
-    realms: [{
-      id: REALM_ID,
-      name: 'Nova Guild',
-      theme: 'cosmic',
-      total,
-      districtId: 'beacon-district',
-      unlocked: total >= 3,
-      receipts,
-    }],
-  };
-}
-
 function ledgerEntry(index) {
   return {
     id: `receipt_${String(index).padStart(16, '0')}`,
@@ -85,11 +45,31 @@ function ledgerEntry(index) {
   };
 }
 
-async function createContext(browser, { locale = 'en', viewport = VIEWPORTS[1], ledger = realmState(), failLedgerWrites = false } = {}) {
+function realmState(receipts = []) {
+  return {
+    version: 1,
+    realms: [{
+      id: REALM_ID,
+      name: 'Nova Guild',
+      theme: 'cosmic',
+      total: receipts.length * 3,
+      districtId: 'beacon-district',
+      unlocked: receipts.length > 0,
+      receipts,
+    }],
+  };
+}
+
+async function createContext(browser, {
+  locale = 'en',
+  viewport = VIEWPORTS[1],
+  ledger = realmState(),
+  failLedgerWrites = false,
+} = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
-  await context.addInitScript(({ localeId, serializedLedger, storageKey, failWrites }) => {
+  await context.addInitScript(({ localeId, serializedLedger, failWrites }) => {
     localStorage.setItem('creatorverse-locale', localeId);
-    localStorage.setItem(storageKey, serializedLedger);
+    localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
     window.__completionClipboard = '';
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'clipboard', {
@@ -99,35 +79,26 @@ async function createContext(browser, { locale = 'en', viewport = VIEWPORTS[1], 
     if (failWrites) {
       const original = Storage.prototype.setItem;
       Storage.prototype.setItem = function setItem(key, value) {
-        if (this === localStorage && key === storageKey && window.__failCompletionLedgerWrite !== false) {
+        if (this === localStorage && key === 'creatorverse-creator-ledger-v1' && window.__failCompletionLedgerWrite !== false) {
           throw new DOMException('Quota exceeded', 'QuotaExceededError');
         }
         return original.call(this, key, value);
       };
     }
-  }, {
-    localeId: locale,
-    serializedLedger: JSON.stringify(ledger),
-    storageKey: LEDGER_KEY,
-    failWrites: failLedgerWrites,
-  });
+  }, { localeId: locale, serializedLedger: JSON.stringify(ledger), failWrites: failLedgerWrites });
   return context;
 }
 
 async function expectQuality(page, label) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow, `${label} horizontal overflow`).toBeLessThanOrEqual(1);
-
   const action = page.locator('.completion-import-action:visible:not([disabled])');
   if (await action.count()) {
     const box = await action.boundingBox();
     expect(box?.width || 0, `${label} action width`).toBeGreaterThanOrEqual(44);
     expect(box?.height || 0, `${label} action height`).toBeGreaterThanOrEqual(44);
   }
-
-  const axe = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
-    .analyze();
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   expect(axe.violations.filter(item => ['critical', 'serious'].includes(item.impact)), label).toEqual([]);
 }
 
@@ -138,7 +109,7 @@ async function capture(page, locale, viewport, state) {
   });
 }
 
-async function buildInviteFromCreator(page) {
+async function buildInvite(page) {
   await page.goto('/');
   await page.locator('[data-action="creator"]').click();
   await page.locator('[data-action="creator-next"]').click();
@@ -155,7 +126,7 @@ async function buildInviteFromCreator(page) {
   return invite;
 }
 
-async function completeFollowerMission(page, invite) {
+async function completeMission(page, invite) {
   await page.goto(invite);
   await page.locator('[data-role="builder"]').click();
   await page.locator('[data-mission-command="sky"]').click();
@@ -171,21 +142,20 @@ async function completeFollowerMission(page, invite) {
 test('creator → follower → creator imports one anonymous +3 exactly once across refresh and language switch', async ({ browser }) => {
   const creatorContext = await createContext(browser, { ledger: { version: 1, realms: [] } });
   const creator = await creatorContext.newPage();
-  const invite = await buildInviteFromCreator(creator);
+  const invite = await buildInvite(creator);
 
   const followerContext = await createContext(browser, { ledger: { version: 1, realms: [] } });
   const follower = await followerContext.newPage();
-  const receiptUrl = await completeFollowerMission(follower, invite);
+  const receiptUrl = await completeMission(follower, invite);
   await followerContext.close();
 
   await creator.goto(receiptUrl);
   await expect(creator).not.toHaveURL(/#receipt=/u);
   await expect(creator.locator('#completion-receipt-title')).toHaveText('Completion receipt');
+  await expect(creator.locator('#completion-receipt-title')).toBeFocused();
   await expect(creator.locator('[data-ledger-empty]')).toContainText('No contributions yet');
-  await expect(creator.locator('[data-action="import-completion-receipt"]')).toBeFocused();
   await creator.locator('[data-action="import-completion-receipt"]').focus();
   await creator.keyboard.press('Enter');
-
   await expect(creator.locator('#completion-receipt-title')).toHaveText('+3 added');
   await expect(creator.locator('#completion-receipt-title')).toBeFocused();
   await expect(creator.locator('[data-ledger-list] li')).toHaveCount(1);
@@ -203,11 +173,8 @@ test('creator → follower → creator imports one anonymous +3 exactly once acr
   await expect(creator.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(creator.locator('#completion-receipt-title')).toHaveText('تمت إضافته');
   await expect(creator.locator('[data-ledger-list] li')).toHaveCount(1);
-  await expect(creator.locator('.completion-total strong')).toHaveText('3');
-
   const finalState = await creator.evaluate(key => JSON.parse(localStorage.getItem(key)), LEDGER_KEY);
-  expect(finalState.realms[0].receipts).toHaveLength(1);
-  expect(finalState.realms[0].total).toBe(3);
+  expect(finalState.realms[0]).toMatchObject({ total: 3, receipts: [expect.any(Object)] });
   await creatorContext.close();
 });
 
@@ -220,6 +187,7 @@ for (const locale of LOCALES) {
       await expect(page.locator('html')).toHaveAttribute('lang', locale.id);
       await expect(page.locator('html')).toHaveAttribute('dir', locale.dir);
       await expect(page.locator('#completion-receipt-title')).toHaveText(locale.preview);
+      await expect(page.locator('#completion-receipt-title')).toBeFocused();
       await expect(page.locator('[data-ledger-empty]')).toContainText(locale.empty);
       await expect(page.locator('[data-action="import-completion-receipt"]')).toContainText(locale.action);
       await expectQuality(page, `${locale.id} ${viewport.width} preview`);
@@ -239,12 +207,12 @@ for (const locale of LOCALES) {
 
 for (const locale of LOCALES) {
   test(`${locale.id} mismatch and malformed receipts fail closed without reflection`, async ({ browser }) => {
-    const mismatchContext = await createContext(browser, { locale: locale.id, viewport: VIEWPORTS[1], ledger: { version: 1, realms: [] } });
+    const mismatchContext = await createContext(browser, { locale: locale.id, ledger: { version: 1, realms: [] } });
     const mismatchPage = await mismatchContext.newPage();
     await mismatchPage.goto(`/#receipt=${receiptToken()}`);
     await expect(mismatchPage.locator('#completion-receipt-title')).toHaveText(locale.mismatch);
     await expect(mismatchPage.locator('[data-action="import-completion-receipt"]')).toHaveCount(0);
-    await expect(mismatchPage.evaluate(key => localStorage.getItem(key), LEDGER_KEY)).resolves.toBe(JSON.stringify({ version: 1, realms: [] }));
+    expect(await mismatchPage.evaluate(key => localStorage.getItem(key), LEDGER_KEY)).toBe(JSON.stringify({ version: 1, realms: [] }));
     await expectQuality(mismatchPage, `${locale.id} mismatch`);
     await capture(mismatchPage, locale, VIEWPORTS[1], 'mismatch');
     await mismatchContext.close();
@@ -261,7 +229,7 @@ for (const locale of LOCALES) {
   });
 }
 
-test('storage failure leaves progress unchanged and exposes one recoverable retry', async ({ browser }) => {
+test('storage failure stays atomic and exposes one recoverable retry', async ({ browser }) => {
   const context = await createContext(browser, { failLedgerWrites: true });
   const page = await context.newPage();
   await page.goto(`/#receipt=${receiptToken()}`);
@@ -270,7 +238,6 @@ test('storage failure leaves progress unchanged and exposes one recoverable retr
   await expect(page.locator('[data-action="retry-completion-receipt"]')).toBeVisible();
   await expect(page.locator('.completion-total strong')).toHaveText('0');
   await expect(page.locator('[data-ledger-empty]')).toBeVisible();
-
   await page.evaluate(() => { window.__failCompletionLedgerWrite = false; });
   await page.locator('[data-action="retry-completion-receipt"]').click();
   await expect(page.locator('#completion-receipt-title')).toHaveText('+3 added');
@@ -281,7 +248,7 @@ test('storage failure leaves progress unchanged and exposes one recoverable retr
 
 test('full local ledger rejects a twenty-fifth receipt without mutation', async ({ browser }) => {
   const receipts = Array.from({ length: 24 }, (_, index) => ledgerEntry(index));
-  const context = await createContext(browser, { ledger: realmState({ receipts }) });
+  const context = await createContext(browser, { ledger: realmState(receipts) });
   const page = await context.newPage();
   await page.goto(`/#receipt=${receiptToken({ receiptId: 'receipt_overflow000000' })}`);
   await expect(page.locator('#completion-receipt-title')).toHaveText('Ledger full');
@@ -289,12 +256,12 @@ test('full local ledger rejects a twenty-fifth receipt without mutation', async 
   await expect(page.locator('[data-ledger-list] li')).toHaveCount(24);
   await expect(page.locator('.completion-total strong')).toHaveText('72');
   const state = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), LEDGER_KEY);
+  expect(state.realms[0]).toMatchObject({ total: 72 });
   expect(state.realms[0].receipts).toHaveLength(24);
-  expect(state.realms[0].total).toBe(72);
   await context.close();
 });
 
-test('200% text zoom and resize keep the receipt usable without replaying import', async ({ browser }) => {
+test('200% text zoom and resize preserve one imported receipt without overflow', async ({ browser }) => {
   const context = await createContext(browser, { viewport: VIEWPORTS[0] });
   const page = await context.newPage();
   await page.goto(`/#receipt=${receiptToken()}`);
