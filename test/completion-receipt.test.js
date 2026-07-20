@@ -17,6 +17,7 @@ import {
   saveCreatorRealm,
 } from '../src/creator-ledger.js';
 import { getCompletionReceiptCopy, getCompletionReceiptKeySets } from '../src/completion-receipt-i18n.js';
+import { buildClipboardText } from '../src/mission-result.js';
 
 const realmId = 'realm_abcdefghijklmnop';
 const receiptId = 'receipt_abcdefghijklmn';
@@ -59,6 +60,25 @@ test('creates an opaque bounded receipt with no identity, query data, or arbitra
   const url = buildCompletionReceiptUrl('https://creatorverse.example/play?secret=1#old', token);
   assert.equal(url, `https://creatorverse.example/play#receipt=${token}`);
   assert.doesNotMatch(url, /secret=1/u);
+});
+
+test('clipboard fallback preserves only one validated receipt fragment', () => {
+  const token = createCompletionReceipt(validReceipt());
+  const copied = buildClipboardText({
+    text: 'Mission complete',
+    url: `https://creatorverse.example/play?secret=1#receipt=${token}`,
+  });
+  assert.equal(copied, `Mission complete\nhttps://creatorverse.example/play#receipt=${token}`);
+  assert.doesNotMatch(copied, /secret=1/u);
+
+  assert.equal(
+    buildClipboardText({ text: 'Mission complete', url: `https://creatorverse.example/play#receipt=${token}&extra=hidden` }),
+    'Mission complete\nhttps://creatorverse.example/play',
+  );
+  assert.equal(
+    buildClipboardText({ text: 'Mission complete', url: 'https://creatorverse.example/play#receipt=cr1.invalid' }),
+    'Mission complete\nhttps://creatorverse.example/play',
+  );
 });
 
 test('rejects malformed, duplicate, unknown, oversized, bidi, and non-fixed contribution input', () => {
