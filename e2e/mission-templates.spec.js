@@ -7,12 +7,12 @@ mkdirSync('test-results/mission-templates', { recursive: true });
 test.setTimeout(90_000);
 
 const CASES = [
-  { locale: 'en', dir: 'ltr', templateId: 'route-choice', name: 'Choose a Route', viewport: { width: 390, height: 844 }, input: 'keyboard' },
-  { locale: 'ar', dir: 'rtl', templateId: 'route-choice', name: 'اختر مسارًا', viewport: { width: 320, height: 568 }, input: 'touch' },
-  { locale: 'en', dir: 'ltr', templateId: 'relay-sequence', name: 'Link the Relays', viewport: { width: 768, height: 1024 }, input: 'touch' },
-  { locale: 'ar', dir: 'rtl', templateId: 'relay-sequence', name: 'اربط المرحّلات', viewport: { width: 1024, height: 768 }, input: 'keyboard' },
-  { locale: 'en', dir: 'ltr', templateId: 'signal-match', name: 'Match the Signal', viewport: { width: 1440, height: 900 }, input: 'keyboard' },
-  { locale: 'ar', dir: 'rtl', templateId: 'signal-match', name: 'طابق الإشارة', viewport: { width: 390, height: 844 }, input: 'touch' },
+  { locale: 'en', dir: 'ltr', templateId: 'route-choice', name: 'Choose a Route', district: 'Beacon District', viewport: { width: 390, height: 844 }, input: 'keyboard' },
+  { locale: 'ar', dir: 'rtl', templateId: 'route-choice', name: 'اختر مسارًا', district: 'حيّ المنارة', viewport: { width: 320, height: 568 }, input: 'touch' },
+  { locale: 'en', dir: 'ltr', templateId: 'relay-sequence', name: 'Link the Relays', district: 'Beacon District', viewport: { width: 768, height: 1024 }, input: 'touch' },
+  { locale: 'ar', dir: 'rtl', templateId: 'relay-sequence', name: 'اربط المرحّلات', district: 'حيّ المنارة', viewport: { width: 1024, height: 768 }, input: 'keyboard' },
+  { locale: 'en', dir: 'ltr', templateId: 'signal-match', name: 'Match the Signal', district: 'Beacon District', viewport: { width: 1440, height: 900 }, input: 'keyboard' },
+  { locale: 'ar', dir: 'rtl', templateId: 'signal-match', name: 'طابق الإشارة', district: 'حيّ المنارة', viewport: { width: 390, height: 844 }, input: 'touch' },
 ];
 
 async function createContext(browser, testCase) {
@@ -105,6 +105,10 @@ async function completeTemplate(page, testCase) {
   await activate(page, '[data-role="builder"]', testCase.input);
   await expect(page.locator('.mission')).toHaveAttribute('data-mission-template', testCase.templateId);
   await expect(page.locator('#mission-title')).toContainText(testCase.name);
+  const locked = page.locator('[data-district-progress]');
+  await expect(locked).toHaveAttribute('data-district-state', 'locked');
+  await expect(locked).toHaveAttribute('aria-valuenow', '0');
+  await expect(locked).toContainText(testCase.district);
   await expectQuality(page, testCase, `${testCase.locale} ${testCase.templateId} ready`);
   await captureState(page, testCase, 'follower-ready');
 
@@ -130,7 +134,9 @@ async function completeTemplate(page, testCase) {
   await expect(result).toBeVisible();
   await expect(result).toHaveAttribute('data-mission-template', testCase.templateId);
   await expect(result.locator('.signal-result-facts')).toContainText(testCase.name);
-  await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '75');
+  await expect(result.locator('[data-district-progress]')).toHaveAttribute('data-district-state', 'unlocked');
+  await expect(result.locator('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '3');
+  await expect(result.locator('[data-district-progress]')).toContainText(testCase.district);
   await expect(result.locator('.signal-contribution')).toContainText('+3');
   await expectQuality(page, testCase, `${testCase.locale} ${testCase.templateId} result`);
   await captureState(page, testCase, 'completed-result');
@@ -138,10 +144,11 @@ async function completeTemplate(page, testCase) {
   await page.locator('[data-action="mission-result-action"]').click();
   const shared = await page.evaluate(() => window.__missionTemplateClipboard);
   expect(shared).toContain(testCase.name);
+  expect(shared).toContain(testCase.district);
 }
 
 for (const testCase of CASES) {
-  test(`${testCase.locale} ${testCase.templateId} stays bounded from selector to +3 result`, async ({ browser }) => {
+  test(`${testCase.locale} ${testCase.templateId} stays bounded from selector to one district unlock`, async ({ browser }) => {
     const creatorContext = await createContext(browser, testCase);
     const creator = await creatorContext.newPage();
     const invite = await buildInvite(creator, testCase);
