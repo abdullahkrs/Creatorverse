@@ -21,8 +21,6 @@ test('creates a minimal versioned invite without creator identity', () => {
     theme: 'cosmic',
     promise: 'A community built around bold ideas.',
     missionId: 'relay-sequence',
-    creator: '@creator',
-    secret: 'ignored',
   });
   const parsed = parsePrototypeInviteToken(token);
 
@@ -50,6 +48,10 @@ test('accepts only allowlisted bounded fictional fields', () => {
   assert.throws(() => createPrototypeInvite({ name: 'USA Guild', theme: 'cosmic', promise: 'Safe' }), /INVITE_REAL_WORLD_TARGET/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'Mass report them' }), /INVITE_HOSTILITY/);
   assert.throws(() => createPrototypeInvite({ name: 'Nova\u202E', theme: 'cosmic', promise: 'Safe' }), /INVITE_UNSAFE_CONTROL/);
+  assert.throws(
+    () => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: 'Safe', creator: '@private' }),
+    /INVITE_FIELDS_INVALID/,
+  );
 });
 
 test('rejects bare domains and external URL schemes during creation and parsing', () => {
@@ -72,7 +74,7 @@ test('rejects bare domains and external URL schemes during creation and parsing'
   assert.deepEqual(parsePrototypeInviteToken(crafted), { status: 'invalid' });
 });
 
-test('parses one invite fragment, ignores unrelated data, and rejects malformed input', () => {
+test('parses one invite fragment, ignores unrelated fragment data, and rejects malformed input', () => {
   const token = createPrototypeInvite({ name: 'Harbor Lab', theme: 'future', promise: 'Build a calm fictional signal.', missionId: 'signal-match' });
   assert.equal(parsePrototypeInviteFragment('').status, 'none');
   assert.equal(parsePrototypeInviteFragment('#section=join').status, 'none');
@@ -83,15 +85,18 @@ test('parses one invite fragment, ignores unrelated data, and rejects malformed 
   assert.equal(parsePrototypeInviteToken(encodePayload({ v: 1, n: 'Nova', t: 'cosmic', m: 'unsafe' })).status, 'invalid');
 });
 
-test('ignores unknown payload keys and safely defaults legacy invites to route choice', () => {
-  const token = encodePayload({
+test('rejects unknown payload fields and safely defaults clean legacy invites to route choice', () => {
+  const hiddenFields = encodePayload({
     v: 1,
     n: 'Canopy Works',
     t: 'wild',
     extra: '<script>alert(1)</script>',
     creator: '@private',
   });
-  assert.deepEqual(parsePrototypeInviteToken(token), {
+  assert.deepEqual(parsePrototypeInviteToken(hiddenFields), { status: 'invalid' });
+
+  const legacy = encodePayload({ v: 1, n: 'Canopy Works', t: 'wild' });
+  assert.deepEqual(parsePrototypeInviteToken(legacy), {
     status: 'valid',
     invite: { name: 'Canopy Works', theme: 'wild', promise: null, missionId: 'route-choice' },
   });
