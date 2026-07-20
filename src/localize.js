@@ -3,6 +3,7 @@ import './multilingual.css';
 
 const RESTORE_KEY = 'creatorverse-locale-restore';
 const LAST_ROUTE_KEY = 'creatorverse-last-route';
+const RESTORING_FLAG = '__creatorverseRestoringLocaleState';
 
 function rememberRouteSelection(event) {
   const route = event.target.closest?.('[data-route]');
@@ -40,9 +41,12 @@ function restoreInteractionState() {
     const route = typeof state.route === 'string' ? state.route : '';
     const roleButton = role ? document.querySelector(`[data-role="${CSS.escape(role)}"]`) : null;
 
+    globalThis[RESTORING_FLAG] = true;
     roleButton?.click();
     if (state.completed && route) restoreCompletedRoute(route);
+    requestAnimationFrame(() => { delete globalThis[RESTORING_FLAG]; });
   } catch {
+    delete globalThis[RESTORING_FLAG];
     sessionStorage.removeItem(LAST_ROUTE_KEY);
   }
 }
