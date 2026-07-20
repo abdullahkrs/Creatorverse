@@ -31,7 +31,10 @@ const COPY = Object.freeze({
       'relay-sequence': 'Link the Relays',
       'signal-match': 'Match the Signal',
     }),
-    districts: Object.freeze({ 'Signal Harbor': 'Signal Harbor' }),
+    districts: Object.freeze({
+      'Signal Harbor': 'Signal Harbor',
+      'Beacon District': 'Beacon District',
+    }),
   }),
   ar: Object.freeze({
     title: 'تم تعزيز الإشارة',
@@ -65,7 +68,10 @@ const COPY = Object.freeze({
       'relay-sequence': 'اربط المرحّلات',
       'signal-match': 'طابق الإشارة',
     }),
-    districts: Object.freeze({ 'Signal Harbor': 'ميناء الإشارة' }),
+    districts: Object.freeze({
+      'Signal Harbor': 'ميناء الإشارة',
+      'Beacon District': 'حيّ المنارة',
+    }),
   }),
 });
 
