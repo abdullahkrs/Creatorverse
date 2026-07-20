@@ -166,7 +166,7 @@ test('creator → follower → creator imports one anonymous +3 exactly once acr
   await creator.locator('[data-action="import-completion-receipt"]').focus();
   await creator.keyboard.press('Enter');
   await expect(creator.locator('#completion-receipt-title')).toHaveText('+3 added');
-  await expect(creator.locator('#completion-receipt-title')).toBeFocused();
+  await expect(creator.locator('#creator-realm-update-title')).toBeFocused();
   await expect(creator.locator('[data-ledger-list] li')).toHaveCount(1);
   await expect(creator.locator('.completion-total strong')).toHaveText('3');
 
@@ -221,7 +221,7 @@ for (const locale of LOCALES) {
       await page.locator('[data-action="import-completion-receipt"]').focus();
       await page.keyboard.press('Enter');
       await expect(page.locator('#completion-receipt-title')).toHaveText(locale.success);
-      await expect(page.locator('#completion-receipt-title')).toBeFocused();
+      await expect(page.locator('#creator-realm-update-title')).toBeFocused();
       await expect(page.locator('[data-ledger-list] li')).toHaveCount(1);
       await expectQuality(page, `${locale.id} ${viewport.width} success`);
       await capture(page, locale, viewport, 'success-ledger');

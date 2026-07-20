@@ -2,6 +2,31 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-21 — CV-MVP-009 creator realm update
+
+**Outcome:** Give the creator one compact, safe, bilingual fictional-realm update after a valid local contribution, with one recoverable Share or Copy action and no identity, raw receipt data, or external account dependency.
+
+### Completed
+
+- Added strict fail-closed derivation from the existing validated local realm ledger: exactly `1–24` unique allowlisted entries, each worth exactly `+3`, with no clamping of malformed totals.
+- Built visible and outgoing content only from localized allowlisted realm archetypes, Beacon District, contribution count, and bounded energy total; raw realm or receipt IDs, creator free text, storage keys, route history, timestamps, identities, contacts, credentials, query data, and fragments are excluded.
+- Added one integrated Creatorverse signal seal, bounded energy rail, contribution facts, and one dominant Web Share or clipboard action inside the existing ledger/world region without a dashboard, repeated cards, gradients, glows, placeholder icons, or oversized copy.
+- Added synchronized Arabic and English copy, bidi-isolated numeric facts, intentional RTL/LTR composition, logical CSS properties, token-based spacing and typography, a 44 px action, visible focus, reduced-motion equivalence, and empty, ready, pending, success, cancelled, denied, failed, unsupported, invalid, and manual-copy states.
+- Preserved the derived update through refresh, locale change, resize, and text zoom without replaying the contribution or live announcement; sharing, cancellation, denial, and retry never mutate the ledger.
+- Added focused unit tests and deterministic Playwright/axe coverage for privacy, strict ledger validation, canonical public URLs, pending-action deduplication, bilingual key parity, keyboard focus, 200% zoom, reduced motion, overflow, and real ready/recovery screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900` in both languages.
+- Added no dependency, database, account, secret, private credential, paid service, social SDK, analytics, React migration, Tailwind migration, human-only gate, automatic posting, contact picker, or Production mutation.
+
+### Validation
+
+- Pull Request #30 links Issue #29 and contains one branch and one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, keyboard, RTL/LTR, responsive screenshots, and artifact integrity remain authoritative on the final unchanged head.
+- Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, trust, authenticity, ownership, fairness perception, or market validation.
+- Rollback is limited to reverting Pull Request #30; no data, schema, dependency, credential, environment, or external-service rollback is required.
+
+### Next best task
+
+Use exact-head GitHub CI, the isolated Railway Preview, and uploaded bilingual browser evidence for independent QA; move Issue #29 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-20 — CV-MVP-008 anonymous completion receipt ledger
 
 **Outcome:** Return one completed follower mission to the matching locally stored creator realm as an explicit, bounded, anonymous `+3` contribution without accounts, identity, backend storage, or external services.
@@ -234,7 +259,6 @@ Preserve PR #10 and split or explicitly authorize one narrow cascade-order repai
 - Added Playwright Chromium checks at 320×568, 390×844, 768×1024, 1024×768, and 1440×900 in English LTR and Arabic RTL.
 - Added exactly 20 baseline viewport screenshots: role-ready and result-ready for both locales at all five required sizes.
 - Added width-and-height 44 px target checks, keyboard focus-visible checks, horizontal-overflow checks, 200% root-text-zoom checks, reduced-motion validation, result fact/live-region checks, controlled Web Share loading/failure/retry/success checks, and clipboard fallback checks using synthetic browser fixtures only.
-- Added axe checks for role-ready, completed-result, language-switch, controlled action error/success, and creator safety-error states in both locales.
 - Preserved the selected role and completed result through an intentional language reload by restoring bounded session-only interaction state; no account, external post, or durable product data was added.
 - Added mission-result Arabic/English key parity and visible-copy bypass checks.
 - Moved Railway Preview selection into a tested Node verifier that accepts only HTTPS isolated PR-environment domains for the current PR and rejects shared Staging, Production, wrong branches, empty or wrong SHAs, and arbitrary Railway hosts.

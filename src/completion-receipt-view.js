@@ -10,9 +10,17 @@ import {
   importCompletionReceipt,
 } from './creator-ledger.js';
 import { getCompletionReceiptCopy } from './completion-receipt-i18n.js';
+import {
+  buildCreatorRealmUpdateManualText,
+  buildCreatorRealmUpdatePayload,
+  createCreatorRealmUpdateActionController,
+  deriveCreatorRealmUpdate,
+} from './creator-realm-update.js';
+import { getCreatorRealmUpdateCopy } from './creator-realm-update-i18n.js';
 
 const PENDING_KEY = 'creatorverse-pending-completion-receipt';
 const ACTIVE_SELECTOR = '[data-completion-receipt-view]';
+const REALM_UPDATE_ACTION = 'creator-realm-update-action';
 let activeToken = '';
 let activeReceipt = null;
 let status = 'none';
@@ -20,6 +28,13 @@ let realmSnapshot = null;
 let focusKey = '';
 let successAnnounced = false;
 let renderScheduled = false;
+let realmUpdate = null;
+let realmUpdateController = null;
+let realmUpdatePayload = null;
+let realmUpdateActionState = 'idle';
+let realmUpdateKey = '';
+let focusRealmUpdate = false;
+let focusRealmUpdateAction = false;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -177,13 +192,172 @@ function artworkMarkup() {
   `;
 }
 
+async function copyText(text) {
+  if (typeof navigator.clipboard?.writeText === 'function') {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const field = document.createElement('textarea');
+  field.value = text;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.insetInlineStart = '-9999px';
+  document.body.append(field);
+  field.select();
+  const copied = typeof document.execCommand === 'function' && document.execCommand('copy');
+  field.remove();
+  if (!copied) throw new Error('COPY_UNAVAILABLE');
+}
+
+function hasCopyCapability() {
+  return typeof navigator.clipboard?.writeText === 'function'
+    || typeof document.execCommand === 'function';
+}
+
+function currentPublicUrl() {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function resetRealmUpdate() {
+  realmUpdate = null;
+  realmUpdateController = null;
+  realmUpdatePayload = null;
+  realmUpdateActionState = 'idle';
+  realmUpdateKey = '';
+  focusRealmUpdateAction = false;
+}
+
+function syncRealmUpdate() {
+  const next = deriveCreatorRealmUpdate(realmSnapshot);
+  if (next.status !== 'ready') {
+    resetRealmUpdate();
+    return;
+  }
+  const nextKey = `${getLocale()}:${next.archetypeId}:${next.districtId}:${next.contributionCount}:${next.totalEnergy}`;
+  if (realmUpdateKey === nextKey && realmUpdateController) return;
+
+  realmUpdate = next;
+  realmUpdateKey = nextKey;
+  realmUpdateActionState = 'idle';
+  try {
+    realmUpdatePayload = buildCreatorRealmUpdatePayload(next, {
+      locale: getLocale(),
+      publicUrl: currentPublicUrl(),
+    });
+    realmUpdateController = createCreatorRealmUpdateActionController({
+      navigatorLike: navigator,
+      payload: realmUpdatePayload,
+      copyText: hasCopyCapability() ? copyText : null,
+    });
+  } catch {
+    realmUpdatePayload = null;
+    realmUpdateController = null;
+    realmUpdateActionState = 'invalid';
+  }
+}
+
+function realmUpdateActionPresentation(localeCopy) {
+  const mode = realmUpdateController?.mode || 'copy';
+  if (!realmUpdateController) {
+    return { label: localeCopy.copyAction, message: localeCopy.invalid, disabled: true, manual: false };
+  }
+  if (realmUpdateActionState === 'pending') {
+    return {
+      label: mode === 'share' ? localeCopy.sharing : localeCopy.copying,
+      message: '',
+      disabled: true,
+      manual: false,
+    };
+  }
+  if (realmUpdateActionState === 'shared') return { label: localeCopy.shareAction, message: localeCopy.shared, disabled: false, manual: false };
+  if (realmUpdateActionState === 'copied') return { label: localeCopy.copyAction, message: localeCopy.copied, disabled: false, manual: false };
+  if (realmUpdateActionState === 'cancelled') return { label: localeCopy.shareAction, message: localeCopy.cancelled, disabled: false, manual: false };
+  if (realmUpdateActionState === 'denied') return { label: localeCopy.shareAction, message: localeCopy.denied, disabled: false, manual: true };
+  if (realmUpdateActionState === 'failed') return { label: mode === 'share' ? localeCopy.shareAction : localeCopy.copyAction, message: localeCopy.failed, disabled: false, manual: true };
+  if (realmUpdateActionState === 'unsupported') return { label: localeCopy.copyAction, message: localeCopy.unsupported, disabled: false, manual: true };
+  if (realmUpdateActionState === 'invalid') return { label: localeCopy.copyAction, message: localeCopy.invalid, disabled: true, manual: false };
+  return { label: mode === 'share' ? localeCopy.shareAction : localeCopy.copyAction, message: '', disabled: false, manual: false };
+}
+
+function signalSealMarkup(update) {
+  return `
+    <div class="creator-realm-update-seal" aria-hidden="true">
+      <svg viewBox="0 0 88 88" focusable="false">
+        <path class="realm-seal-boundary" d="M44 6 72 16l10 28-10 28-28 10-28-10L6 44l10-28Z"/>
+        <path class="realm-seal-district" d="m24 49 11-18 16 5 13-9 2 27-16 11-18-5Z"/>
+        <path class="realm-seal-signal" d="M44 52V34m-8 7h16m-12-11 4-6 4 6"/>
+      </svg>
+      <strong><bdi dir="ltr">+${update.latestContribution}</bdi></strong>
+    </div>
+  `;
+}
+
+function formatUpdateText(template, district, total) {
+  return template
+    .replace('{district}', district)
+    .replace('{total}', String(total));
+}
+
+function realmUpdateMarkup() {
+  const localeCopy = getCreatorRealmUpdateCopy(getLocale());
+  if (!realmSnapshot) return '';
+  if (!realmUpdate || realmUpdate.status !== 'ready') {
+    return `
+      <section class="creator-realm-update is-waiting" data-creator-realm-update data-update-state="empty" aria-labelledby="creator-realm-update-title">
+        <div class="creator-realm-update-copy">
+          <p class="section-kicker">${escapeHtml(localeCopy.kicker)}</p>
+          <h2 id="creator-realm-update-title">${escapeHtml(localeCopy.waitingTitle)}</h2>
+          <p>${escapeHtml(localeCopy.waitingBody)}</p>
+        </div>
+      </section>
+    `;
+  }
+
+  const archetype = localeCopy.archetypes[realmUpdate.archetypeId];
+  const district = localeCopy.districts[realmUpdate.districtId];
+  const change = formatUpdateText(localeCopy.changeTemplate, district, realmUpdate.totalEnergy);
+  const action = realmUpdateActionPresentation(localeCopy);
+  const manualText = action.manual && realmUpdatePayload
+    ? buildCreatorRealmUpdateManualText(realmUpdatePayload)
+    : '';
+
+  return `
+    <section class="creator-realm-update is-ready" data-creator-realm-update data-update-state="${escapeHtml(realmUpdateActionState)}" aria-labelledby="creator-realm-update-title">
+      ${signalSealMarkup(realmUpdate)}
+      <div class="creator-realm-update-copy">
+        <p class="creator-realm-location">${escapeHtml(archetype)} <span aria-hidden="true">·</span> ${escapeHtml(district)}</p>
+        <h2 id="creator-realm-update-title" tabindex="-1">${escapeHtml(localeCopy.title)}</h2>
+        <p class="creator-realm-change">${escapeHtml(change)}</p>
+        <dl class="creator-realm-update-facts">
+          <div><dt>${escapeHtml(localeCopy.contributions)}</dt><dd><bdi dir="ltr">${realmUpdate.contributionCount}</bdi></dd></div>
+          <div><dt>${escapeHtml(localeCopy.energy)}</dt><dd><bdi dir="ltr">${realmUpdate.totalEnergy}</bdi></dd></div>
+        </dl>
+        <progress class="creator-realm-energy" max="72" value="${realmUpdate.totalEnergy}" aria-label="${escapeHtml(localeCopy.energy)}"></progress>
+      </div>
+      <div class="creator-realm-update-action-area">
+        <button class="primary creator-realm-update-action" type="button" data-action="${REALM_UPDATE_ACTION}" ${action.disabled ? 'disabled' : ''} aria-describedby="creator-realm-update-status">
+          <span>${escapeHtml(action.label)}</span>
+        </button>
+        <p id="creator-realm-update-status" class="creator-realm-update-status ${action.message ? '' : 'cv-visually-hidden'}" aria-live="polite" aria-atomic="true">${escapeHtml(action.message)}</p>
+        ${manualText ? `
+          <label class="creator-realm-manual-copy">
+            <span>${escapeHtml(localeCopy.manualLabel)}</span>
+            <textarea readonly rows="3" dir="auto">${escapeHtml(manualText)}</textarea>
+          </label>
+        ` : ''}
+      </div>
+    </section>
+  `;
+}
+
 function renderView() {
   const experience = document.querySelector('.experience');
   if (!experience || status === 'none') return;
   const localeCopy = copy();
   const [title, body] = statePresentation(localeCopy);
   const realm = realmSnapshot;
-  const renderKey = `${getLocale()}:${status}:${activeReceipt?.receiptId || 'invalid'}:${realm?.receipts.length || 0}`;
+  syncRealmUpdate();
+  const renderKey = `${getLocale()}:${status}:${activeReceipt?.receiptId || 'invalid'}:${realm?.receipts.length || 0}:${realmUpdateKey}:${realmUpdateActionState}`;
   if (experience.querySelector(ACTIVE_SELECTOR)?.dataset.renderKey === renderKey) return;
 
   experience.innerHTML = `
@@ -214,6 +388,7 @@ function renderView() {
             <p>${escapeHtml(localeCopy.ledgerLimit)}</p>
             ${ledgerMarkup(realm, localeCopy)}
           </section>
+          ${realmUpdateMarkup()}
         ` : ''}
         <button class="secondary completion-back-action" type="button" data-action="leave-completion-receipt">${escapeHtml(localeCopy.backAction)}</button>
         <p class="cv-visually-hidden" data-completion-announcement aria-live="polite" aria-atomic="true"></p>
@@ -228,14 +403,22 @@ function renderView() {
   const nextFocusKey = `${status}:${activeReceipt?.receiptId || 'invalid'}`;
   const shouldAnnounceSuccess = status === 'success';
   queueMicrotask(() => {
-    if (focusKey !== nextFocusKey) {
+    if (focusRealmUpdate && realmUpdate?.status === 'ready') {
+      focusRealmUpdate = false;
+      focusKey = nextFocusKey;
+      experience.querySelector('#creator-realm-update-title')?.focus({ preventScroll: true });
+    } else if (focusKey !== nextFocusKey) {
       focusKey = nextFocusKey;
       experience.querySelector('#completion-receipt-title')?.focus({ preventScroll: true });
+    }
+    if (focusRealmUpdateAction) {
+      focusRealmUpdateAction = false;
+      experience.querySelector(`[data-action="${REALM_UPDATE_ACTION}"]`)?.focus({ preventScroll: true });
     }
     if (shouldAnnounceSuccess && !successAnnounced) {
       successAnnounced = true;
       const live = experience.querySelector('[data-completion-announcement]');
-      if (live) live.textContent = localeCopy.successTitle;
+      if (live) live.textContent = getCreatorRealmUpdateCopy(getLocale()).title;
     }
   });
 }
@@ -260,8 +443,34 @@ function runImport() {
   const outcome = importCompletionReceipt(localStorage, activeReceipt);
   status = outcome.status;
   realmSnapshot = outcome.realm || getCreatorRealm(localStorage, activeReceipt.realmId);
-  if (status === 'success') successAnnounced = false;
+  resetRealmUpdate();
+  if (status === 'success') {
+    successAnnounced = false;
+    focusRealmUpdate = realmSnapshot?.receipts.length === 1;
+  }
   scheduleRender();
+}
+
+async function runRealmUpdateAction(event) {
+  const button = event.target.closest?.(`[data-action="${REALM_UPDATE_ACTION}"]`);
+  if (!button || button.disabled) return false;
+  if (!realmUpdateController) {
+    realmUpdateActionState = 'invalid';
+    focusRealmUpdateAction = true;
+    scheduleRender();
+    return true;
+  }
+
+  const activation = realmUpdateController.activate();
+  realmUpdateActionState = 'pending';
+  focusRealmUpdateAction = true;
+  scheduleRender();
+  const outcome = await activation;
+  if (outcome.status === 'ignored') return true;
+  realmUpdateActionState = outcome.status;
+  focusRealmUpdateAction = true;
+  scheduleRender();
+  return true;
 }
 
 function leaveReceipt() {
@@ -269,10 +478,15 @@ function leaveReceipt() {
   activeToken = '';
   activeReceipt = null;
   status = 'none';
+  resetRealmUpdate();
   window.location.assign(`${window.location.pathname}${window.location.search}`);
 }
 
 function handleClick(event) {
+  if (event.target.closest?.(`[data-action="${REALM_UPDATE_ACTION}"]`)) {
+    runRealmUpdateAction(event);
+    return;
+  }
   if (event.target.closest?.('[data-action="import-completion-receipt"], [data-action="retry-completion-receipt"]')) {
     runImport();
     return;
@@ -286,6 +500,8 @@ function activateFromLocation({ fromHashChange = false } = {}) {
   realmSnapshot = null;
   focusKey = '';
   successAnnounced = false;
+  focusRealmUpdate = false;
+  resetRealmUpdate();
   globalThis.__creatorverseCompletionReceiptActive = true;
   scheduleRender();
   queueMicrotask(runValidation);
