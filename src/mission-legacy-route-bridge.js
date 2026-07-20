@@ -7,26 +7,40 @@ function detachLegacyRoutes(root = document) {
   });
 }
 
-function legacyRouteFor(action) {
+function missionContext(action) {
   const templateId = document.querySelector('.mission')?.dataset.missionTemplate;
-  if (templateId === 'route-choice') return action.dataset.missionCommand;
-  if (templateId === 'signal-match') return 'ocean';
-  return 'sky';
+  const command = action.dataset.missionCommand;
+
+  if (templateId === 'route-choice') {
+    return { complete: ['sky', 'ocean'].includes(command), routeId: command };
+  }
+  if (templateId === 'signal-match') {
+    return { complete: command === 'wave', routeId: 'ocean' };
+  }
+  return { complete: command === '3', routeId: 'sky' };
 }
 
-function exposeLegacyRouteForCurrentActivation(event) {
+function completeThroughDetachedLegacyTrigger(event) {
   const action = event.target.closest?.('[data-mission-command]');
-  if (!action || action.disabled) return;
+  if (!action || action.disabled || document.querySelector('[data-mission-result]')) return;
 
-  const routeId = legacyRouteFor(action);
-  const trigger = document.querySelector(`${LEGACY_HOST} [data-legacy-route="${CSS.escape(routeId)}"]`);
-  if (!trigger) return;
+  const context = missionContext(action);
+  if (!context.complete) return;
 
-  trigger.dataset.route = routeId;
-  queueMicrotask(() => trigger.removeAttribute('data-route'));
+  const trigger = document.querySelector(
+    `${LEGACY_HOST} [data-legacy-route="${CSS.escape(context.routeId)}"]`,
+  );
+  if (!trigger || trigger.disabled) return;
+
+  trigger.dataset.route = context.routeId;
+  try {
+    trigger.click();
+  } finally {
+    trigger.removeAttribute('data-route');
+  }
 }
 
-document.addEventListener('click', exposeLegacyRouteForCurrentActivation, true);
+document.addEventListener('click', completeThroughDetachedLegacyTrigger);
 
 const app = document.querySelector('#app');
 if (app) {
