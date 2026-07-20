@@ -1,10 +1,33 @@
 const LEGACY_HOST = '[data-mission-legacy-triggers]';
+const legacyTriggers = new Map();
 
-function detachLegacyRoutes(root = document) {
+function rememberAndDetachLegacyRoutes(root = document) {
   root.querySelectorAll(`${LEGACY_HOST} [data-route]`).forEach(button => {
-    button.dataset.legacyRoute = button.dataset.route;
+    const routeId = button.dataset.route;
+    if (!routeId) return;
+    button.dataset.legacyRoute = routeId;
     button.removeAttribute('data-route');
+    legacyTriggers.set(routeId, button);
   });
+
+  root.querySelectorAll(`${LEGACY_HOST} [data-legacy-route]`).forEach(button => {
+    const routeId = button.dataset.legacyRoute;
+    if (routeId) legacyTriggers.set(routeId, button);
+  });
+}
+
+function restoreDetachedLegacyRoutes(root = document) {
+  const host = root.querySelector(LEGACY_HOST);
+  if (!host) return;
+
+  legacyTriggers.forEach(trigger => {
+    if (!host.contains(trigger)) host.append(trigger);
+  });
+}
+
+function synchronizeLegacyRoutes(root = document) {
+  rememberAndDetachLegacyRoutes(root);
+  restoreDetachedLegacyRoutes(root);
 }
 
 function missionContext(action) {
@@ -27,9 +50,8 @@ function completeThroughDetachedLegacyTrigger(event) {
   const context = missionContext(action);
   if (!context.complete) return;
 
-  const trigger = document.querySelector(
-    `${LEGACY_HOST} [data-legacy-route="${CSS.escape(context.routeId)}"]`,
-  );
+  const trigger = legacyTriggers.get(context.routeId)
+    || document.querySelector(`${LEGACY_HOST} [data-legacy-route="${CSS.escape(context.routeId)}"]`);
   if (!trigger || trigger.disabled) return;
 
   trigger.dataset.route = context.routeId;
@@ -44,10 +66,10 @@ document.addEventListener('click', completeThroughDetachedLegacyTrigger);
 
 const app = document.querySelector('#app');
 if (app) {
-  new MutationObserver(() => detachLegacyRoutes(app)).observe(app, {
+  new MutationObserver(() => synchronizeLegacyRoutes(app)).observe(app, {
     childList: true,
     subtree: true,
   });
 }
 
-detachLegacyRoutes();
+synchronizeLegacyRoutes();
