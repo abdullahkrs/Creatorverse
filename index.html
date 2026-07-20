@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Creatorverse turns creator communities into living digital realms." />
+    <script>
+      try {
+        const locale = localStorage.getItem('creatorverse-locale') === 'ar' ? 'ar' : 'en';
+        document.documentElement.lang = locale;
+        document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+      } catch {
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+      }
+    </script>
     <link rel="stylesheet" href="/src/design-system/tokens.css" />
     <link rel="stylesheet" href="/src/mission-result.css" />
     <link rel="stylesheet" href="/src/district-progress.css" />
