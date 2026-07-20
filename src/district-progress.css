@@ -27,9 +27,9 @@
   font-size: var(--cv-text-sm);
 }
 
-.district-progress-status bdi,
-.district-unlock-support bdi {
-  direction: ltr;
+.district-progress-status bdi[dir='ltr'],
+.district-unlock-support bdi[dir='ltr'],
+.progress-label strong bdi[dir='ltr'] {
   unicode-bidi: isolate;
 }
 
