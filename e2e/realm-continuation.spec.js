@@ -49,9 +49,12 @@ async function createContext(browser, {
 } = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ localeId, serializedLedger }) => {
-    localStorage.setItem('creatorverse-locale', localeId);
-    if (!localStorage.getItem('creatorverse-creator-ledger-v1')) {
-      localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+    if (!sessionStorage.getItem('__creatorverseContinuationSeeded')) {
+      if (!localStorage.getItem('creatorverse-locale')) localStorage.setItem('creatorverse-locale', localeId);
+      if (!localStorage.getItem('creatorverse-creator-ledger-v1')) {
+        localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
+      }
+      sessionStorage.setItem('__creatorverseContinuationSeeded', '1');
     }
     window.__cvClipboard = '';
     Object.defineProperty(navigator, 'clipboard', {
