@@ -182,9 +182,15 @@ for (const locale of LOCALES) {
       await page.locator('[data-action="import-completion-receipt"]').click();
       await expectStage(page, locale, expectedStages[index - 1], index * 3);
       const announcement = page.locator('[data-completion-announcement]');
+      const surface = page.locator('[data-beacon-district-growth]').first();
+      const stageCrossed = [1, 3, 6].includes(index);
       await expect(announcement).not.toBeEmpty();
-      if ([1, 3, 6].includes(index)) {
+      if (stageCrossed) {
+        await expect(surface).toHaveClass(/is-transitioning/u);
         await expect(page.locator('#creator-realm-update-title')).toBeFocused();
+      } else {
+        await expect(surface).not.toHaveClass(/is-transitioning/u);
+        await expect(page.locator('#creator-realm-update-title')).not.toBeFocused();
       }
       const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
       expect(stored.total).toBe(index * 3);
