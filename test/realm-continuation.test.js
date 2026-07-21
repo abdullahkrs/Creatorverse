@@ -66,6 +66,10 @@ function validReceipt(mission, index = 1, overrides = {}) {
   };
 }
 
+function encodedInvite(payload) {
+  return `v1.${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
+}
+
 test('restores only an exact same-realm continuation draft', () => {
   const storage = memoryStorage();
   const fallback = readRealmContinuationDraft(storage, REALM_ID);
@@ -128,6 +132,52 @@ test('creates one fresh mission instance without changing progress and restores 
   assert.equal(retried.reused, true);
   assert.equal(retried.mission.id, created.mission.id);
   assert.equal(getCreatorRealm(storage, REALM_ID).missions.length, 1);
+});
+
+test('expires an unconsumed invite without replay and issues a fresh mission instance', () => {
+  const storage = memoryStorage();
+  seedRealm(storage);
+  const cryptoLike = deterministicCrypto();
+  const firstNow = START_MINUTE * 60_000;
+  const first = createRealmContinuationInvite(storage, {
+    missionId: 'route-choice', scheduleId: 'now-1h',
+  }, { now: firstNow, cryptoLike, baseUrl: 'https://creatorverse.example/play' });
+  assert.equal(first.status, 'ready');
+
+  const afterExpiry = (START_MINUTE + 61) * 60_000;
+  const restored = restorePendingRealmContinuationInvite(storage, {
+    now: afterExpiry,
+    baseUrl: 'https://creatorverse.example/play',
+  });
+  assert.equal(restored.status, 'none');
+
+  const second = createRealmContinuationInvite(storage, {
+    missionId: 'signal-match', scheduleId: 'now-24h',
+  }, { now: afterExpiry, cryptoLike, baseUrl: 'https://creatorverse.example/play' });
+  assert.equal(second.status, 'ready');
+  assert.equal(second.reused, false);
+  assert.notEqual(second.mission.id, first.mission.id);
+
+  const realm = getCreatorRealm(storage, REALM_ID);
+  assert.equal(realm.total, 0);
+  assert.equal(realm.receipts.length, 0);
+  assert.equal(realm.missions.length, 2);
+  assert.equal(realm.missions[0].id, first.mission.id);
+  assert.equal(realm.missions[0].consumed, false);
+  assert.equal(realm.missions[1].id, second.mission.id);
+  assert.equal(realm.missions[1].consumed, false);
+});
+
+test('rejects a mission-instance invite that omits its bounded schedule', () => {
+  const token = encodedInvite({
+    v: 1,
+    n: 'Nova Guild',
+    t: 'cosmic',
+    m: 'route-choice',
+    r: REALM_ID,
+    i: 'mission_abcdefghijklmnop',
+  });
+  assert.equal(parsePrototypeInviteToken(token, { now: START_MINUTE * 60_000 }).status, 'invalid');
 });
 
 test('binds a returned receipt to the issued mission and imports exactly once', () => {
