@@ -119,11 +119,15 @@ async function setLedgerAndReload(page, state) {
 async function expectQuality(page, label) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow, `${label} horizontal overflow`).toBeLessThanOrEqual(1);
-  const primary = page.locator('[data-action="open-realm-continuation"]');
-  if (await primary.count()) {
-    const box = await primary.boundingBox();
-    expect(box?.width || 0, `${label} primary width`).toBeGreaterThanOrEqual(44);
-    expect(box?.height || 0, `${label} primary height`).toBeGreaterThanOrEqual(44);
+  const applicableAction = page.locator([
+    '[data-action="open-realm-continuation"]:visible',
+    '[data-action="retry-completion-receipt"]:visible',
+    '[data-action="recover-realm-continuation"]:visible',
+  ].join(', ')).first();
+  if (await applicableAction.count()) {
+    const box = await applicableAction.boundingBox();
+    expect(box?.width || 0, `${label} applicable action width`).toBeGreaterThanOrEqual(44);
+    expect(box?.height || 0, `${label} applicable action height`).toBeGreaterThanOrEqual(44);
   }
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   expect(axe.violations.filter(item => ['critical', 'serious'].includes(item.impact)), label).toEqual([]);
