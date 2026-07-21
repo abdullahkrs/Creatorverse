@@ -193,10 +193,15 @@ function applyEnhancement() {
 
     if (single.status !== 'ready' || !readySection) {
       document.querySelectorAll('[data-action="open-realm-collaboration"]').forEach(element => element.remove());
-      removePanels();
-      if (!preview && !incomingInvalid) return;
+      if (!preview && !incomingInvalid) {
+        removePanels();
+        return;
+      }
       const host = outsideHost();
       if (!host) return;
+      document.querySelectorAll('[data-realm-collaboration]').forEach(element => {
+        if (element.parentElement !== host) element.remove();
+      });
       const kind = incomingInvalid ? 'invalid' : 'noRealm';
       errorPanel(locale, kind, `${locale}:${kind}`, host, previewFocusPending);
       previewFocusPending = false;
