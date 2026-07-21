@@ -255,14 +255,16 @@ test('seven sequential browser mission instances return exactly seven receipts a
     await page.locator('[data-form="realm-continuation"]').evaluate(form => form.requestSubmit());
     await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'success');
     await page.locator('[data-action="share-realm-continuation"]').click();
-    await expect.poll(() => page.evaluate(() => window.__cvClipboard)).toContain('#invite=');
-    const inviteUrl = await page.evaluate(() => window.__cvClipboard);
+    await expect.poll(() => page.evaluate(() => window.__cvClipboard.includes('#invite='))).toBe(true);
+    const inviteUrl = await page.evaluate(() => window.__cvClipboard.trim().split(/\s+/u).at(-1));
+    expect(inviteUrl).toContain('#invite=');
 
     await page.goto(inviteUrl);
     await completeFollowerMission(page, missionId);
     await page.locator('[data-action="mission-result-action"]').click();
-    await expect.poll(() => page.evaluate(() => window.__cvClipboard)).toContain('#receipt=');
-    const receiptUrl = await page.evaluate(() => window.__cvClipboard);
+    await expect.poll(() => page.evaluate(() => window.__cvClipboard.includes('#receipt='))).toBe(true);
+    const receiptUrl = await page.evaluate(() => window.__cvClipboard.trim().split(/\s+/u).at(-1));
+    expect(receiptUrl).toContain('#receipt=');
 
     await page.goto(receiptUrl);
     await page.locator('[data-action="import-completion-receipt"]').click();
