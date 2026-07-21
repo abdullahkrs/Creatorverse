@@ -252,10 +252,11 @@ function restoreBaseExperience() {
 }
 
 function renderMarkup(host, markup, renderKey) {
+  const sibling = host.element.nextElementSibling;
   const existing = host.type === 'receipt'
-    ? host.element.nextElementSibling?.matches?.(ACTIVE_SELECTOR) && host.element.nextElementSibling
+    ? (sibling?.matches?.(ACTIVE_SELECTOR) ? sibling : null)
     : document.querySelector('main > [data-realm-continuation]');
-  if (existing?.dataset.renderKey === renderKey) return existing;
+  if (existing?.dataset?.renderKey === renderKey) return existing;
   existing?.remove();
   const template = document.createElement('template');
   template.innerHTML = markup.trim();
