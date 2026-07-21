@@ -1,5 +1,5 @@
-import { completionReceiptLimits } from './completion-receipt.js';
-import { DISTRICT_CONTRIBUTION, DISTRICT_ID } from './district-progress.js';
+import { deriveBeaconDistrictGrowth } from './beacon-district-growth.js';
+import { DISTRICT_CONTRIBUTION } from './district-progress.js';
 import {
   buildClipboardText,
   createMissionResultActionController,
@@ -11,78 +11,21 @@ import {
 } from './creator-realm-update-i18n.js';
 
 const THEMES = new Set(['cosmic', 'wild', 'future']);
-const MISSIONS = new Set(['route-choice', 'relay-sequence', 'signal-match']);
-const ROLES = new Set(['builder', 'explorer', 'guardian']);
-const ROUTES = new Set(['sky', 'ocean']);
-const LEGACY_REALM_FIELDS = new Set(['id', 'name', 'theme', 'total', 'districtId', 'unlocked', 'receipts']);
-const EXTENDED_REALM_FIELDS = new Set([...LEGACY_REALM_FIELDS, 'missions']);
-const LEGACY_ENTRY_FIELDS = new Set(['id', 'missionId', 'roleId', 'routeId', 'districtId', 'contribution']);
-const EXTENDED_ENTRY_FIELDS = new Set([...LEGACY_ENTRY_FIELDS, 'missionInstanceId']);
-const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 const LRI = '\u2066';
 const PDI = '\u2069';
 
-function exactObject(value, fields) {
-  return Boolean(value)
-    && typeof value === 'object'
-    && !Array.isArray(value)
-    && Object.keys(value).length === fields.size
-    && Object.keys(value).every(key => fields.has(key));
-}
-
-function validIdentifier(value) {
-  return typeof value === 'string'
-    && !CONTROL_OR_BIDI.test(value)
-    && completionReceiptLimits.identifierPattern.test(value);
-}
-
-function validName(value) {
-  return typeof value === 'string'
-    && value.length >= 1
-    && value.length <= 28
-    && !CONTROL_OR_BIDI.test(value)
-    && !/[<>]/u.test(value);
-}
-
-function validEntry(entry) {
-  const fields = Object.hasOwn(entry || {}, 'missionInstanceId') ? EXTENDED_ENTRY_FIELDS : LEGACY_ENTRY_FIELDS;
-  return exactObject(entry, fields)
-    && validIdentifier(entry.id)
-    && (!Object.hasOwn(entry, 'missionInstanceId') || validIdentifier(entry.missionInstanceId))
-    && MISSIONS.has(entry.missionId)
-    && ROLES.has(entry.roleId)
-    && ROUTES.has(entry.routeId)
-    && entry.districtId === DISTRICT_ID
-    && entry.contribution === DISTRICT_CONTRIBUTION;
-}
-
 export function deriveCreatorRealmUpdate(realm) {
-  const fields = Object.hasOwn(realm || {}, 'missions') ? EXTENDED_REALM_FIELDS : LEGACY_REALM_FIELDS;
-  if (!exactObject(realm, fields)) return Object.freeze({ status: 'unavailable' });
-  if (!validIdentifier(realm.id) || !validName(realm.name) || !THEMES.has(realm.theme)) {
-    return Object.freeze({ status: 'unavailable' });
-  }
-  if (realm.districtId !== DISTRICT_ID || realm.unlocked !== true || !Array.isArray(realm.receipts)) {
-    return Object.freeze({ status: 'unavailable' });
-  }
-  const count = realm.receipts.length;
-  if (count < 1 || count > 24 || !realm.receipts.every(validEntry)) {
-    return Object.freeze({ status: 'unavailable' });
-  }
-  if (new Set(realm.receipts.map(entry => entry.id)).size !== count) {
-    return Object.freeze({ status: 'unavailable' });
-  }
-  const total = count * DISTRICT_CONTRIBUTION;
-  if (!Number.isInteger(realm.total) || realm.total !== total) {
+  const growth = deriveBeaconDistrictGrowth(realm);
+  if (growth.status !== 'ready' || growth.contributionCount < 1 || !THEMES.has(realm?.theme)) {
     return Object.freeze({ status: 'unavailable' });
   }
 
   return Object.freeze({
     status: 'ready',
     archetypeId: realm.theme,
-    districtId: realm.districtId,
-    contributionCount: count,
-    totalEnergy: total,
+    districtId: growth.districtId,
+    contributionCount: growth.contributionCount,
+    totalEnergy: growth.totalEnergy,
     latestContribution: DISTRICT_CONTRIBUTION,
   });
 }
