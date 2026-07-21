@@ -8,9 +8,17 @@ const PROGRESS_KEYS = Object.freeze([
 let ownedInviteRoute = hasInviteRoute();
 let restoring = false;
 
-function hasInviteRoute() {
+function routeHas(parameter) {
   const raw = String(window.location.hash || '').replace(/^#/u, '');
-  return raw ? new URLSearchParams(raw).has('invite') : false;
+  return raw ? new URLSearchParams(raw).has(parameter) : false;
+}
+
+function hasInviteRoute() {
+  return routeHas('invite');
+}
+
+function hasReceiptRoute() {
+  return routeHas('receipt');
 }
 
 function clearMissionSession() {
@@ -38,6 +46,10 @@ function handleRecoveryClick(event) {
 function handleHashChange() {
   const nextInviteRoute = hasInviteRoute();
   if (ownedInviteRoute && !nextInviteRoute) {
+    if (hasReceiptRoute()) {
+      ownedInviteRoute = false;
+      return;
+    }
     restoreFeaturedRealm();
     return;
   }

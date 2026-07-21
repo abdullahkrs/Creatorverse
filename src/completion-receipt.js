@@ -12,13 +12,15 @@ const TEMPLATE_IDS = new Set(MISSION_TEMPLATE_IDS);
 const INPUT_FIELDS = new Set([
   'realmId',
   'receiptId',
+  'missionInstanceId',
   'missionId',
   'roleId',
   'routeId',
   'contribution',
   'districtId',
 ]);
-const PAYLOAD_FIELDS = new Set(['v', 'rid', 'id', 'm', 'ro', 'rt', 'c', 'd']);
+const LEGACY_PAYLOAD_FIELDS = new Set(['v', 'rid', 'id', 'm', 'ro', 'rt', 'c', 'd']);
+const INSTANCE_PAYLOAD_FIELDS = new Set([...LEGACY_PAYLOAD_FIELDS, 'mi']);
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 
 function receiptError(code) {
@@ -33,7 +35,52 @@ function assertPlainObject(value, allowedFields, code) {
   if (keys.some(key => !allowedFields.has(key))) throw receiptError(code);
 }
 
-function validateIdentifier(value, code) {
+function assertNoDuplicateTopLevelKeys(json) {
+  const keys = new Set();
+  let depth = 0;
+  let index = 0;
+  while (index < json.length) {
+    const character = json[index];
+    if (character === '"') {
+      const start = index;
+      index += 1;
+      let escaped = false;
+      while (index < json.length) {
+        const current = json[index];
+        if (escaped) {
+          escaped = false;
+          index += 1;
+          continue;
+        }
+        if (current === '\\') {
+          escaped = true;
+          index += 1;
+          continue;
+        }
+        if (current === '"') {
+          index += 1;
+          break;
+        }
+        index += 1;
+      }
+      if (json[index - 1] !== '"') throw receiptError('RECEIPT_JSON_INVALID');
+      let cursor = index;
+      while (/\s/u.test(json[cursor] || '')) cursor += 1;
+      if (depth === 1 && json[cursor] === ':') {
+        const key = JSON.parse(json.slice(start, index));
+        if (keys.has(key)) throw receiptError('RECEIPT_FIELDS_DUPLICATE');
+        keys.add(key);
+      }
+      continue;
+    }
+    if (character === '{') depth += 1;
+    if (character === '}') depth -= 1;
+    index += 1;
+  }
+}
+
+function validateIdentifier(value, code, { required = true } = {}) {
+  if ((value == null || value === '') && !required) return null;
   if (typeof value !== 'string' || CONTROL_OR_BIDI.test(value) || !IDENTIFIER_PATTERN.test(value)) {
     throw receiptError(code);
   }
@@ -72,6 +119,11 @@ export function createCompletionReceipt(input = {}) {
   assertPlainObject(input, INPUT_FIELDS, 'RECEIPT_FIELDS_INVALID');
   const realmId = validateIdentifier(input.realmId, 'RECEIPT_REALM_INVALID');
   const receiptId = validateIdentifier(input.receiptId ?? createOpaqueIdentifier(), 'RECEIPT_ID_INVALID');
+  const missionInstanceId = validateIdentifier(
+    input.missionInstanceId ?? globalThis.__creatorverseMissionInstanceId,
+    'RECEIPT_INSTANCE_INVALID',
+    { required: false },
+  );
   if (!TEMPLATE_IDS.has(input.missionId)) throw receiptError('RECEIPT_MISSION_INVALID');
   if (!ROLE_IDS.has(input.roleId)) throw receiptError('RECEIPT_ROLE_INVALID');
   if (!ROUTE_IDS.has(input.routeId)) throw receiptError('RECEIPT_ROUTE_INVALID');
@@ -90,6 +142,7 @@ export function createCompletionReceipt(input = {}) {
     c: DISTRICT_CONTRIBUTION,
     d: DISTRICT_ID,
   };
+  if (missionInstanceId) payload.mi = missionInstanceId;
   const encoded = toBase64Url(utf8Bytes(JSON.stringify(payload)));
   const token = `${TOKEN_PREFIX}${encoded}`;
   if (token.length > MAX_TOKEN_LENGTH) throw receiptError('RECEIPT_TOKEN_TOO_LONG');
@@ -104,30 +157,32 @@ export function parseCompletionReceiptToken(token) {
     const bytes = fromBase64Url(token.slice(TOKEN_PREFIX.length));
     if (!bytes.length || bytes.length > MAX_DECODED_BYTES) throw receiptError('RECEIPT_PAYLOAD_SIZE_INVALID');
     const json = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    assertNoDuplicateTopLevelKeys(json);
     const payload = JSON.parse(json);
-    assertPlainObject(payload, PAYLOAD_FIELDS, 'RECEIPT_FIELDS_INVALID');
-    if (Object.keys(payload).length !== PAYLOAD_FIELDS.size) throw receiptError('RECEIPT_FIELDS_INVALID');
+    const expectedFields = Object.hasOwn(payload, 'mi') ? INSTANCE_PAYLOAD_FIELDS : LEGACY_PAYLOAD_FIELDS;
+    assertPlainObject(payload, expectedFields, 'RECEIPT_FIELDS_INVALID');
+    if (Object.keys(payload).length !== expectedFields.size) throw receiptError('RECEIPT_FIELDS_INVALID');
     if (payload.v !== RECEIPT_VERSION) throw receiptError('RECEIPT_VERSION_INVALID');
     const realmId = validateIdentifier(payload.rid, 'RECEIPT_REALM_INVALID');
     const receiptId = validateIdentifier(payload.id, 'RECEIPT_ID_INVALID');
+    const missionInstanceId = validateIdentifier(payload.mi, 'RECEIPT_INSTANCE_INVALID', { required: false });
     if (!TEMPLATE_IDS.has(payload.m)) throw receiptError('RECEIPT_MISSION_INVALID');
     if (!ROLE_IDS.has(payload.ro)) throw receiptError('RECEIPT_ROLE_INVALID');
     if (!ROUTE_IDS.has(payload.rt)) throw receiptError('RECEIPT_ROUTE_INVALID');
     if (payload.c !== DISTRICT_CONTRIBUTION) throw receiptError('RECEIPT_CONTRIBUTION_INVALID');
     if (payload.d !== DISTRICT_ID) throw receiptError('RECEIPT_DISTRICT_INVALID');
 
-    return {
-      status: 'valid',
-      receipt: Object.freeze({
-        realmId,
-        receiptId,
-        missionId: payload.m,
-        roleId: payload.ro,
-        routeId: payload.rt,
-        contribution: payload.c,
-        districtId: payload.d,
-      }),
+    const receipt = {
+      realmId,
+      receiptId,
+      missionId: payload.m,
+      roleId: payload.ro,
+      routeId: payload.rt,
+      contribution: payload.c,
+      districtId: payload.d,
     };
+    if (missionInstanceId) receipt.missionInstanceId = missionInstanceId;
+    return { status: 'valid', receipt: Object.freeze(receipt) };
   } catch {
     return { status: 'invalid' };
   }

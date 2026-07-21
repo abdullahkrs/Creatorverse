@@ -2,6 +2,32 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-21 — CV-MVP-012 saved realm continuation
+
+**Outcome:** Let a creator reopen exactly one strict local fictional realm and launch the next bounded mission without repeating setup, changing existing progress, adding identity, or depending on a human-only gate.
+
+### Completed
+
+- Added one compact saved-realm operation with the dominant **Launch next mission / أطلق المهمة التالية** action, the three existing mission templates, the three existing availability presets, one Create action, and one capability-based Share or Copy action.
+- Reused the exact opaque realm identifier and bounded saved realm fields while issuing a fresh opaque mission-instance identifier for each new mission; legacy invites and receipts remain valid and new instance-bound payloads reject unknown fields, duplicate top-level keys, unsafe identifiers, partial data, and cross-realm or unsupported instances.
+- Extended the strict versioned local ledger with a bounded mission-instance list and atomic exact-once import: creating, copying, cancelling, retrying, resizing, reloading, or changing language does not change contribution total, receipt count, district state, or unlock state; one matching receipt adds exactly `+3` and consumes exactly one issued mission.
+- Added fail-closed invalid, unavailable, pending, ready, selected, creating, success, cancelled, denied, failed, manual-copy, storage-error, and limit states with no raw rejected payload reflection or claim that an invite was sent externally.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, semantic fieldsets and radio groups, logical CSS properties, existing design tokens, custom signal-route SVG artwork, 44 px targets, visible focus, deterministic focus recovery, 200% text-zoom support, and reduced-motion equivalence without gradients, glows, decorative geometry, emoji placeholders, repeated cards, or oversized marketing copy.
+- Added focused unit and localization coverage for strict draft restoration, same-realm identity, fresh and idempotently restored mission instances, atomic storage failure, exact-once receipt binding, cross-realm and unsupported-instance rejection, and a deterministic seven-run sequence ending at exactly `+21`.
+- Added deterministic Playwright and axe coverage for the full creator → invite → follower → receipt → creator loop, keyboard operation, locale reload, resize, text zoom, reduced motion, overflow, recovery, and real ready, selected, success, and error screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900` in both languages.
+- Added no dependency, database, backend, account, credential, private data, paid service, analytics, notification, external participant, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #36 links Issue #35 and contains one dedicated branch and one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, keyboard/focus, RTL/LTR, responsive screenshots, and browser-artifact integrity remain authoritative on the final unchanged head.
+- The seven-run scenario is reproducible engineering regression evidence only; it is not evidence of human comprehension, demand, retention, preference, creator intent, trust, or market validation.
+- Rollback is limited to reverting Pull Request #36 and clearing the bounded continuation draft or mission-instance additions from local prototype storage; no external data, dependency, credential, environment, account, or service rollback is required.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and uploaded bilingual browser evidence for independent QA; move Issue #35 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-21 — CV-MVP-011 local realm quarantine
 
 **Outcome:** Let an invited follower explicitly hide the exact opaque fictional realm on the current device until an explicit local restore, without accounts, identity, backend reporting, external moderation, or any change to the equal `+3` contribution rule.
