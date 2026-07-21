@@ -165,7 +165,7 @@ function ensureAction(section, locale, linked) {
 }
 
 function outsideHost() {
-  return document.querySelector('main') || document.querySelector('#app');
+  return document.body;
 }
 
 function sourceRealmFromRecord(record) {
