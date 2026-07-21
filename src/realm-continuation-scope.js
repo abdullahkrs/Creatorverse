@@ -33,13 +33,15 @@ function reconcileActionHierarchy(panel, suppressed) {
 function reconcileContinuationScope() {
   document.querySelectorAll(PANEL_SELECTOR).forEach(panel => {
     const suppressed = shouldSuppress(panel);
+    if (suppressed && !panel.closest('.completion-record')) {
+      panel.remove();
+      document.querySelector('.experience')?.removeAttribute('hidden');
+      return;
+    }
     panel.toggleAttribute('hidden', suppressed);
     panel.style.display = suppressed ? 'none' : '';
     panel.inert = suppressed;
     reconcileActionHierarchy(panel, suppressed);
-    if (suppressed && !panel.closest('.completion-record')) {
-      document.querySelector('.experience')?.removeAttribute('hidden');
-    }
   });
 }
 
