@@ -1,0 +1,193 @@
+.realm-chronicle {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--cv-space-3);
+  min-inline-size: 0;
+  padding-block-start: var(--cv-space-4);
+  border-block-start: 1px solid var(--cv-color-border);
+  color: var(--cv-color-text);
+  text-align: start;
+}
+
+.realm-chronicle-header {
+  display: grid;
+  gap: var(--cv-space-1);
+}
+
+.realm-chronicle-header h3,
+.realm-chronicle-header p,
+.realm-chronicle-empty,
+.realm-chronicle-live { margin: 0; }
+
+.realm-chronicle-header h3 {
+  font-size: var(--cv-text-lg);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-chronicle-summary,
+.realm-chronicle-empty {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+  line-height: var(--cv-leading-normal);
+}
+
+.realm-chronicle-list {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.realm-chronicle-list::before {
+  content: "";
+  position: absolute;
+  inset-block: var(--cv-space-4);
+  inset-inline-start: calc(var(--cv-space-3) - 1px);
+  inline-size: 2px;
+  background: var(--cv-color-border);
+}
+
+.realm-chronicle-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--cv-space-2) var(--cv-space-3);
+  align-items: center;
+  min-inline-size: 0;
+  padding: var(--cv-space-3) 0 var(--cv-space-3) var(--cv-space-6);
+  border-block-end: 1px solid var(--cv-color-border);
+}
+
+[dir="rtl"] .realm-chronicle-entry {
+  padding-inline: var(--cv-space-6) 0;
+}
+
+.realm-chronicle-entry:last-child { border-block-end: 0; }
+
+.realm-chronicle-node {
+  position: absolute;
+  inset-inline-start: calc(var(--cv-space-3) - var(--cv-space-1));
+  inline-size: var(--cv-space-3);
+  block-size: var(--cv-space-3);
+  border: 2px solid var(--cv-color-action);
+  border-radius: var(--cv-radius-round);
+  background: var(--cv-color-surface);
+}
+
+.realm-chronicle-entry-main,
+.realm-chronicle-entry-meta,
+.realm-chronicle-entry-result {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+}
+
+.realm-chronicle-entry-main {
+  gap: var(--cv-space-2);
+  overflow-wrap: anywhere;
+}
+
+.realm-chronicle-entry-meta {
+  grid-column: 1;
+  flex-wrap: wrap;
+  gap: var(--cv-space-1) var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-xs);
+}
+
+.realm-chronicle-entry-meta span + span::before {
+  content: "·";
+  margin-inline-end: var(--cv-space-2);
+}
+
+.realm-chronicle-entry-result {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  flex-direction: column;
+  align-items: end;
+  gap: var(--cv-space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.realm-chronicle-entry-result strong { color: var(--cv-color-success); }
+.realm-chronicle-entry-total { color: var(--cv-color-text-muted); font-size: var(--cv-text-xs); }
+
+.realm-chronicle-glyph {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  color: var(--cv-color-action);
+}
+
+.realm-chronicle-glyph svg {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.realm-chronicle-toggle {
+  justify-self: start;
+  min-block-size: var(--cv-target-min);
+  min-inline-size: var(--cv-target-min);
+  padding: var(--cv-space-2) var(--cv-space-4);
+}
+
+.realm-chronicle-live {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container (min-width: 34rem) {
+  .realm-chronicle-entry {
+    grid-template-columns: minmax(12rem, 1.4fr) minmax(9rem, 1fr) auto;
+    gap: var(--cv-space-3);
+  }
+
+  .realm-chronicle-entry-main,
+  .realm-chronicle-entry-meta,
+  .realm-chronicle-entry-result {
+    grid-row: 1;
+  }
+
+  .realm-chronicle-entry-meta { grid-column: 2; }
+  .realm-chronicle-entry-result { grid-column: 3; }
+}
+
+@container (max-width: 22rem) {
+  .realm-chronicle-entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .realm-chronicle-entry-main,
+  .realm-chronicle-entry-meta,
+  .realm-chronicle-entry-result {
+    grid-column: 1;
+  }
+
+  .realm-chronicle-entry-result {
+    grid-row: auto;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+}
+
+@container (min-width: 48rem) {
+  .realm-continuation.is-ready > .realm-chronicle {
+    grid-column: 1 / -1;
+  }
+}
