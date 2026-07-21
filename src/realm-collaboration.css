@@ -1,0 +1,229 @@
+.realm-continuation-operation > .realm-collaboration-open {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+}
+
+.realm-continuation > .realm-collaboration,
+main > .realm-collaboration {
+  grid-column: 1 / -1;
+}
+
+.realm-collaboration {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--cv-space-4);
+  min-inline-size: 0;
+  padding-block-start: var(--cv-space-4);
+  border-block-start: 1px solid var(--cv-color-border);
+  color: var(--cv-color-text);
+  text-align: start;
+}
+
+main > .realm-collaboration {
+  inline-size: calc(100% - (2 * var(--cv-page-pad)));
+  max-inline-size: var(--cv-page-max);
+  margin: var(--cv-space-4) auto var(--cv-space-8);
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-block-start: 3px solid var(--cv-color-warning);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-color-surface);
+}
+
+.realm-collaboration-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--cv-space-3);
+}
+
+.realm-collaboration-heading > div {
+  display: grid;
+  gap: var(--cv-space-2);
+  max-inline-size: var(--cv-reading-max);
+}
+
+.realm-collaboration h3,
+.realm-collaboration h4,
+.realm-collaboration p {
+  margin: 0;
+}
+
+.realm-collaboration h3 {
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-collaboration h4 {
+  font-size: var(--cv-text-lg);
+}
+
+.realm-collaboration-heading p:not(.section-kicker),
+.realm-collaboration-confirm p,
+.realm-collaboration-status {
+  color: var(--cv-color-text-muted);
+  line-height: var(--cv-leading-normal);
+}
+
+.realm-collaboration-identities {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
+  gap: var(--cv-space-3);
+  min-inline-size: 0;
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+  background: var(--cv-color-canvas);
+}
+
+.realm-collaboration-realm {
+  display: grid;
+  gap: var(--cv-space-1);
+  min-inline-size: 0;
+  padding: var(--cv-space-3);
+  border-inline-start: 3px solid var(--cv-color-action);
+}
+
+.realm-collaboration-realm span,
+.realm-collaboration-realm small {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.realm-collaboration-realm strong {
+  overflow-wrap: anywhere;
+  font-size: var(--cv-text-lg);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-collaboration-signal {
+  justify-self: center;
+  inline-size: min(100%, 12rem);
+  block-size: auto;
+  color: var(--cv-color-action);
+  overflow: visible;
+}
+
+.realm-collaboration-mark path,
+.realm-collaboration-connector,
+.realm-collaboration-node {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.realm-collaboration-mark circle,
+.realm-collaboration-node {
+  fill: var(--cv-color-surface-raised);
+}
+
+.realm-collaboration-signal[data-link-state="proposal"] .realm-collaboration-connector {
+  stroke-dasharray: 7 7;
+}
+
+.realm-collaboration-signal[data-link-state="open"] .realm-collaboration-connector {
+  stroke-dasharray: 2 12;
+}
+
+.realm-collaboration-signal[data-link-state="linked"] .realm-collaboration-connector,
+.realm-collaboration-signal[data-link-state="linked"] .realm-collaboration-node {
+  stroke: var(--cv-color-success);
+}
+
+.realm-collaboration-signal[data-link-state="linked"] .realm-collaboration-node {
+  fill: var(--cv-color-success);
+}
+
+.realm-collaboration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2);
+}
+
+.realm-collaboration button,
+.realm-collaboration input {
+  min-block-size: var(--cv-target-min);
+}
+
+.realm-collaboration-actions > button {
+  inline-size: 100%;
+}
+
+.realm-collaboration-manual {
+  display: grid;
+  gap: var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.realm-collaboration-manual input {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--cv-space-3);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  background: var(--cv-color-canvas);
+  color: var(--cv-color-text);
+  font: inherit;
+  text-overflow: ellipsis;
+}
+
+.realm-collaboration-status {
+  min-block-size: 1.5em;
+  font-size: var(--cv-text-sm);
+}
+
+.realm-collaboration-confirm {
+  display: grid;
+  gap: var(--cv-space-3);
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-warning);
+  border-radius: var(--cv-radius-md);
+  background: var(--cv-color-surface-raised);
+}
+
+.realm-collaboration-confirm > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2);
+}
+
+.realm-collaboration-confirm button {
+  flex: 1 1 8rem;
+}
+
+.realm-collaboration button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@container (min-width: 34rem) {
+  .realm-collaboration-identities {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.75fr) minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .realm-collaboration-actions > button {
+    inline-size: fit-content;
+    min-inline-size: 10rem;
+  }
+
+  .realm-continuation-operation > .realm-collaboration-open {
+    inline-size: fit-content;
+    min-inline-size: 10rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .realm-collaboration-signal[data-link-state="linked"] .realm-collaboration-connector {
+    animation: realm-collaboration-connect var(--cv-duration-normal) var(--cv-ease-standard) both;
+  }
+}
+
+@keyframes realm-collaboration-connect {
+  from { stroke-dasharray: 7 7; }
+  to { stroke-dasharray: 124 0; }
+}
