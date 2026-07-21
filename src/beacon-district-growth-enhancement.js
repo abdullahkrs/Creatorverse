@@ -106,16 +106,20 @@ function enhanceContinuation(realm, growth, locale) {
 function announceChange(surface, growth, locale) {
   if (!pendingChange || !surface) return;
   const live = document.querySelector('[data-completion-announcement]');
-  if (!live) return;
-  const stageChanged = pendingChange.advanced;
-  live.textContent = formatBeaconDistrictGrowthAnnouncement(growth, { locale, stageChanged });
-  surface.classList.add('is-transitioning');
-  if (stageChanged) {
-    requestAnimationFrame(() => {
-      surface.querySelector('#creator-realm-update-title')?.focus({ preventScroll: true });
-    });
+  if (!live) {
+    pendingChange = null;
+    return;
   }
+  const stageChanged = pendingChange.advanced;
+  const announcement = formatBeaconDistrictGrowthAnnouncement(growth, { locale, stageChanged });
   pendingChange = null;
+  surface.classList.add('is-transitioning');
+  requestAnimationFrame(() => {
+    live.textContent = announcement;
+    if (stageChanged) {
+      surface.querySelector('#creator-realm-update-title')?.focus({ preventScroll: true });
+    }
+  });
 }
 
 function applyEnhancement() {
