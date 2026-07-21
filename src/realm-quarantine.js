@@ -122,6 +122,15 @@ function normalizeRecord(value) {
   });
 }
 
+function candidateRealmId(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return '';
+  try {
+    return normalizeQuarantineRealmId(value.r);
+  } catch {
+    return '';
+  }
+}
+
 export function parseRealmQuarantine(serialized) {
   if (serialized == null || serialized === '') {
     return Object.freeze({ status: 'empty', records: Object.freeze([]) });
@@ -164,6 +173,13 @@ export function parseRealmQuarantine(serialized) {
         records.push(record);
       } catch {
         recovered = true;
+        const invalidRealmId = candidateRealmId(candidate);
+        if (invalidRealmId) {
+          invalidRealmIds.add(invalidRealmId);
+          realmIds.delete(invalidRealmId);
+          const existingIndex = records.findIndex(existing => existing.r === invalidRealmId);
+          if (existingIndex >= 0) records.splice(existingIndex, 1);
+        }
       }
     }
 
