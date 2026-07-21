@@ -1,0 +1,16 @@
+body > .realm-collaboration {
+  inline-size: calc(100% - (2 * var(--cv-page-pad)));
+  max-inline-size: var(--cv-page-max);
+  margin: var(--cv-space-4) auto var(--cv-space-8);
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-block-start: 3px solid var(--cv-color-warning);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-color-surface);
+}
+
+@media (min-width: 40rem) {
+  body > .realm-collaboration {
+    padding: var(--cv-space-6);
+  }
+}
