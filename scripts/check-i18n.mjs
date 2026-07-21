@@ -6,6 +6,7 @@ import { getRealmQuarantineCopy } from '../src/realm-quarantine-i18n.js';
 import { getRealmContinuationCopy } from '../src/realm-continuation-i18n.js';
 import { getBeaconDistrictGrowthCopy } from '../src/beacon-district-growth-i18n.js';
 import { getRealmChronicleCopy } from '../src/realm-chronicle-i18n.js';
+import { getRealmCollaborationCopy } from '../src/realm-collaboration-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -31,6 +32,7 @@ const realmQuarantineKeys = assertParity('Realm quarantine', getRealmQuarantineC
 const realmContinuationKeys = assertParity('Realm continuation', getRealmContinuationCopy);
 const beaconDistrictGrowthKeys = assertParity('Beacon District growth', getBeaconDistrictGrowthCopy);
 const realmChronicleKeys = assertParity('Realm chronicle', getRealmChronicleCopy);
+const realmCollaborationKeys = assertParity('Realm collaboration', getRealmCollaborationCopy);
 
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
@@ -47,6 +49,8 @@ for (const path of [
   '../src/beacon-district-growth-enhancement.js',
   '../src/realm-chronicle-view.js',
   '../src/realm-chronicle-enhancement.js',
+  '../src/realm-collaboration-view.js',
+  '../src/realm-collaboration-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -54,4 +58,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, and ${realmChronicleKeys} realm-chronicle keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, and ${realmCollaborationKeys} realm-collaboration keys.`);
