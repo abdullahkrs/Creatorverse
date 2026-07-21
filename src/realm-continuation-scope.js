@@ -1,5 +1,10 @@
+import { parsePrototypeInviteFragment } from './prototype-invite.js';
+
 const PANEL_SELECTOR = '[data-realm-continuation]';
 const SETTLED_RECEIPT_STATES = new Set(['success', 'duplicate']);
+const INVITE_RECOVERY_DELAY_MS = 75;
+let inviteRecoveryTimer = 0;
+let inviteReloadStarted = false;
 
 function hasInviteOrReceiptRoute() {
   const parameters = new URLSearchParams(window.location.hash.replace(/^#/u, ''));
@@ -62,11 +67,38 @@ function reconcileContinuationScope() {
   });
 }
 
+function recoverInviteShell() {
+  inviteRecoveryTimer = 0;
+  if (inviteReloadStarted) return;
+  if (!document.querySelector('[data-completion-receipt-view]')) return;
+  if (parsePrototypeInviteFragment(window.location.hash).status !== 'valid') return;
+
+  inviteReloadStarted = true;
+  window.location.reload();
+}
+
+function scheduleInviteRecovery() {
+  if (inviteReloadStarted || inviteRecoveryTimer) return;
+  if (!document.querySelector('[data-completion-receipt-view]')) return;
+  if (parsePrototypeInviteFragment(window.location.hash).status !== 'valid') return;
+  inviteRecoveryTimer = window.setTimeout(recoverInviteShell, INVITE_RECOVERY_DELAY_MS);
+}
+
+function handleHashChange() {
+  reconcileContinuationScope();
+  scheduleInviteRecovery();
+}
+
 const app = document.querySelector('#app');
 if (app) {
   const observer = new MutationObserver(reconcileContinuationScope);
   observer.observe(app, { childList: true, subtree: true });
 }
-window.addEventListener('hashchange', reconcileContinuationScope);
+window.addEventListener('beforeunload', () => {
+  if (inviteRecoveryTimer) window.clearTimeout(inviteRecoveryTimer);
+  inviteRecoveryTimer = 0;
+});
+window.addEventListener('hashchange', handleHashChange);
+window.addEventListener('popstate', scheduleInviteRecovery);
 
 reconcileContinuationScope();
