@@ -6,11 +6,21 @@ function shouldSuppress(panel) {
   return Boolean(document.querySelector('.creator-studio'));
 }
 
+function reconcileActionHierarchy(panel, suppressed) {
+  const completionRecord = panel.closest('.completion-record');
+  const updateAction = completionRecord?.querySelector('.creator-realm-update-action');
+  if (!updateAction) return;
+  const continuationIsDominant = !suppressed && completionRecord.classList.contains('is-success');
+  updateAction.classList.toggle('primary', !continuationIsDominant);
+  updateAction.classList.toggle('secondary', continuationIsDominant);
+}
+
 function reconcileContinuationScope() {
   document.querySelectorAll(PANEL_SELECTOR).forEach(panel => {
     const suppressed = shouldSuppress(panel);
     panel.toggleAttribute('hidden', suppressed);
     panel.inert = suppressed;
+    reconcileActionHierarchy(panel, suppressed);
     if (suppressed && !panel.closest('.completion-record')) {
       document.querySelector('.experience')?.removeAttribute('hidden');
     }
