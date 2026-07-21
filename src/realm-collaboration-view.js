@@ -46,6 +46,15 @@ function identities(source, local, copy, state) {
   `;
 }
 
+function proposalOrigin(realm, copy, state) {
+  return `
+    <div class="realm-collaboration-identities" data-collaboration-origin-only>
+      ${realmIdentity(copy.sourceLabel, realm, copy)}
+      ${signalArtwork(state)}
+    </div>
+  `;
+}
+
 function statusLine(message = '') {
   return `<p class="realm-collaboration-status" data-collaboration-live aria-live="polite" aria-atomic="true">${escapeHtml(message)}</p>`;
 }
@@ -69,7 +78,7 @@ export function renderCollaborationReady({ locale, realm, proposal = null, actio
         </div>
         <button class="secondary" type="button" data-action="close-realm-collaboration">${escapeHtml(copy.close)}</button>
       </div>
-      ${identities(realm, realm, copy, hasProposal ? 'proposal' : 'open')}
+      ${proposalOrigin(realm, copy, hasProposal ? 'proposal' : 'open')}
       <div class="realm-collaboration-actions">
         ${hasProposal
           ? `<button class="secondary" type="button" data-action="share-realm-collaboration" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>`
