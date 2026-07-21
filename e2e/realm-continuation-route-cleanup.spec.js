@@ -145,13 +145,13 @@ test('invite-to-invite navigation reloads and resets the follower mission templa
 
   await expect(page.locator('#mission-title')).toHaveText('Match the Signal');
   await expect(page.locator('[data-mission-command="wave"]')).toBeVisible();
+  await expect(page.locator('[data-mission-command="2"]')).toHaveCount(0);
+  await expect(page.locator('[data-mission-result]')).toHaveCount(0);
   const restored = await page.evaluate(() => ({
-    state: JSON.parse(sessionStorage.getItem('creatorverse-mission-template-state')),
+    missionTemplateId: globalThis.__creatorverseMissionTemplateId,
     missionInstanceId: globalThis.__creatorverseMissionInstanceId,
   }));
-  expect(restored.state.templateId).toBe('signal-match');
-  expect(restored.state.step).toBe(0);
-  expect(restored.state.completed).toBe(false);
+  expect(restored.missionTemplateId).toBe('signal-match');
   expect(restored.missionInstanceId).toBe('mission_signal0001');
   await context.close();
 });
