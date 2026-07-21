@@ -1,7 +1,7 @@
 import { completionReceiptLimits } from './completion-receipt.js';
 import { DISTRICT_CONTRIBUTION, DISTRICT_ID } from './district-progress.js';
 import { MISSION_TEMPLATE_IDS } from './mission-templates.js';
-import { MISSION_SCHEDULE_IDS } from './mission-schedule.js';
+import { MISSION_SCHEDULE_IDS, classifyMissionSchedule } from './mission-schedule.js';
 
 export const CREATOR_LEDGER_KEY = 'creatorverse-creator-ledger-v1';
 export const CREATOR_LEDGER_VERSION = 1;
@@ -51,6 +51,18 @@ function validMissionInstance(mission) {
     && Number.isSafeInteger(mission.createdAtMinute)
     && mission.createdAtMinute >= 0
     && typeof mission.consumed === 'boolean';
+}
+
+function isPendingMission(mission, now = Date.now()) {
+  if (mission.consumed) return false;
+  try {
+    return classifyMissionSchedule({
+      scheduleId: mission.scheduleId,
+      createdAtMinute: mission.createdAtMinute,
+    }, now).state !== 'expired';
+  } catch {
+    return false;
+  }
 }
 
 function validEntry(entry) {
@@ -184,17 +196,25 @@ export function getSingleCreatorRealm(storage = globalThis.localStorage) {
   return { status: 'ready', realm: structuredClone(inspected.state.realms[0]) };
 }
 
-export function getPendingCreatorMission(storage, realmId) {
+export function getPendingCreatorMission(storage, realmId, { now = Date.now() } = {}) {
   const realm = getCreatorRealm(storage, realmId);
   if (!realm || !Array.isArray(realm.missions)) return null;
-  const pending = [...realm.missions].reverse().find(mission => !mission.consumed);
+  const pending = [...realm.missions].reverse().find(mission => isPendingMission(mission, now));
   return pending ? structuredClone(pending) : null;
 }
 
-export function issueCreatorMission(storage, input = {}) {
+export function issueCreatorMission(storage, input = {}, { now = Date.now() } = {}) {
   if (!validIdentifier(input.realmId) || !validIdentifier(input.missionInstanceId)) return { status: 'invalid' };
   if (!MISSIONS.has(input.missionId) || !SCHEDULES.has(input.scheduleId)) return { status: 'invalid' };
   if (!Number.isSafeInteger(input.createdAtMinute) || input.createdAtMinute < 0) return { status: 'invalid' };
+  try {
+    classifyMissionSchedule({
+      scheduleId: input.scheduleId,
+      createdAtMinute: input.createdAtMinute,
+    }, now);
+  } catch {
+    return { status: 'invalid' };
+  }
 
   const inspected = inspectCreatorLedger(storage);
   if (inspected.status !== 'ready') return { status: inspected.status === 'invalid' ? 'invalid-storage' : 'mismatch' };
@@ -202,7 +222,7 @@ export function issueCreatorMission(storage, input = {}) {
   if (realmIndex < 0) return { status: 'mismatch' };
   const realm = inspected.state.realms[realmIndex];
   const missions = Array.isArray(realm.missions) ? realm.missions : [];
-  const pending = missions.find(mission => !mission.consumed);
+  const pending = missions.find(mission => isPendingMission(mission, now));
   if (pending) return { status: 'pending', realm: structuredClone(realm), mission: structuredClone(pending) };
   if (missions.some(mission => mission.id === input.missionInstanceId)) return { status: 'duplicate', realm: structuredClone(realm) };
   if (missions.length >= CREATOR_MISSION_LIMIT) return { status: 'full', realm: structuredClone(realm) };
