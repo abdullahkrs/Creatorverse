@@ -52,7 +52,7 @@ for (const locale of ['en', 'ar']) {
     await page.goto(`/#invite=${token}`);
     await expect(page.locator('[data-mission-window-status]')).toHaveAttribute('data-state', 'expired');
     await expect(page.locator('.role-grid')).toBeHidden();
-    await expect(page.getByText('QA Expired Realm')).toBeVisible();
+    await expect(page.getByText('QA Expired Realm').first()).toBeVisible();
 
     const restored = page.waitForNavigation({ waitUntil: 'domcontentloaded' });
     await page.locator('[data-mission-window-status] a[href="#join"]').click();
