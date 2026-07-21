@@ -14,8 +14,10 @@ const THEMES = new Set(['cosmic', 'wild', 'future']);
 const MISSIONS = new Set(['route-choice', 'relay-sequence', 'signal-match']);
 const ROLES = new Set(['builder', 'explorer', 'guardian']);
 const ROUTES = new Set(['sky', 'ocean']);
-const REALM_FIELDS = new Set(['id', 'name', 'theme', 'total', 'districtId', 'unlocked', 'receipts']);
-const ENTRY_FIELDS = new Set(['id', 'missionId', 'roleId', 'routeId', 'districtId', 'contribution']);
+const LEGACY_REALM_FIELDS = new Set(['id', 'name', 'theme', 'total', 'districtId', 'unlocked', 'receipts']);
+const EXTENDED_REALM_FIELDS = new Set([...LEGACY_REALM_FIELDS, 'missions']);
+const LEGACY_ENTRY_FIELDS = new Set(['id', 'missionId', 'roleId', 'routeId', 'districtId', 'contribution']);
+const EXTENDED_ENTRY_FIELDS = new Set([...LEGACY_ENTRY_FIELDS, 'missionInstanceId']);
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 const LRI = '\u2066';
 const PDI = '\u2069';
@@ -43,8 +45,10 @@ function validName(value) {
 }
 
 function validEntry(entry) {
-  return exactObject(entry, ENTRY_FIELDS)
+  const fields = Object.hasOwn(entry || {}, 'missionInstanceId') ? EXTENDED_ENTRY_FIELDS : LEGACY_ENTRY_FIELDS;
+  return exactObject(entry, fields)
     && validIdentifier(entry.id)
+    && (!Object.hasOwn(entry, 'missionInstanceId') || validIdentifier(entry.missionInstanceId))
     && MISSIONS.has(entry.missionId)
     && ROLES.has(entry.roleId)
     && ROUTES.has(entry.routeId)
@@ -53,7 +57,8 @@ function validEntry(entry) {
 }
 
 export function deriveCreatorRealmUpdate(realm) {
-  if (!exactObject(realm, REALM_FIELDS)) return Object.freeze({ status: 'unavailable' });
+  const fields = Object.hasOwn(realm || {}, 'missions') ? EXTENDED_REALM_FIELDS : LEGACY_REALM_FIELDS;
+  if (!exactObject(realm, fields)) return Object.freeze({ status: 'unavailable' });
   if (!validIdentifier(realm.id) || !validName(realm.name) || !THEMES.has(realm.theme)) {
     return Object.freeze({ status: 'unavailable' });
   }
