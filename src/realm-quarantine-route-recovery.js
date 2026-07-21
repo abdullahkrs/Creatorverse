@@ -1,10 +1,14 @@
 import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
+const RECOVERY_DELAY_MS = 75;
+
 let recoveryScheduled = false;
+let recoveryTimer = 0;
 let reloadStarted = false;
 
 function recoverUnblockedInviteShell() {
   recoveryScheduled = false;
+  recoveryTimer = 0;
   if (reloadStarted) return;
 
   const quarantineState = document.querySelector('[data-realm-quarantine-state]');
@@ -27,8 +31,17 @@ function recoverUnblockedInviteShell() {
 function scheduleRecovery() {
   if (recoveryScheduled || reloadStarted) return;
   recoveryScheduled = true;
-  queueMicrotask(recoverUnblockedInviteShell);
+
+  // Yield briefly to an explicit full navigation initiated by the same route
+  // change. Its beforeunload cancels this document's timer, preventing two
+  // competing reloads while preserving automatic same-tab hash recovery.
+  recoveryTimer = window.setTimeout(recoverUnblockedInviteShell, RECOVERY_DELAY_MS);
 }
 
+window.addEventListener('beforeunload', () => {
+  if (recoveryTimer) window.clearTimeout(recoveryTimer);
+  recoveryTimer = 0;
+  recoveryScheduled = false;
+});
 window.addEventListener('hashchange', scheduleRecovery);
 window.addEventListener('popstate', scheduleRecovery);
