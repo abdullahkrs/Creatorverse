@@ -86,6 +86,14 @@ function synchronizeLaunch(launch, summary) {
   launch.setAttribute('aria-disabled', String(!ready));
 }
 
+function synchronizeScheduleOptions(selector) {
+  selector.querySelectorAll('input[name="mission-schedule"]').forEach(input => {
+    const checked = input.value === creatorSelection;
+    input.checked = checked;
+    input.closest('.mission-window-option')?.classList.toggle('is-selected', checked);
+  });
+}
+
 function enhanceCreatorSelector() {
   const summary = document.querySelector('.creator-studio .launch-summary');
   const missionSelector = summary?.querySelector('[data-mission-template-owned]');
@@ -93,7 +101,7 @@ function enhanceCreatorSelector() {
   if (!summary || !missionSelector || !launch) return;
 
   const localized = getMissionScheduleCopy(getLocale());
-  const key = `${getLocale()}:${creatorSelection}`;
+  const key = getLocale();
   let selector = summary.querySelector('[data-mission-schedule-owned]');
   if (!selector || selector.dataset.scheduleKey !== key) {
     selector?.remove();
@@ -105,6 +113,9 @@ function enhanceCreatorSelector() {
         </div>
       </fieldset>
     `);
+    selector = summary.querySelector('[data-mission-schedule-owned]');
+  } else {
+    synchronizeScheduleOptions(selector);
   }
 
   if (!document.querySelector('#mission-window-validation')) {
@@ -363,7 +374,11 @@ function handleChange(event) {
   const input = event.target.closest?.('input[name="mission-schedule"]');
   if (!input) return;
   persistSelection(input.value);
-  queueApply();
+  const selector = input.closest('[data-mission-schedule-owned]');
+  if (selector) synchronizeScheduleOptions(selector);
+  const summary = input.closest('.launch-summary');
+  const launch = document.querySelector('.creator-studio [data-action="creator-next"]');
+  if (summary && launch) synchronizeLaunch(launch, summary);
 }
 
 function teardown() {
