@@ -12,6 +12,32 @@
   text-align: start;
 }
 
+.creator-realm-update.has-beacon-growth {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.creator-realm-update.has-beacon-growth > .beacon-district-growth,
+.creator-realm-update.has-beacon-growth > .creator-realm-update-action-area {
+  grid-column: 1 / -1;
+}
+
+.realm-continuation-context[data-beacon-enhanced] {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.realm-continuation-context[data-beacon-enhanced] > .beacon-district-growth {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.realm-continuation-context[data-beacon-enhanced] > .realm-continuation-realm {
+  padding-block-end: var(--cv-space-3);
+  border-block-end: 1px solid var(--cv-color-border);
+}
+
 .beacon-district-artwork,
 .beacon-district-copy {
   min-inline-size: 0;
@@ -162,6 +188,10 @@
 @container (min-width: 48rem) {
   .beacon-district-growth:not(.is-compact) {
     padding: var(--cv-space-6);
+  }
+
+  .realm-continuation-context[data-beacon-enhanced] {
+    padding-inline-end: var(--cv-space-6);
   }
 }
 
