@@ -3,12 +3,16 @@ import { parsePrototypeInviteFragment } from './prototype-invite.js';
 import { getRealmQuarantineCopy } from './realm-quarantine-i18n.js';
 import {
   isRealmQuarantined,
+  parseRealmQuarantine,
   quarantineRealm,
   readRealmQuarantine,
+  realmQuarantineContract,
   repairRealmQuarantine,
   restoreQuarantinedRealm,
+  serializeRealmQuarantine,
 } from './realm-quarantine.js';
 
+const VIEW_SESSION_KEY = 'creatorverse-realm-quarantine-view-v1';
 const INVITE_SESSION_KEYS = Object.freeze([
   'creatorverse-mission-template-state',
   'creatorverse-district-progress',
@@ -18,11 +22,6 @@ const INVITE_SESSION_KEYS = Object.freeze([
   'creatorverse-last-route',
   'creatorverse-locale-restore',
 ]);
-const REASON_COPY = Object.freeze({
-  'unsafe-real-world': 'unsafeRealWorld',
-  'harassment-hateful': 'harassmentHateful',
-  'personal-private-information': 'personalPrivate',
-});
 const SHIELD_ICON = '<path d="M12 3 19 6v5c0 4.5-2.8 8-7 10-4.2-2-7-5.5-7-10V6l7-3Zm-4 8h8M9 8l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>';
 const GATE_ICON = '<path d="M5 20V7l7-4 7 4v13M8 20V9h8v11M9 13h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>';
 
@@ -73,6 +72,36 @@ function readStateSafely() {
   } catch {
     return null;
   }
+}
+
+function writeViewContext(context) {
+  try {
+    sessionStorage.setItem(VIEW_SESSION_KEY, serializeRealmQuarantine([{
+      v: realmQuarantineContract.schemaVersion,
+      r: context.realmId,
+      q: context.reason,
+    }]));
+  } catch {
+    // The in-memory block remains authoritative for this document.
+  }
+}
+
+function readViewContext() {
+  try {
+    const state = parseRealmQuarantine(sessionStorage.getItem(VIEW_SESSION_KEY));
+    if (!['valid', 'recovered'].includes(state.status) || state.records.length !== 1) {
+      sessionStorage.removeItem(VIEW_SESSION_KEY);
+      return null;
+    }
+    const [record] = state.records;
+    return { realmId: record.r, reason: record.q };
+  } catch {
+    return null;
+  }
+}
+
+function clearViewContext() {
+  try { sessionStorage.removeItem(VIEW_SESSION_KEY); } catch { /* no-op */ }
 }
 
 function hideInviteChrome() {
@@ -132,6 +161,18 @@ function ensureSafetyTrigger(invite) {
   row.dataset.realmAvailable = invite.realmId ? 'true' : 'false';
 }
 
+function restoreBlockedContextFromSession() {
+  if (blockedContext) return true;
+  const context = readViewContext();
+  if (!context) return false;
+  blockedContext = context;
+  const durable = isRealmQuarantined(readStateSafely(), context.realmId);
+  sessionBlocked.set(context.realmId, { ...context, saved: durable });
+  blockedMode = durable ? 'hidden' : 'error';
+  clearInviteSession();
+  return true;
+}
+
 function applyGuard() {
   if (applying) return;
   applying = true;
@@ -139,22 +180,29 @@ function applyGuard() {
     const invite = currentInvite();
     if (invite) {
       const state = readStateSafely();
-      const blocked = sessionBlocked.has(invite.realmId) || isRealmQuarantined(state, invite.realmId);
-      if (blocked) {
-        blockedContext = sessionBlocked.get(invite.realmId) || { realmId: invite.realmId, reason: state.records.find(record => record.r === invite.realmId)?.q };
-        blockedMode = sessionBlocked.get(invite.realmId)?.saved === false ? 'error' : 'hidden';
+      const memory = sessionBlocked.get(invite.realmId);
+      const durableRecord = state?.records?.find(record => record.r === invite.realmId);
+      if (memory || durableRecord) {
+        blockedContext = memory || { realmId: invite.realmId, reason: durableRecord.q };
+        sessionBlocked.set(invite.realmId, {
+          ...blockedContext,
+          saved: memory?.saved !== false,
+        });
+        writeViewContext(blockedContext);
+        blockedMode = memory?.saved === false ? 'error' : 'hidden';
         clearInviteSession();
         removeInviteFromHistory();
         renderBlocked();
         return;
       }
       blockedContext = null;
+      clearViewContext();
       delete globalThis.__creatorverseRealmQuarantineBlocked;
       ensureSafetyTrigger(invite);
       return;
     }
 
-    if (blockedContext) renderBlocked();
+    if (restoreBlockedContextFromSession()) renderBlocked();
   } finally {
     applying = false;
   }
@@ -242,6 +290,7 @@ function closeDialog(dialog, restoreFocus) {
 function invalidateAndBlock(realmId, reason) {
   blockedContext = { realmId, reason };
   sessionBlocked.set(realmId, { realmId, reason, saved: false });
+  writeViewContext(blockedContext);
   clearInviteSession();
   removeInviteFromHistory();
 }
@@ -284,19 +333,20 @@ async function retrySave(button) {
   } catch {
     button.disabled = false;
     button.removeAttribute('aria-busy');
-    document.querySelector('[data-quarantine-status]').textContent = copy().saveError;
+    const status = document.querySelector('[data-quarantine-status]');
+    if (status) status.textContent = copy().saveError;
     button.focus({ preventScroll: true });
   }
 }
 
 async function confirmRestore(dialog) {
   if (!blockedContext) return;
-  const action = dialog.querySelector('[data-action="confirm-realm-restore"]');
   dialog.querySelectorAll('button').forEach(button => { button.disabled = true; });
   await new Promise(resolve => requestAnimationFrame(resolve));
   try {
     restoreQuarantinedRealm(localStorage, blockedContext.realmId);
     sessionBlocked.delete(blockedContext.realmId);
+    clearViewContext();
     delete globalThis.__creatorverseRealmQuarantineBlocked;
     blockedMode = 'restored';
     restoreError = false;
@@ -308,7 +358,6 @@ async function confirmRestore(dialog) {
     renderBlocked();
     queueMicrotask(() => document.querySelector('[data-action="show-realm-again"]')?.focus({ preventScroll: true }));
   }
-  action?.removeAttribute('aria-busy');
 }
 
 function handleInput(event) {
@@ -359,6 +408,7 @@ function handleClick(event) {
     return;
   }
   if (event.target.closest?.('[data-action="quarantine-return-home"]')) {
+    clearViewContext();
     blockedContext = null;
     delete globalThis.__creatorverseRealmQuarantineBlocked;
     history.replaceState(null, '', window.location.pathname);
