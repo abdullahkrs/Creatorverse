@@ -9,6 +9,10 @@ import {
   getPublicHttpUrl,
   sanitizeResultText,
 } from '../src/mission-result.js';
+import {
+  createRealmCollaborationProposal,
+  parseRealmCollaborationHash,
+} from '../src/realm-collaboration.js';
 
 const result = createMissionResult({
   roleId: 'builder',
@@ -17,6 +21,15 @@ const result = createMissionResult({
   energyBefore: 72,
   target: 100,
   district: 'Signal Harbor',
+});
+
+const collaborationProposal = createRealmCollaborationProposal({
+  id: 'realm_source_1234567890',
+  name: 'Signal Haven',
+  theme: 'cosmic',
+}, {
+  cryptoLike: { randomUUID: () => '12345678-1234-1234-1234-123456789abc' },
+  baseUrl: 'https://creatorverse.example/play',
 });
 
 test('creates allowlisted, bounded result data', () => {
@@ -104,6 +117,27 @@ test('uses clipboard fallback, reports failure, and blocks repeated activation',
   assert.deepEqual(await copyController.activate(), { status: 'copied', mode: 'copy' });
   assert.equal(copied, buildClipboardText(payload));
   assert.match(copied, /https:\/\/creatorverse\.example\//);
+
+  const collaborationPayload = {
+    title: 'Creatorverse',
+    text: 'Signal Haven',
+    url: collaborationProposal.url,
+  };
+  const collaborationController = createMissionResultActionController({
+    navigatorLike: {},
+    payload: collaborationPayload,
+    copyText: async value => { copied = value; },
+  });
+  assert.deepEqual(await collaborationController.activate(), { status: 'copied', mode: 'copy' });
+  const copiedUrl = copied.split('\n').at(-1);
+  assert.equal(copiedUrl, collaborationProposal.url);
+  assert.equal(parseRealmCollaborationHash(new URL(copiedUrl).hash).status, 'ready');
+
+  const malformedCollaboration = buildClipboardText({
+    text: 'Signal Haven',
+    url: 'https://creatorverse.example/play#collab=not-valid',
+  });
+  assert.equal(malformedCollaboration, 'Signal Haven\nhttps://creatorverse.example/play');
 
   const failedCopy = createMissionResultActionController({
     navigatorLike: {},
