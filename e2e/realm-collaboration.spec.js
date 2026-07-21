@@ -196,7 +196,7 @@ test('duplicate, self-link, second-link, query transport, and locale reload fail
   await page.evaluate(key => localStorage.setItem(key, 'ar'), LOCALE_KEY);
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-  await page.locator('[data-action="reject-realm-collaboration"]').click();
+  await expect(page.locator('#realm-collaboration-error-title')).toHaveCount(0);
   await page.locator('[data-action="open-realm-collaboration"]').click();
   await expect(page.locator('#realm-collaboration-linked-title')).toHaveText('التعاون مرتبط');
   expect(await page.evaluate(key => localStorage.getItem(key), COLLAB_KEY)).toBe(firstRecord);
