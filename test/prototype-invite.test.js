@@ -18,8 +18,25 @@ function encodePayload(payload) {
   return `v1.${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
 }
 
-function safePayload(overrides = {}) {
-  return { v: 1, n: 'Nova', t: 'cosmic', m: 'route-choice', w: 'now-30m', c: CREATED_MINUTE, ...overrides };
+function encodeRawPayload(payload) {
+  return `v1.${Buffer.from(payload).toString('base64url')}`;
+}
+
+function safeScheduledPayload(overrides = {}) {
+  return {
+    v: 1,
+    n: 'Nova',
+    t: 'cosmic',
+    m: 'route-choice',
+    c: CREATED_MINUTE,
+    s: CREATED_MINUTE,
+    e: CREATED_MINUTE + 60,
+    ...overrides,
+  };
+}
+
+function safeLegacyPayload(overrides = {}) {
+  return { v: 1, n: 'Nova', t: 'cosmic', m: 'route-choice', ...overrides };
 }
 
 test('creates a minimal versioned scheduled invite without creator identity', () => {
@@ -28,7 +45,7 @@ test('creates a minimal versioned scheduled invite without creator identity', ()
     theme: 'cosmic',
     promise: 'A community built around bold ideas.',
     missionId: 'relay-sequence',
-    scheduleId: 'in-1h-30m',
+    scheduleId: 'in-1h-24h',
     createdAtMinute: CREATED_MINUTE,
   }, { now: NOW });
   const parsed = parsePrototypeInviteToken(token, { now: NOW });
@@ -40,12 +57,40 @@ test('creates a minimal versioned scheduled invite without creator identity', ()
       theme: 'cosmic',
       promise: 'A community built around bold ideas.',
       missionId: 'relay-sequence',
-      scheduleId: 'in-1h-30m',
+      scheduleId: 'in-1h-24h',
       createdAtMinute: CREATED_MINUTE,
+      startMinute: CREATED_MINUTE + 60,
+      endMinute: CREATED_MINUTE + 1500,
     },
   });
   assert.ok(token.length <= prototypeInviteLimits.maxTokenLength);
   assert.doesNotMatch(token, /creator|secret|@/iu);
+});
+
+test('uses the safe one-hour preset when no schedule is supplied', () => {
+  const parsed = parsePrototypeInviteToken(createPrototypeInvite({
+    name: 'Nova', theme: 'cosmic', promise: 'Safe fictional routes.',
+  }, { now: NOW }), { now: NOW });
+  assert.equal(parsed.status, 'valid');
+  assert.equal(parsed.invite.scheduleId, 'now-1h');
+  assert.equal(parsed.invite.startMinute, CREATED_MINUTE);
+  assert.equal(parsed.invite.endMinute, CREATED_MINUTE + 60);
+});
+
+test('keeps clean legacy invites playable and rejects partial legacy scheduling', () => {
+  const legacy = parsePrototypeInviteToken(encodePayload({ v: 1, n: 'Nova', t: 'cosmic' }), { now: NOW });
+  assert.deepEqual(legacy, {
+    status: 'valid',
+    invite: {
+      name: 'Nova',
+      theme: 'cosmic',
+      promise: null,
+      missionId: 'route-choice',
+    },
+  });
+  assert.equal(parsePrototypeInviteToken(encodePayload(safeLegacyPayload({ c: CREATED_MINUTE })), { now: NOW }).status, 'invalid');
+  assert.equal(parsePrototypeInviteToken(encodePayload(safeLegacyPayload({ c: CREATED_MINUTE, s: CREATED_MINUTE })), { now: NOW }).status, 'invalid');
+  assert.equal(parsePrototypeInviteToken(encodePayload(safeLegacyPayload({ w: 'now-1h' })), { now: NOW }).status, 'invalid');
 });
 
 test('accepts only allowlisted bounded fictional fields', () => {
@@ -68,14 +113,14 @@ test('rejects bare domains and external URL schemes during creation and parsing'
   for (const externalText of ['Visit example.com', 'Join discord.gg/room', 'Open ftp://example.com', 'Open custom+realm://example.com/path', 'Use mailto:team@example.com']) {
     assert.throws(() => createPrototypeInvite({ name: 'Nova', theme: 'cosmic', promise: externalText }), /INVITE_PRIVATE_OR_EXTERNAL_TEXT/);
   }
-  const crafted = encodePayload(safePayload({ p: 'Visit example.com' }));
+  const crafted = encodePayload(safeScheduledPayload({ p: 'Visit example.com' }));
   assert.deepEqual(parsePrototypeInviteToken(crafted, { now: NOW }), { status: 'invalid' });
 });
 
 test('parses exactly one invite fragment and rejects malformed or hidden fields', () => {
   const token = createPrototypeInvite({
     name: 'Harbor Lab', theme: 'future', promise: 'Build a calm fictional signal.', missionId: 'signal-match',
-    scheduleId: 'in-24h-24h', createdAtMinute: CREATED_MINUTE,
+    scheduleId: 'now-24h', createdAtMinute: CREATED_MINUTE,
   }, { now: NOW });
   assert.equal(parsePrototypeInviteFragment('', { now: NOW }).status, 'none');
   assert.equal(parsePrototypeInviteFragment('#section=join', { now: NOW }).status, 'none');
@@ -84,17 +129,26 @@ test('parses exactly one invite fragment and rejects malformed or hidden fields'
   assert.equal(parsePrototypeInviteFragment(`#invite=${token}&invite=${token}`, { now: NOW }).status, 'invalid');
   assert.equal(parsePrototypeInviteFragment('#invite=v1.not-base64!', { now: NOW }).status, 'invalid');
   assert.equal(parsePrototypeInviteFragment(`#invite=${'x'.repeat(600)}`, { now: NOW }).status, 'invalid');
-  assert.equal(parsePrototypeInviteToken(encodePayload(safePayload({ m: 'unsafe' })), { now: NOW }).status, 'invalid');
+  assert.equal(parsePrototypeInviteToken(encodePayload(safeScheduledPayload({ m: 'unsafe' })), { now: NOW }).status, 'invalid');
+  assert.equal(parsePrototypeInviteToken(encodePayload({ ...safeScheduledPayload(), extra: 'hidden' }), { now: NOW }).status, 'invalid');
 });
 
-test('rejects missing, unknown, unsupported, future, and stale schedule fields', () => {
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload({ ...safePayload(), extra: 'hidden' }), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload({ v: 1, n: 'Nova', t: 'cosmic', m: 'route-choice', c: CREATED_MINUTE }), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload({ v: 1, n: 'Nova', t: 'cosmic', m: 'route-choice', w: 'now-30m' }), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload(safePayload({ w: 'free-date' })), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload(safePayload({ c: CREATED_MINUTE + 1 })), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(parsePrototypeInviteToken(encodePayload(safePayload({ c: CREATED_MINUTE - 2881 })), { now: NOW }), { status: 'invalid' });
-  assert.deepEqual(prototypeInviteLimits.schedules, ['now-30m', 'in-1h-30m', 'in-24h-24h']);
+test('rejects duplicate, non-integer, unsafe, and non-preset schedule boundaries', () => {
+  const duplicate = `{"v":1,"n":"Nova","t":"cosmic","m":"route-choice","c":${CREATED_MINUTE},"s":${CREATED_MINUTE},"s":${CREATED_MINUTE},"e":${CREATED_MINUTE + 60}}`;
+  assert.equal(parsePrototypeInviteToken(encodeRawPayload(duplicate), { now: NOW }).status, 'invalid');
+
+  for (const payload of [
+    safeScheduledPayload({ c: CREATED_MINUTE + 1, s: CREATED_MINUTE + 1, e: CREATED_MINUTE + 61 }),
+    safeScheduledPayload({ s: CREATED_MINUTE + 61, e: CREATED_MINUTE + 1501 }),
+    safeScheduledPayload({ e: CREATED_MINUTE }),
+    safeScheduledPayload({ e: CREATED_MINUTE + 61 }),
+    safeScheduledPayload({ e: CREATED_MINUTE + 1501 }),
+    safeScheduledPayload({ s: CREATED_MINUTE + 0.5 }),
+    safeScheduledPayload({ e: 'later' }),
+  ]) {
+    assert.equal(parsePrototypeInviteToken(encodePayload(payload), { now: NOW }).status, 'invalid');
+  }
+  assert.deepEqual(prototypeInviteLimits.schedules, ['now-1h', 'now-24h', 'in-1h-24h']);
   assert.equal(getPrototypeInviteCopy('en').featuredPromise, 'A community built around bold ideas.');
   assert.equal(getPrototypeInviteCopy('ar').featuredPromise, 'مجتمع مبني حول أفكار جريئة.');
 });
