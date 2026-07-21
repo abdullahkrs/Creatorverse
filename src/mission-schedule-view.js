@@ -120,7 +120,7 @@ function enhanceCreatorSelector() {
 
   if (!document.querySelector('#mission-window-validation')) {
     const message = document.querySelector('.creator-studio .form-message');
-    message?.insertAdjacentHTML('beforebegin', '<p id="mission-window-validation" class="form-message mission-window-validation" aria-live="polite"></p>');
+    message?.insertAdjacentHTML('beforebegin', '<p id="mission-window-validation" class="mission-window-validation" aria-live="polite"></p>');
   }
   const validation = document.querySelector('#mission-window-validation');
   if (validation?.textContent === localized.selectorValidation) validation.textContent = '';
@@ -133,8 +133,7 @@ function enhanceCreatorSelector() {
 
 function clearMissionSession() {
   for (const key of PROGRESS_KEYS) sessionStorage.removeItem(key);
-  document.querySelector('[data-mission-result]')?.remove();
-  document.querySelector('[data-completion-receipt]')?.remove();
+  document.querySelectorAll('[data-mission-result], [data-completion-receipt]').forEach(element => element.remove());
   globalThis.dispatchEvent(new CustomEvent('creatorverse:mission-window-reset'));
 }
 
@@ -201,7 +200,7 @@ function statusMarkup(state, schedule) {
       ? `<button class="primary" type="button" data-action="mission-schedule-recheck">${escapeHtml(localized.tryAgain)}</button>`
       : `<a class="primary link-button" href="#join">${escapeHtml(localized.back)}</a>`;
 
-  return `<section class="mission-window-status is-${state}" data-mission-window-status data-state="${state}" data-locale="${getLocale()}" aria-labelledby="mission-window-title">
+  return `<section class="mission-window-status is-${state}" data-mission-window-status data-state="${state}" data-mission-window-locale="${getLocale()}" aria-labelledby="mission-window-title">
     ${scheduleIcon(state)}
     <div class="mission-window-copy">
       <h2 id="mission-window-title" tabindex="-1">${escapeHtml(title)}</h2>
@@ -291,11 +290,23 @@ function applyFollowerState({ announceChange = false, focusChange = false, force
 
   clearTimeout(boundaryTimer);
   boundaryTimer = null;
+  const shouldReloadTerminal = previousState !== null
+    && previousState !== state
+    && (state === 'expired' || state === 'invalid');
   if (previousState !== state) clearMissionSession();
+  if (shouldReloadTerminal) {
+    window.location.reload();
+    return state;
+  }
   hideMissionForWindow(roleGrid, mission);
 
   const existing = mission.querySelector('[data-mission-window-status]');
-  if (forceRender || !existing || existing.dataset.state !== state || existing.dataset.locale !== getLocale()) {
+  if (
+    forceRender
+    || !existing
+    || existing.dataset.state !== state
+    || existing.dataset.missionWindowLocale !== getLocale()
+  ) {
     existing?.remove();
     mission.insertAdjacentHTML('afterbegin', statusMarkup(state, schedule));
   }
