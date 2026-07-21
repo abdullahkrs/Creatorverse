@@ -196,7 +196,9 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .beacon-district-growth.is-transitioning .beacon-stage-layer.is-active {
+  .beacon-district-growth[data-stage="outpost"].is-transitioning .beacon-stage-outpost.is-active,
+  .beacon-district-growth[data-stage="connected"].is-transitioning .beacon-stage-connected.is-active,
+  .beacon-district-growth[data-stage="illuminated"].is-transitioning .beacon-stage-illuminated.is-active {
     animation: beacon-district-stage-in var(--cv-duration-progress) var(--cv-ease-standard) both;
   }
 }
