@@ -1,3 +1,7 @@
+.realm-continuation.is-ready > .realm-continuation-operation { order: -2; }
+.realm-continuation.is-ready > .realm-continuation-context { order: -1; }
+.realm-continuation.is-ready > .realm-chronicle { order: 0; }
+
 .realm-chronicle {
   container-type: inline-size;
   display: grid;
