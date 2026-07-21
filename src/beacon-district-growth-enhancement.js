@@ -83,7 +83,7 @@ function enhanceRealmUpdate(realm, growth, locale) {
 function enhanceContinuation(realm, growth, locale) {
   if (growth.status !== 'ready') return;
   document.querySelectorAll('[data-realm-continuation] .realm-continuation-context').forEach(context => {
-    const key = `${locale}:${realm.id}:${growth.stageId}:${growth.totalEnergy}`;
+    const key = `${locale}:${growth.stageId}:${growth.totalEnergy}`;
     if (context.dataset.beaconEnhancementKey === key) return;
     const copy = getRealmContinuationCopy(locale);
     context.dataset.beaconEnhancementKey = key;
