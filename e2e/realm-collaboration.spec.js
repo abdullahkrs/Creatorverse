@@ -87,6 +87,7 @@ async function createProposalThroughUi(page, locale) {
   await expect(page.locator('#realm-collaboration-title')).toBeFocused();
   await page.locator('[data-action="create-realm-collaboration"]').click();
   await expect(page.locator('[data-realm-collaboration][data-state="proposal-ready"]')).toBeVisible();
+  await expect(page.locator('[data-realm-collaboration][data-state="proposal-ready"] .realm-collaboration-realm')).toHaveCount(1);
   await page.locator('[data-action="share-realm-collaboration"]').click();
   await expect(page.locator('[data-collaboration-live]')).not.toBeEmpty();
   const copied = await page.evaluate(() => sessionStorage.getItem('__creatorverse_test_clipboard'));
