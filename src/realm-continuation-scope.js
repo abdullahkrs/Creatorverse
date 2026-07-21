@@ -1,9 +1,24 @@
 const PANEL_SELECTOR = '[data-realm-continuation]';
 
+function hasInviteOrReceiptRoute() {
+  const parameters = new URLSearchParams(window.location.hash.replace(/^#/u, ''));
+  return parameters.has('invite') || parameters.has('receipt');
+}
+
+function competingWorkflowActive() {
+  return Boolean(
+    globalThis.__creatorverseCompletionReceiptActive
+    || hasInviteOrReceiptRoute()
+    || document.querySelector(
+      '[data-completion-receipt-view], .creator-studio, [data-prototype-follower-entry], [data-prototype-invite-error], [data-mission-result]',
+    ),
+  );
+}
+
 function shouldSuppress(panel) {
   const completionRecord = panel.closest('.completion-record');
   if (completionRecord) return !completionRecord.classList.contains('is-success');
-  return Boolean(document.querySelector('.creator-studio'));
+  return competingWorkflowActive();
 }
 
 function reconcileActionHierarchy(panel, suppressed) {
@@ -19,6 +34,7 @@ function reconcileContinuationScope() {
   document.querySelectorAll(PANEL_SELECTOR).forEach(panel => {
     const suppressed = shouldSuppress(panel);
     panel.toggleAttribute('hidden', suppressed);
+    panel.style.display = suppressed ? 'none' : '';
     panel.inert = suppressed;
     reconcileActionHierarchy(panel, suppressed);
     if (suppressed && !panel.closest('.completion-record')) {
@@ -32,5 +48,6 @@ if (app) {
   const observer = new MutationObserver(reconcileContinuationScope);
   observer.observe(app, { childList: true, subtree: true });
 }
+window.addEventListener('hashchange', reconcileContinuationScope);
 
 reconcileContinuationScope();
