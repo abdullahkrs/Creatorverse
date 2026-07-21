@@ -38,15 +38,20 @@ function restoreSelection() {
 
 function persistSelection(value) {
   creatorSelection = normalizeMissionScheduleId(value);
-  sessionStorage.setItem(SELECTION_KEY, creatorSelection);
+  try {
+    sessionStorage.setItem(SELECTION_KEY, creatorSelection);
+  } catch {
+    // The bounded in-memory selection remains usable when storage is unavailable.
+  }
   globalThis[GLOBAL_KEY] = creatorSelection;
 }
 
 function currentNow() {
   const injected = globalThis[CLOCK_KEY];
-  if (typeof injected === 'function') return Number(injected());
-  if (Number.isFinite(Number(injected))) return Number(injected);
-  return Date.now();
+  const value = typeof injected === 'function' ? injected() : injected;
+  const numeric = value == null ? Date.now() : Number(value);
+  if (!Number.isFinite(numeric) || numeric < 0) throw new Error('MISSION_SCHEDULE_CLOCK_INVALID');
+  return numeric;
 }
 
 function escapeHtml(value) {
@@ -58,20 +63,20 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function scheduleIcon() {
-  return `<svg class="mission-window-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
-    <path d="M12 3v3M19.8 8.2l-2.6 1.5M4.2 8.2l2.6 1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="12" cy="12" r="2.25" fill="currentColor"/>
-  </svg>`;
+function scheduleIcon(state) {
+  const marker = state === 'upcoming'
+    ? '<circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+    : state === 'expired'
+      ? '<path d="M5 12h14M7 8h10M7 16h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      : '<path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" fill="currentColor"/>';
+  return `<svg class="mission-window-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${marker}</svg>`;
 }
 
 function optionMarkup(id, label) {
   const checked = creatorSelection === id;
-  const [first, second] = label.split('·').map(part => part.trim());
   return `<label class="mission-window-option ${checked ? 'is-selected' : ''}">
     <input type="radio" name="mission-schedule" value="${id}" ${checked ? 'checked' : ''}>
-    <span>${escapeHtml(first)}${second ? ` <span aria-hidden="true">·</span> <bdi dir="ltr">${escapeHtml(second)}</bdi>` : ''}</span>
+    <span><bdi dir="auto">${escapeHtml(label)}</bdi></span>
   </label>`;
 }
 
@@ -93,9 +98,8 @@ function enhanceCreatorSelector() {
   if (!selector || selector.dataset.scheduleKey !== key) {
     selector?.remove();
     missionSelector.insertAdjacentHTML('afterend', `
-      <fieldset class="mission-window-selector" data-mission-schedule-owned data-schedule-key="${key}" aria-describedby="mission-window-help mission-window-validation">
+      <fieldset class="mission-window-selector" data-mission-schedule-owned data-schedule-key="${key}" aria-describedby="mission-window-validation">
         <legend>${escapeHtml(localized.selectorLegend)}</legend>
-        <p id="mission-window-help">${escapeHtml(localized.selectorHelp)}</p>
         <div class="mission-window-options">
           ${MISSION_SCHEDULE_IDS.map(id => optionMarkup(id, localized.options[id])).join('')}
         </div>
@@ -123,90 +127,177 @@ function clearMissionSession() {
   globalThis.dispatchEvent(new CustomEvent('creatorverse:mission-window-reset'));
 }
 
+function hasInviteRoute() {
+  const raw = String(window.location.hash || '').replace(/^#/u, '');
+  return raw ? new URLSearchParams(raw).has('invite') : false;
+}
+
 function readScheduleState() {
-  const now = currentNow();
-  const parsed = parsePrototypeInviteFragment(window.location.hash, { now });
-  if (parsed.status !== 'valid') return { parsed, schedule: null };
+  let now;
   try {
-    return { parsed, schedule: classifyMissionSchedule(parsed.invite, now) };
+    now = currentNow();
   } catch {
-    return { parsed: { status: 'invalid' }, schedule: null };
+    return { parsed: null, schedule: null, state: 'error' };
+  }
+
+  const parsed = parsePrototypeInviteFragment(window.location.hash, { now });
+  if (parsed.status === 'none') return { parsed, schedule: null, state: null };
+  if (parsed.status !== 'valid') return { parsed, schedule: null, state: 'invalid' };
+  if (!Number.isSafeInteger(parsed.invite.startMinute) || !Number.isSafeInteger(parsed.invite.endMinute)) {
+    return { parsed, schedule: null, state: 'active' };
+  }
+
+  try {
+    const schedule = classifyMissionSchedule(parsed.invite, now);
+    return { parsed, schedule, state: schedule.state };
+  } catch {
+    return { parsed: { status: 'invalid' }, schedule: null, state: 'invalid' };
   }
 }
 
-function statusMarkup(scheduleState) {
+function formatStartTime(startMs) {
+  const locale = getLocale() === 'ar' ? 'ar-AE' : 'en';
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(new Date(startMs));
+}
+
+function supportMarkup(state, schedule, localized) {
+  if (state !== 'upcoming' || !schedule) {
+    const text = state === 'expired'
+      ? localized.expiredSupport
+      : state === 'invalid'
+        ? localized.invalidSupport
+        : localized.errorSupport;
+    return escapeHtml(text);
+  }
+  const time = formatStartTime(schedule.startMs);
+  const [before, after = ''] = localized.startsAt.split('{time}');
+  const iso = new Date(schedule.startMs).toISOString();
+  return `${escapeHtml(before)}<time datetime="${iso}"><bdi dir="auto">${escapeHtml(time)}</bdi></time>${escapeHtml(after)}`;
+}
+
+function statusMarkup(state, schedule) {
   const localized = getMissionScheduleCopy(getLocale());
-  const stateCopy = localized.states[scheduleState];
-  const unavailable = scheduleState !== 'active';
-  return `<section class="mission-window-status is-${scheduleState}" data-mission-window-status data-state="${scheduleState}" data-locale="${getLocale()}" aria-labelledby="mission-window-title">
-    ${scheduleIcon()}
+  const title = state === 'upcoming'
+    ? localized.upcomingTitle
+    : state === 'expired'
+      ? localized.expiredTitle
+      : state === 'invalid'
+        ? localized.invalidTitle
+        : localized.errorTitle;
+  const action = state === 'upcoming'
+    ? `<button class="primary" type="button" data-action="mission-schedule-recheck">${escapeHtml(localized.checkAgain)}</button>`
+    : state === 'error'
+      ? `<button class="primary" type="button" data-action="mission-schedule-recheck">${escapeHtml(localized.tryAgain)}</button>`
+      : `<a class="primary link-button" href="#join">${escapeHtml(localized.back)}</a>`;
+
+  return `<section class="mission-window-status is-${state}" data-mission-window-status data-state="${state}" data-locale="${getLocale()}" aria-labelledby="mission-window-title">
+    ${scheduleIcon(state)}
     <div class="mission-window-copy">
-      <p class="section-kicker">${escapeHtml(localized.kicker)}</p>
-      <h2 id="mission-window-title" tabindex="-1">${escapeHtml(stateCopy.title)}</h2>
-      <p>${escapeHtml(stateCopy.support)}</p>
+      <h2 id="mission-window-title" tabindex="-1">${escapeHtml(title)}</h2>
+      <p>${supportMarkup(state, schedule, localized)}</p>
     </div>
-    ${unavailable ? `<div class="mission-window-actions">
-      <button class="primary" type="button" disabled aria-disabled="true">${escapeHtml(stateCopy.control)}</button>
-      <a class="secondary link-button" href="#join">${escapeHtml(localized.back)}</a>
-    </div>` : ''}
-    <p class="visually-hidden" data-mission-window-live aria-live="polite"></p>
+    <div class="mission-window-actions">${action}</div>
   </section>`;
 }
 
-function showNormalMission(roleGrid, mission) {
-  roleGrid.hidden = false;
-  mission.querySelector('[data-mission-window-status]')?.remove();
-  [...mission.children].forEach(child => { child.hidden = false; });
+function ensureAnnouncer() {
+  let announcer = document.querySelector('[data-mission-window-live]');
+  if (!announcer) {
+    announcer = document.createElement('p');
+    announcer.className = 'visually-hidden';
+    announcer.dataset.missionWindowLive = '';
+    announcer.setAttribute('aria-live', 'polite');
+    document.body.append(announcer);
+  }
+  return announcer;
 }
 
-function applyFollowerState({ announce = false } = {}) {
-  const { parsed, schedule } = readScheduleState();
-  const previousState = currentState;
-  currentInvite = parsed.status === 'valid' ? parsed.invite : null;
-  currentState = schedule?.state ?? (parsed.status === 'invalid' ? 'invalid' : null);
+function announce(text) {
+  const announcer = ensureAnnouncer();
+  if (announcer.textContent === text) return;
+  announcer.textContent = text;
+}
 
+function showActiveMission(roleGrid, mission) {
+  roleGrid.hidden = false;
+  roleGrid.removeAttribute('data-mission-window-hidden');
+  mission.querySelector('[data-mission-window-status]')?.remove();
+  mission.querySelectorAll('[data-mission-window-hidden]').forEach(child => {
+    child.hidden = false;
+    child.removeAttribute('data-mission-window-hidden');
+  });
+}
+
+function hideMissionForWindow(roleGrid, mission) {
+  roleGrid.hidden = true;
+  roleGrid.dataset.missionWindowHidden = '';
+  [...mission.children].forEach(child => {
+    if (child.matches('[data-mission-window-status]')) return;
+    child.hidden = true;
+    child.dataset.missionWindowHidden = '';
+  });
+}
+
+function scheduleBoundary(schedule) {
   clearTimeout(boundaryTimer);
   boundaryTimer = null;
+  if (!schedule || schedule.nextBoundaryMs == null || globalThis[CLOCK_KEY] != null) return;
+  const delay = Math.max(20, schedule.nextBoundaryMs - currentNow() + 20);
+  boundaryTimer = setTimeout(
+    () => applyFollowerState({ announceChange: true, focusChange: true, forceRender: true }),
+    Math.min(delay, 2_147_000_000),
+  );
+}
+
+function applyFollowerState({ announceChange = false, focusChange = false, forceRender = false } = {}) {
+  const { parsed, schedule, state } = readScheduleState();
+  const previousState = currentState;
+  currentInvite = parsed?.status === 'valid' ? parsed.invite : null;
+  currentState = state;
 
   const roleGrid = document.querySelector('.role-grid');
   const mission = document.querySelector('.mission');
-  if (!mission || !roleGrid) return;
+  if (!mission || !roleGrid) return state;
 
-  if (parsed.status === 'none') {
-    showNormalMission(roleGrid, mission);
-    return;
+  if (state == null) {
+    clearTimeout(boundaryTimer);
+    boundaryTimer = null;
+    showActiveMission(roleGrid, mission);
+    return state;
   }
 
-  if (!schedule) {
-    roleGrid.hidden = true;
-    clearMissionSession();
-    return;
+  if (state === 'active') {
+    showActiveMission(roleGrid, mission);
+    scheduleBoundary(schedule);
+    if (announceChange && previousState === 'upcoming') {
+      announce(getMissionScheduleCopy(getLocale()).transitionActive);
+    }
+    if (focusChange && previousState === 'upcoming') {
+      queueMicrotask(() => document.querySelector('[data-role]')?.focus({ preventScroll: true }));
+    }
+    return state;
   }
 
-  if (schedule.state !== 'active' && previousState !== schedule.state) clearMissionSession();
-  roleGrid.hidden = schedule.state !== 'active';
+  clearTimeout(boundaryTimer);
+  boundaryTimer = null;
+  if (previousState !== state) clearMissionSession();
+  hideMissionForWindow(roleGrid, mission);
 
   const existing = mission.querySelector('[data-mission-window-status]');
-  if (!existing || existing.dataset.state !== schedule.state || existing.dataset.locale !== getLocale()) {
+  if (forceRender || !existing || existing.dataset.state !== state || existing.dataset.locale !== getLocale()) {
     existing?.remove();
-    mission.insertAdjacentHTML('afterbegin', statusMarkup(schedule.state));
+    mission.insertAdjacentHTML('afterbegin', statusMarkup(state, schedule));
   }
 
-  [...mission.children].forEach(child => {
-    if (!child.matches('[data-mission-window-status]')) child.hidden = schedule.state !== 'active';
-  });
-
-  if (announce && previousState && previousState !== schedule.state) {
+  if (state === 'upcoming') scheduleBoundary(schedule);
+  if (announceChange && previousState && previousState !== state) {
     const localized = getMissionScheduleCopy(getLocale());
-    const live = mission.querySelector('[data-mission-window-live]');
-    if (live) live.textContent = schedule.state === 'active' ? localized.transitionActive : localized.transitionEnded;
+    announce(state === 'expired' ? localized.transitionExpired : localized.invalidSupport);
+  }
+  if (focusChange || state === 'expired' || state === 'invalid') {
     queueMicrotask(() => mission.querySelector('#mission-window-title')?.focus({ preventScroll: true }));
   }
-
-  if (schedule.nextBoundaryMs != null && globalThis[CLOCK_KEY] == null) {
-    const delay = Math.max(20, schedule.nextBoundaryMs - currentNow() + 20);
-    boundaryTimer = setTimeout(() => applyFollowerState({ announce: true }), Math.min(delay, 2_147_000_000));
-  }
+  return state;
 }
 
 function applyAll() {
@@ -229,8 +320,22 @@ function queueApply() {
   });
 }
 
+function handleRecheck(button) {
+  const localized = getMissionScheduleCopy(getLocale());
+  button.disabled = true;
+  button.setAttribute('aria-disabled', 'true');
+  button.textContent = localized.checking;
+  queueMicrotask(() => applyFollowerState({ announceChange: true, focusChange: true, forceRender: true }));
+}
+
 function handleCaptureClick(event) {
-  if (event.target.closest?.('[data-action="creator"]')) persistSelection(MISSION_SCHEDULE_IDS[0]);
+  const recheck = event.target.closest?.('[data-action="mission-schedule-recheck"]');
+  if (recheck) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    handleRecheck(recheck);
+    return;
+  }
 
   const launch = event.target.closest?.('.creator-studio [data-action="creator-next"]');
   if (launch && document.querySelector('.creator-studio .launch-summary')) {
@@ -248,7 +353,7 @@ function handleCaptureClick(event) {
   }
 
   const gated = event.target.closest?.('[data-role], [data-route], [data-mission-command], [data-action="mission-result-action"], [data-action="share-completion-receipt"]');
-  if (gated && currentInvite && currentState !== 'active') {
+  if (gated && hasInviteRoute() && currentState !== 'active') {
     event.preventDefault();
     event.stopImmediatePropagation();
   }
@@ -261,10 +366,6 @@ function handleChange(event) {
   queueApply();
 }
 
-function handleClockChange() {
-  applyFollowerState({ announce: true });
-}
-
 function teardown() {
   clearTimeout(boundaryTimer);
   boundaryTimer = null;
@@ -272,8 +373,8 @@ function teardown() {
 
 document.addEventListener('click', handleCaptureClick, true);
 document.addEventListener('change', handleChange);
-window.addEventListener('hashchange', () => applyFollowerState());
-window.addEventListener('creatorverse:schedule-clock', handleClockChange);
+window.addEventListener('hashchange', () => applyFollowerState({ forceRender: true }));
+window.addEventListener('creatorverse:schedule-clock', () => applyFollowerState({ announceChange: true, focusChange: true, forceRender: true }));
 window.addEventListener('pagehide', teardown, { once: true });
 
 const app = document.querySelector('#app');
@@ -282,4 +383,5 @@ if (app) {
   observer.observe(app, { childList: true, subtree: true });
 }
 
+ensureAnnouncer();
 applyAll();
