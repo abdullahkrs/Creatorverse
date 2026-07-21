@@ -3,6 +3,17 @@ html body {
   min-inline-size: min(20rem, 100%);
 }
 
+/* Flex wrapping responds to scaled text without relying on a hover or fixed viewport breakpoint. */
+html body .nav {
+  flex-wrap: wrap;
+}
+
+html body .nav-actions {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  flex-wrap: wrap;
+}
+
 body > .realm-collaboration {
   inline-size: calc(100% - (2 * var(--cv-page-pad)));
   max-inline-size: var(--cv-page-max);
