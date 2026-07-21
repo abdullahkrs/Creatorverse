@@ -15,11 +15,13 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 - Added compact upcoming, active, expired, invalid, and recoverable-check states: upcoming uses a semantic `<time>` and one recheck action; active removes schedule chrome and exposes the existing mission; expired and invalid paths clear bounded mission progress and provide one return action.
 - Added deterministic boundary transitions, focus movement, live announcements, and fail-closed interaction gating outside `[start, end)` while keeping every mission template, role, language, viewport, and successful path at exactly `+3`.
 - Added focused unit coverage and bilingual Playwright/axe scenarios for exact boundaries, strict payload validation, clean legacy fallback, creator keyboard selection, locale/resize preservation, upcoming → active → expired transitions, refresh, 200% text zoom, reduced motion, overflow, focus, and real screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Repaired expired-invite exit handling so the visible Back action, direct fragment removal, and browser-history restoration clear bounded mission state and cannot expose stale invited controls or generate a result, receipt, or `+3` after expiry; deterministic Arabic and English Playwright coverage locks the recovery path.
 - Added no dependency, database, account, credential, private data, paid service, notification, calendar permission, analytics, social SDK, external participant, React migration, Tailwind migration, human-only gate, or Production mutation.
 
 ### Validation
 
 - Pull Request #32 links Issue #31 and contains one existing branch and one coherent vertical slice.
+- The focused QA repair uses a capture-phase route recovery module and bilingual deterministic browser regression for Back, direct fragment editing, and history restoration; exact-head CI remains authoritative before release handoff.
 - Locked `npm ci`, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, keyboard/focus, RTL/LTR, responsive screenshots, and artifact integrity remain authoritative on the final unchanged head.
 - Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, creator intent, urgency response, trust, or market validation.
 - Rollback is limited to reverting Pull Request #32; no data, schema, dependency, credential, environment, or external-service rollback is required.
