@@ -1,6 +1,7 @@
 import { getMissionResultCopy, normalizeMissionLocale } from './mission-result-i18n.js';
 import { DEFAULT_MISSION_TEMPLATE_ID, normalizeMissionTemplateId } from './mission-templates.js';
 import { parseCompletionReceiptFragment } from './completion-receipt.js';
+import { parsePrototypeInviteFragment } from './prototype-invite.js';
 
 const ROLE_IDS = new Set(['builder', 'explorer', 'guardian']);
 const ROUTE_IDS = new Set(['sky', 'ocean']);
@@ -68,7 +69,20 @@ function getValidatedCompletionReceiptFragment(hash) {
   return `receipt=${parameters.get('receipt')}`;
 }
 
-export function getPublicHttpUrl(value, { preserveCompletionReceipt = false } = {}) {
+function getValidatedPrototypeInviteFragment(hash) {
+  const raw = String(hash ?? '').replace(/^#/u, '');
+  if (!raw) return '';
+  const parameters = new URLSearchParams(raw);
+  const keys = [...parameters.keys()];
+  if (keys.length !== 1 || keys[0] !== 'invite') return '';
+  if (parsePrototypeInviteFragment(`#${raw}`).status !== 'valid') return '';
+  return `invite=${parameters.get('invite')}`;
+}
+
+export function getPublicHttpUrl(value, {
+  preserveCompletionReceipt = false,
+  preservePrototypeInvite = false,
+} = {}) {
   try {
     const url = new URL(String(value));
     if (!['http:', 'https:'].includes(url.protocol)) return null;
@@ -76,8 +90,11 @@ export function getPublicHttpUrl(value, { preserveCompletionReceipt = false } = 
     const receiptFragment = preserveCompletionReceipt
       ? getValidatedCompletionReceiptFragment(url.hash)
       : '';
+    const inviteFragment = !receiptFragment && preservePrototypeInvite
+      ? getValidatedPrototypeInviteFragment(url.hash)
+      : '';
     url.search = '';
-    url.hash = receiptFragment;
+    url.hash = receiptFragment || inviteFragment;
     return url.toString();
   } catch {
     return null;
@@ -108,7 +125,10 @@ export function buildMissionSharePayload(result, { locale = 'en', publicUrl } = 
 
 export function buildClipboardText(payload) {
   const text = String(payload?.text || '').slice(0, 280).trim();
-  const url = getPublicHttpUrl(payload?.url, { preserveCompletionReceipt: true }) || '';
+  const url = getPublicHttpUrl(payload?.url, {
+    preserveCompletionReceipt: true,
+    preservePrototypeInvite: true,
+  }) || '';
   return `${text}\n${url}`.trim();
 }
 
