@@ -2,6 +2,33 @@
 
 Facts only. GitHub issues and labels remain the workflow source of truth.
 
+## 2026-07-21 — CV-MVP-011 local realm quarantine
+
+**Outcome:** Let an invited follower explicitly hide the exact opaque fictional realm on the current device until an explicit local restore, without accounts, identity, backend reporting, external moderation, or any change to the equal `+3` contribution rule.
+
+### Completed
+
+- Added one secondary Safety action to valid opaque-realm invites and one semantic native-dialog flow with exactly three allowlisted reasons: unsafe real-world request, harassment or hateful content, and a request for personal or private information.
+- Persisted only schema version, opaque realm ID, and one allowlisted reason in strict versioned local state; rejected duplicate JSON fields, duplicate realm records, unknown fields, malformed JSON, oversized values, unsafe identifiers, and non-allowlisted reasons without reflecting raw values.
+- Added deterministic recovery of unrelated valid entries, exact-realm isolation, explicit restore, and a 24-record cap that removes the oldest valid record before adding the twenty-fifth; no timestamp, invite token, receipt, profile, identity, free text, or analytics value is stored.
+- Made confirmation atomic from the follower's perspective: the current document becomes session-blocked before local persistence, invite-owned mission/result/share/receipt state is cleared, the invite fragment is removed from history, and refresh, Back/Forward, direct fragment re-paste, and intentional locale reload cannot expose stale controls or create a result, receipt, or `+3` contribution.
+- Added a bounded session view record so the blocked or recoverable-storage state survives refresh after fragment removal; successful local writes show a compact hidden state, failed writes keep the session closed with an honest retry, and explicit restore removes only the matching realm record.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, logical properties, existing design tokens, custom shield/gate SVG artwork, 44 px targets, visible focus, native modal focus containment, cancel/Escape focus restoration, disabled/pending/success/error/restored states, mobile bottom-sheet composition, desktop bounded composition, and reduced-motion equivalence without gradients, glows, repeated cards, placeholder icons, or oversized marketing copy.
+- Added focused unit and localization coverage plus deterministic Playwright/axe scenarios for exact persistence fields, deterministic capacity, atomic write failure, malformed-state rejection, cross-realm isolation, reload/history/re-paste blocking, locale preservation, keyboard/focus, 200% text zoom, overflow, reduced motion, and real choice/hidden/error screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900` in both languages.
+- Repaired same-tab navigation from a hidden or restored panel to an unblocked valid invite by rebuilding the base follower shell through one bounded route-recovery reload; bilingual Playwright coverage verifies cross-realm and explicit-restore paths return without stale result, receipt, or mission state.
+- Added no dependency, database, backend moderation queue, account, credential, private data, paid service, social API, notification, ranking effect, creator-state mutation, external participant, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #34 links Issue #33 and contains one dedicated branch and one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, keyboard/focus, RTL/LTR, responsive screenshots, and browser-artifact integrity remain authoritative on the final unchanged head.
+- Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, trust, safety perception, moderation quality, or market validation.
+- Rollback is limited to reverting Pull Request #34 and clearing the two versioned local/session quarantine keys; no database, schema, dependency, credential, environment, account, or external-service rollback is required.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and uploaded bilingual browser evidence for independent QA; move Issue #33 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-21 — CV-MVP-010 bounded mission availability
 
 **Outcome:** Give creators exactly three safe mission-availability presets and make invited followers enter one deterministic upcoming, active, or expired state without accounts, free-form scheduling, server-side identity, or any change to the equal `+3` contribution rule.
@@ -220,7 +247,7 @@ Run independent QA on the unchanged final PR head and exact Railway Preview; do 
 - The focused repair prevents the generic Arabic localizer from rewriting invite-owned localized components and follower realm values, preserving dynamic text and stopping the microtask loop without weakening tests.
 - CI run #152 on implementation head `733a29151cc4fc688d638852aa8a94c77f2e6b3e` passed locked `npm ci`, `npm run check`, the production build, exact isolated Railway Preview verification, the complete English/Arabic browser matrix, axe, keyboard flow, fresh-session invite entry, invalid recovery, 200% text zoom, and responsive screenshot gates.
 - A P2 review on earlier head `314c4d8a5c` identified that bare domains and non-HTTP external schemes could bypass the original external-text denylist.
-- CI run #155 on focused repair head `68dd06f139267bcc1287b7d5d6cc1e119d65943e` passed locked installation, the expanded unit and localization gates, `npm run check`, production build, exact isolated Railway Preview `/health`, `/version`, branch and commit identity, malformed-path safety, post-request liveness, bilingual Playwright, axe, keyboard, text zoom, responsive evidence, and artifact upload.
+- CI run #155 on focused repair head `68dd06f139267bcc1287b7d5d6cc1e119d65943e` passed locked installation, the expanded unit and localization gates, `npm run check`, production build, exact isolated Railway PR Preview `/health`, `/version`, branch and commit identity, malformed-path safety, post-request liveness, bilingual Playwright, axe, keyboard, text zoom, responsive evidence, and artifact upload.
 - Browser evidence artifact `browser-quality-68dd06f139267bcc1287b7d5d6cc1e119d65943e` is retained through 2026-08-01; the safety repair changed validation only and preserved the approved visual, responsive, Arabic/English, state, and interaction behavior.
 - Rollback is limited to reverting Pull Request #15; no database, dependency, secret, account, environment, or external-service rollback is required.
 
@@ -263,6 +290,7 @@ Run independent QA on the unchanged final PR head; do not add product scope or r
 - Added adaptive wrapping for role choices, mission routes, realm statistics, and result facts without clipping, page-level overflow hiding, transforms, font reduction, or new product copy.
 - Preserved role order, original SVG icons, selected states, Arabic RTL composition, English LTR composition, reduced motion, safety behavior, and the existing isolated Railway Preview verifier.
 - Added no dependency, persistence, integration, secret, schema, production mutation, or product-scope expansion.
+
 ### Validation
 
 - CI run #137 passed the previous gate, but artifact inspection showed that its viewport-only 200% screenshots did not prove the role choices and rendered result facts with character-level wrapping.

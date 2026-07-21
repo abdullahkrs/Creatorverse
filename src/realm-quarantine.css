@@ -1,0 +1,217 @@
+.realm-safety-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-block-start: var(--cv-space-3);
+}
+
+.realm-safety-trigger {
+  min-block-size: var(--cv-target-min);
+  padding-inline: var(--cv-space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  background: transparent;
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+  font-weight: 750;
+}
+
+.realm-safety-trigger:hover:not(:disabled) {
+  color: var(--cv-color-text);
+  background: var(--cv-color-surface-raised);
+}
+
+.realm-quarantine-dialog {
+  inline-size: min(100% - (2 * var(--cv-space-4)), 28rem);
+  max-block-size: calc(100dvb - (2 * var(--cv-space-4)));
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  color: var(--cv-color-text);
+  background: var(--cv-color-surface);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-lg);
+}
+
+.realm-quarantine-dialog::backdrop {
+  background: rgb(4 6 10 / 78%);
+}
+
+.realm-quarantine-dialog-form {
+  padding: var(--cv-space-5);
+  display: grid;
+  gap: var(--cv-space-5);
+}
+
+.realm-quarantine-dialog-form > header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--cv-space-3);
+}
+
+.realm-quarantine-dialog-icon,
+.realm-quarantine-gate {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  display: grid;
+  place-items: center;
+  color: var(--cv-color-warning);
+  background: var(--cv-color-surface-raised);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+}
+
+.realm-quarantine-dialog h2,
+.realm-quarantine-state h1 {
+  margin: 0;
+  max-inline-size: 22ch;
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+  letter-spacing: -.025em;
+}
+
+.realm-quarantine-dialog header p,
+.realm-quarantine-state-copy > p:last-child {
+  max-inline-size: 55ch;
+  margin: var(--cv-space-2) 0 0;
+  color: var(--cv-color-text-muted);
+  line-height: var(--cv-leading-normal);
+}
+
+.realm-quarantine-dialog fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--cv-space-2);
+  border: 0;
+}
+
+.realm-quarantine-dialog legend {
+  margin-block-end: var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+  font-weight: 750;
+}
+
+.realm-quarantine-reason {
+  min-block-size: var(--cv-target-min);
+  padding: var(--cv-space-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cv-space-3);
+  text-align: start;
+  color: var(--cv-color-text);
+  background: var(--cv-color-canvas);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+}
+
+.realm-quarantine-reason:has(input:checked) {
+  border-color: var(--cv-color-danger);
+  background: var(--cv-color-surface-raised);
+}
+
+.realm-quarantine-reason input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  min-block-size: 1.25rem;
+  margin: 0;
+  accent-color: var(--cv-color-danger);
+}
+
+.realm-quarantine-dialog-actions,
+.realm-quarantine-state-actions {
+  display: grid;
+  gap: var(--cv-space-2);
+}
+
+.realm-quarantine-dialog-actions > button,
+.realm-quarantine-state-actions > button {
+  min-block-size: var(--cv-target-min);
+}
+
+.realm-quarantine-state {
+  min-block-size: min(34rem, calc(100dvb - 8rem));
+  padding: clamp(var(--cv-space-5), 4vw, var(--cv-space-10));
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--cv-space-5);
+  background: var(--cv-color-surface);
+  border: 1px solid var(--cv-color-border);
+  border-block-start: .35rem solid var(--cv-color-warning);
+  border-radius: var(--cv-radius-lg);
+}
+
+.realm-quarantine-state.is-error {
+  border-block-start-color: var(--cv-color-danger);
+}
+
+.realm-quarantine-state-copy {
+  display: grid;
+  gap: var(--cv-space-1);
+}
+
+.realm-quarantine-status {
+  min-block-size: 1.4rem;
+  margin: 0;
+  color: var(--cv-color-danger);
+  font-size: var(--cv-text-sm);
+}
+
+html:has(.realm-quarantine-dialog[open]) {
+  overflow: hidden;
+}
+
+[dir="rtl"] .realm-safety-row,
+[dir="rtl"] .realm-quarantine-state {
+  justify-content: start;
+  text-align: start;
+}
+
+@media (max-width: 39.99rem) {
+  .realm-quarantine-dialog {
+    inline-size: 100%;
+    max-inline-size: none;
+    max-block-size: min(92dvb, 44rem);
+    margin: auto 0 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .realm-quarantine-dialog-form {
+    padding: var(--cv-space-4);
+  }
+}
+
+@media (min-width: 40rem) {
+  .realm-quarantine-dialog-actions,
+  .realm-quarantine-state-actions {
+    grid-template-columns: minmax(9rem, auto) minmax(9rem, auto);
+    justify-content: start;
+  }
+
+  .realm-quarantine-state {
+    grid-template-columns: auto minmax(0, 34rem);
+  }
+
+  .realm-quarantine-state-actions,
+  .realm-quarantine-status {
+    grid-column: 2;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .realm-quarantine-dialog[open] {
+    animation: realm-quarantine-enter var(--cv-duration-normal) var(--cv-ease-standard);
+  }
+
+  @keyframes realm-quarantine-enter {
+    from { opacity: 0; transform: translateY(var(--cv-space-3)); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
