@@ -4,6 +4,33 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-MVP-015 reversible realm collaboration
+
+**Outcome:** Let one creator generate a bounded proposal from a strict local fictional realm and let a different creator explicitly accept one reversible device-local collaboration link without accounts, contacts, chat, backend state, rewards, or progress mutation.
+
+### Implemented
+
+- Added a versioned fragment-only proposal codec with exact keys, bounded opaque identifiers, allowlisted realm archetypes, strict names, size limits, duplicate/unknown-field rejection, hostile Unicode and bidi rejection, and immediate browser-history cleanup.
+- Added one strict local collaboration record containing only local/source realm IDs, proposal ID, source bounded name, and source archetype; no timestamp, identity, contact, free text, analytics, follower data, mission data, receipt, ledger entry, energy value, or second progress store was added.
+- Added explicit preview and acceptance, self-link rejection, one-link capacity, duplicate idempotency, verified write-or-no-write handling, safe recovery, concise removal confirmation, and removal isolation.
+- Integrated one secondary **Collaborate / تعاون** action after the dominant **Launch next mission / أطلق المهمة التالية** action, with a restrained custom signal-splice SVG and no dashboard, inbox, profile grid, repeated cards, gradients, glows, emoji, or decorative geometry.
+- Added capability-based Share/Copy with pending, copied/shared, cancelled, denied, failed, unsupported/manual-copy, and retry states without claiming delivery, viewing, external acceptance, identity, or ownership.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, bidirectional isolation, semantic headings and dialog behavior, logical CSS properties, existing design tokens, 44 px targets, visible focus, Escape cancellation, reduced-motion equivalence, 200% reflow, and intrinsic layouts for all required widths.
+- Added focused unit coverage for codec bounds, duplicate/unknown keys, unsupported versions, hostile values, self-link, one-link capacity, duplicate idempotency, atomic storage failure, removal isolation, preview durability, and localization parity.
+- Added deterministic Playwright and axe evidence using two isolated browser contexts for proposal creation, strict import, explicit acceptance, reload, locale switching, duplicate/self/second-link/query rejection, malformed recovery, keyboard focus, minimum targets, overflow, responsive screenshots, and isolated removal.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, React migration, Tailwind migration, social API, scraping, Production mutation, human-only gate, or owner approval.
+
+### Validation
+
+- The dedicated `feature/cv-mvp-015-realm-collaboration` branch and its linked pull request contain one coherent vertical slice for Issue #41.
+- Locked `npm ci`, unit/localization/build gates, isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated two-context scenarios are reproducible protocol and engineering regression evidence only; they are not evidence of human collaboration, comprehension, consent, demand, retention, preference, trust, creator intent, or market validation.
+- Rollback is limited to reverting the linked pull request and removing the strict local collaboration key; the creator ledger, missions, receipts, district projection, fixed `+3`, accounts, dependencies, and environment configuration are unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #41 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-21 — CV-MVP-014 bounded realm chronicle
 
 **Outcome:** Let a creator reopening one strict device-local fictional realm inspect a compact, privacy-safe chronology of accepted contributions while keeping **Launch next mission / أطلق المهمة التالية** as the dominant action.
