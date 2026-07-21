@@ -36,7 +36,9 @@ function inviteFor(realmId, name = 'Harbor Guild') {
 async function createContext(browser, locale, viewport) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ selectedLocale, storageKey }) => {
-    localStorage.setItem('creatorverse-locale', selectedLocale);
+    if (!localStorage.getItem('creatorverse-locale')) {
+      localStorage.setItem('creatorverse-locale', selectedLocale);
+    }
     const nativeSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function setItem(key, value) {
       if (key === storageKey && globalThis.__creatorverseFailQuarantineWrites) {
