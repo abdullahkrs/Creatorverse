@@ -226,6 +226,7 @@ export function parsePrototypeInviteToken(token, { now = Date.now() } = {}) {
     const missionInstanceId = normalizeOpaqueId(payload.i, { code: 'INVITE_INSTANCE_INVALID' });
     if (missionInstanceId && !realmId) throw inviteError('INVITE_INSTANCE_REALM_REQUIRED');
     const schedule = normalizeParsedSchedule(payload, now);
+    if (missionInstanceId && !schedule) throw inviteError('INVITE_INSTANCE_SCHEDULE_REQUIRED');
     const invite = { name, theme: payload.t, promise, missionId };
     if (realmId) invite.realmId = realmId;
     if (missionInstanceId) invite.missionInstanceId = missionInstanceId;
