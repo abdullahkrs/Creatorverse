@@ -66,7 +66,7 @@ function enhanceRealmUpdate(realm, growth, locale) {
     locale,
     headingId: 'creator-realm-update-title',
     headingLevel: 2,
-    transition: Boolean(pendingChange),
+    transition: Boolean(pendingChange?.advanced),
   });
   if (!markup) return null;
 
@@ -113,7 +113,7 @@ function announceChange(surface, growth, locale) {
   const stageChanged = pendingChange.advanced;
   const announcement = formatBeaconDistrictGrowthAnnouncement(growth, { locale, stageChanged });
   pendingChange = null;
-  surface.classList.add('is-transitioning');
+  if (stageChanged) surface.classList.add('is-transitioning');
   requestAnimationFrame(() => {
     live.textContent = announcement;
     if (stageChanged) {
