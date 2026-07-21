@@ -17,8 +17,8 @@ const MAX_DECODED_BYTES = 360;
 const MAX_REALM_NAME = 28;
 const MAX_PROMISE = 90;
 const ALLOWED_THEMES = new Set(['cosmic', 'wild', 'future']);
-const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId', 'realmId', 'scheduleId', 'createdAtMinute']);
-const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm', 'r', 'c', 's', 'e']);
+const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId', 'realmId', 'missionInstanceId', 'scheduleId', 'createdAtMinute']);
+const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm', 'r', 'i', 'c', 's', 'e']);
 const SCHEDULE_PAYLOAD_FIELDS = Object.freeze(['c', 's', 'e']);
 const OPAQUE_ID = /^[A-Za-z0-9_-]{16,64}$/u;
 
@@ -124,13 +124,13 @@ export function normalizeInviteText(value, { field = 'value', maxLength, require
   return normalized;
 }
 
-function normalizeRealmId(value, { required = false } = {}) {
+function normalizeOpaqueId(value, { required = false, code = 'INVITE_REALM_INVALID' } = {}) {
   if (value == null || value === '') {
-    if (required) throw inviteError('INVITE_REALM_INVALID');
+    if (required) throw inviteError(code);
     return null;
   }
   if (typeof value !== 'string' || CONTROL_OR_BIDI.test(value) || !OPAQUE_ID.test(value)) {
-    throw inviteError('INVITE_REALM_INVALID');
+    throw inviteError(code);
   }
   return value;
 }
@@ -160,13 +160,15 @@ function normalizeParsedSchedule(payload, now) {
 
 export function createPrototypeInvite(input = {}, { now = Date.now() } = {}) {
   assertObjectWithAllowedFields(input, CREATE_FIELDS, 'INVITE_FIELDS_INVALID');
-  const { name, theme, promise, missionId, realmId } = input;
+  const { name, theme, promise, missionId, realmId, missionInstanceId } = input;
   const normalizedName = normalizeInviteText(name, { field: 'name', maxLength: MAX_REALM_NAME });
   if (!ALLOWED_THEMES.has(theme)) throw inviteError('INVITE_THEME_INVALID');
   const normalizedPromise = normalizeInviteText(promise ?? '', {
     field: 'promise', maxLength: MAX_PROMISE, required: false,
   });
-  const normalizedRealmId = normalizeRealmId(realmId);
+  const normalizedRealmId = normalizeOpaqueId(realmId);
+  const normalizedMissionInstanceId = normalizeOpaqueId(missionInstanceId, { code: 'INVITE_INSTANCE_INVALID' });
+  if (normalizedMissionInstanceId && !normalizedRealmId) throw inviteError('INVITE_INSTANCE_REALM_REQUIRED');
   let normalizedMission;
   try {
     normalizedMission = normalizeMissionTemplateId(
@@ -193,6 +195,7 @@ export function createPrototypeInvite(input = {}, { now = Date.now() } = {}) {
   };
   if (normalizedPromise) payload.p = normalizedPromise;
   if (normalizedRealmId) payload.r = normalizedRealmId;
+  if (normalizedMissionInstanceId) payload.i = normalizedMissionInstanceId;
 
   const encoded = toBase64Url(utf8Bytes(JSON.stringify(payload)));
   const token = `${TOKEN_PREFIX}${encoded}`;
@@ -219,10 +222,13 @@ export function parsePrototypeInviteToken(token, { now = Date.now() } = {}) {
       field: 'promise', maxLength: MAX_PROMISE, required: false,
     });
     const missionId = normalizeMissionTemplateId(payload.m ?? DEFAULT_MISSION_TEMPLATE_ID, { fallback: false });
-    const realmId = normalizeRealmId(payload.r);
+    const realmId = normalizeOpaqueId(payload.r);
+    const missionInstanceId = normalizeOpaqueId(payload.i, { code: 'INVITE_INSTANCE_INVALID' });
+    if (missionInstanceId && !realmId) throw inviteError('INVITE_INSTANCE_REALM_REQUIRED');
     const schedule = normalizeParsedSchedule(payload, now);
     const invite = { name, theme: payload.t, promise, missionId };
     if (realmId) invite.realmId = realmId;
+    if (missionInstanceId) invite.missionInstanceId = missionInstanceId;
     if (schedule) {
       invite.scheduleId = schedule.scheduleId;
       invite.createdAtMinute = schedule.createdAtMinute;
@@ -268,6 +274,7 @@ export const prototypeInviteLimits = Object.freeze({
   maxDecodedBytes: MAX_DECODED_BYTES,
   maxRealmName: MAX_REALM_NAME,
   maxPromise: MAX_PROMISE,
+  identifierPattern: OPAQUE_ID,
   themes: Object.freeze([...ALLOWED_THEMES]),
   missions: MISSION_TEMPLATE_IDS,
   schedules: MISSION_SCHEDULE_IDS,
