@@ -102,12 +102,20 @@ async function expectQuality(page, label) {
 async function expectPrimaryFirst(page, locale) {
   const launch = page.locator('[data-action="open-realm-continuation"]');
   await expect(launch).toHaveText(locale.launch);
-  const relation = await page.evaluate(() => {
+  const hierarchy = await page.evaluate(() => {
     const operation = document.querySelector('[data-realm-continuation][data-state="ready"] > .realm-continuation-operation');
     const context = document.querySelector('[data-realm-continuation][data-state="ready"] > .realm-continuation-context');
-    return Boolean(operation && context && (operation.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING));
+    if (!operation || !context) return null;
+    return {
+      operationOrder: Number.parseInt(getComputedStyle(operation).order, 10),
+      contextOrder: Number.parseInt(getComputedStyle(context).order, 10),
+      operationTop: operation.getBoundingClientRect().top,
+      contextTop: context.getBoundingClientRect().top,
+    };
   });
-  expect(relation).toBe(true);
+  expect(hierarchy).not.toBeNull();
+  expect(hierarchy.operationOrder).toBeLessThan(hierarchy.contextOrder);
+  expect(hierarchy.operationTop).toBeLessThanOrEqual(hierarchy.contextTop);
 }
 
 for (const locale of LOCALES) {
