@@ -72,17 +72,19 @@ function syncShareController(realm) {
 
 function consumeIncomingTransport() {
   const url = new URL(window.location.href);
+  const queryInvalid = url.searchParams.has('collab');
+  const hasCollaborationHash = window.location.hash.includes('collab');
   let consumed = false;
-  if (url.searchParams.has('collab')) {
-    incomingInvalid = true;
-    clearRealmCollaborationPreview(sessionStorage);
+
+  if (queryInvalid) {
     url.searchParams.delete('collab');
+    clearRealmCollaborationPreview(sessionStorage);
     consumed = true;
   }
 
-  if (window.location.hash.includes('collab')) {
+  if (hasCollaborationHash) {
     const parsed = parseRealmCollaborationHash(window.location.hash);
-    if (parsed.status === 'ready') {
+    if (!queryInvalid && parsed.status === 'ready') {
       try {
         writeRealmCollaborationPreview(sessionStorage, parsed.proposal);
         incomingInvalid = false;
@@ -97,6 +99,8 @@ function consumeIncomingTransport() {
     }
     url.hash = '';
     consumed = true;
+  } else if (queryInvalid) {
+    incomingInvalid = true;
   }
 
   if (consumed) {
@@ -147,19 +151,15 @@ function ensureAction(section, locale, linked) {
   const operation = section.querySelector('.realm-continuation-operation');
   if (!operation) return null;
   let button = operation.querySelector('[data-action="open-realm-collaboration"]');
-  const markup = renderCollaborationAction(locale, linked);
   if (!button) {
     const template = document.createElement('template');
-    template.innerHTML = markup.trim();
+    template.innerHTML = renderCollaborationAction(locale, linked).trim();
     button = template.content.firstElementChild;
     operation.append(button);
-  } else {
-    const template = document.createElement('template');
-    template.innerHTML = markup.trim();
-    const replacement = template.content.firstElementChild;
-    button.replaceWith(replacement);
-    button = replacement;
   }
+  const copy = getRealmCollaborationCopy(locale);
+  const label = linked ? copy.linkedTitle : copy.action;
+  if (button.textContent !== label) button.textContent = label;
   button.setAttribute('aria-expanded', String(flowOpen));
   return button;
 }
@@ -170,6 +170,15 @@ function outsideHost() {
 
 function sourceRealmFromRecord(record) {
   return { id: record.sourceRealmId, name: record.sourceName, theme: record.sourceTheme };
+}
+
+function errorPanel(locale, kind, key, host, shouldFocus = false) {
+  const panel = replacePanel(host, renderCollaborationError({ locale, kind, message: operationMessage }), key);
+  if (shouldFocus || focusTarget) {
+    focusTarget = '';
+    queueMicrotask(() => panel.querySelector('#realm-collaboration-error-title')?.focus({ preventScroll: true }));
+  }
+  return panel;
 }
 
 function applyEnhancement() {
@@ -189,12 +198,8 @@ function applyEnhancement() {
       const host = outsideHost();
       if (!host) return;
       const kind = incomingInvalid ? 'invalid' : 'noRealm';
-      const panel = replacePanel(host, renderCollaborationError({ locale, kind }), `${locale}:${kind}`);
-      if (previewFocusPending || focusTarget) {
-        previewFocusPending = false;
-        focusTarget = '';
-        queueMicrotask(() => panel.querySelector('#realm-collaboration-error-title')?.focus({ preventScroll: true }));
-      }
+      errorPanel(locale, kind, `${locale}:${kind}`, host, previewFocusPending);
+      previewFocusPending = false;
       return;
     }
 
@@ -206,12 +211,15 @@ function applyEnhancement() {
     let markup = '';
     let key = '';
     if (collaboration.status === 'invalid' || collaboration.status === 'mismatch') {
-      markup = renderCollaborationError({ locale, kind: 'storage' });
-      key = `${locale}:storage`;
       flowOpen = true;
+      markup = renderCollaborationError({ locale, kind: 'storage', message: operationMessage });
+      key = `${locale}:storage-record:${operationMessage}`;
     } else if (preview) {
       flowOpen = true;
-      if (preview.sourceRealmId === realm.id) {
+      if (operationKind === 'storage') {
+        markup = renderCollaborationError({ locale, kind: 'storage', message: operationMessage });
+        key = `${locale}:storage-preview:${operationMessage}`;
+      } else if (preview.sourceRealmId === realm.id) {
         operationKind = 'self';
         markup = renderCollaborationError({ locale, kind: 'self' });
         key = `${locale}:self:${preview.proposalId}`;
@@ -227,7 +235,7 @@ function applyEnhancement() {
             confirm: confirmationOpen,
             message: operationMessage,
           });
-          key = `${locale}:linked:duplicate:${confirmationOpen}`;
+          key = `${locale}:linked-duplicate:${confirmationOpen}`;
         } else {
           operationKind = 'already';
           markup = renderCollaborationError({ locale, kind: 'already' });
@@ -247,6 +255,10 @@ function applyEnhancement() {
       flowOpen = true;
       markup = renderCollaborationError({ locale, kind: 'invalid' });
       key = `${locale}:invalid`;
+    } else if (operationKind === 'storage') {
+      flowOpen = true;
+      markup = renderCollaborationError({ locale, kind: 'storage', message: operationMessage });
+      key = `${locale}:storage-operation:${operationMessage}`;
     } else if (flowOpen && linked) {
       markup = renderCollaborationLinked({
         locale,
@@ -322,21 +334,24 @@ function closeFlow() {
 function createProposal() {
   const single = getSingleCreatorRealm(localStorage);
   if (single.status !== 'ready') return;
-  const outcome = createRealmCollaborationProposal(single.realm, {
-    cryptoLike: globalThis.crypto,
-    baseUrl: currentBaseUrl(),
-  });
-  if (outcome.status !== 'ready') {
+  try {
+    const outcome = createRealmCollaborationProposal(single.realm, {
+      cryptoLike: globalThis.crypto,
+      baseUrl: currentBaseUrl(),
+    });
+    if (outcome.status !== 'ready') throw new TypeError('COLLAB_PROPOSAL_INVALID');
+    generatedProposal = outcome;
+    shareState = 'idle';
+    forceCopy = false;
+    operationKind = '';
+    operationMessage = '';
+    syncShareController(single.realm);
+    focusTarget = '[data-action="share-realm-collaboration"]';
+  } catch {
     operationKind = 'storage';
     operationMessage = getRealmCollaborationCopy(getLocale()).storageSupport;
-    scheduleEnhancement();
-    return;
+    focusTarget = '#realm-collaboration-error-title';
   }
-  generatedProposal = outcome;
-  shareState = 'idle';
-  forceCopy = false;
-  syncShareController(single.realm);
-  focusTarget = '[data-action="share-realm-collaboration"]';
   scheduleEnhancement();
 }
 
@@ -391,6 +406,7 @@ function acceptIncoming() {
     } else {
       operationKind = 'storage';
       operationMessage = copy.storageSupport;
+      focusTarget = '#realm-collaboration-error-title';
     }
     scheduleEnhancement();
   });
