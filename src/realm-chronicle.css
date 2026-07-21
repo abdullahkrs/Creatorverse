@@ -180,7 +180,8 @@
 @container (min-width: 48rem) {
   .realm-continuation.is-ready > .realm-continuation-context {
     padding-inline: var(--cv-space-6) 0;
-    border-inline: 1px solid var(--cv-color-border) 0;
+    border-inline-end: 0;
+    border-inline-start: 1px solid var(--cv-color-border);
   }
 
   .realm-continuation.is-ready > .realm-chronicle { grid-column: 1 / -1; }
