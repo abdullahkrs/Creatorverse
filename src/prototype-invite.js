@@ -3,6 +3,12 @@ import {
   MISSION_TEMPLATE_IDS,
   normalizeMissionTemplateId,
 } from './mission-templates.js';
+import {
+  MISSION_SCHEDULE_IDS,
+  createMissionSchedule,
+  normalizeMissionScheduleWindow,
+  toEpochMinute,
+} from './mission-schedule.js';
 
 const INVITE_VERSION = 1;
 const TOKEN_PREFIX = 'v1.';
@@ -11,8 +17,9 @@ const MAX_DECODED_BYTES = 360;
 const MAX_REALM_NAME = 28;
 const MAX_PROMISE = 90;
 const ALLOWED_THEMES = new Set(['cosmic', 'wild', 'future']);
-const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId', 'realmId']);
-const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm', 'r']);
+const CREATE_FIELDS = new Set(['name', 'theme', 'promise', 'missionId', 'realmId', 'scheduleId', 'createdAtMinute']);
+const PAYLOAD_FIELDS = new Set(['v', 'n', 't', 'p', 'm', 'r', 'c', 's', 'e']);
+const SCHEDULE_PAYLOAD_FIELDS = Object.freeze(['c', 's', 'e']);
 const OPAQUE_ID = /^[A-Za-z0-9_-]{16,64}$/u;
 
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
@@ -31,15 +38,57 @@ function assertObjectWithAllowedFields(value, allowedFields, code) {
   if (Object.keys(value).some(key => !allowedFields.has(key))) throw inviteError(code);
 }
 
+function assertNoDuplicateTopLevelKeys(json) {
+  const keys = new Set();
+  let depth = 0;
+  let index = 0;
+
+  while (index < json.length) {
+    const character = json[index];
+    if (character === '"') {
+      const start = index;
+      index += 1;
+      let escaped = false;
+      while (index < json.length) {
+        const current = json[index];
+        if (escaped) {
+          escaped = false;
+          index += 1;
+          continue;
+        }
+        if (current === '\\') {
+          escaped = true;
+          index += 1;
+          continue;
+        }
+        if (current === '"') {
+          index += 1;
+          break;
+        }
+        index += 1;
+      }
+      if (json[index - 1] !== '"') throw inviteError('INVITE_JSON_INVALID');
+      let cursor = index;
+      while (/\s/u.test(json[cursor] || '')) cursor += 1;
+      if (depth === 1 && json[cursor] === ':') {
+        const key = JSON.parse(json.slice(start, index));
+        if (keys.has(key)) throw inviteError('INVITE_FIELDS_DUPLICATE');
+        keys.add(key);
+      }
+      continue;
+    }
+    if (character === '{') depth += 1;
+    if (character === '}') depth -= 1;
+    index += 1;
+  }
+}
+
 function utf8Bytes(value) {
   return new TextEncoder().encode(value);
 }
 
 function toBase64Url(bytes) {
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(bytes).toString('base64url');
-  }
-
+  if (typeof Buffer !== 'undefined') return Buffer.from(bytes).toString('base64url');
   let binary = '';
   bytes.forEach(byte => { binary += String.fromCharCode(byte); });
   return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/u, '');
@@ -48,7 +97,6 @@ function toBase64Url(bytes) {
 function fromBase64Url(value) {
   if (!/^[A-Za-z0-9_-]+$/u.test(value)) throw inviteError('INVITE_ENCODING_INVALID');
   if (typeof Buffer !== 'undefined') return new Uint8Array(Buffer.from(value, 'base64url'));
-
   const padded = value.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
   const binary = atob(padded);
   return Uint8Array.from(binary, character => character.charCodeAt(0));
@@ -65,7 +113,6 @@ export function escapeInviteHtml(value) {
 
 export function normalizeInviteText(value, { field = 'value', maxLength, required = true } = {}) {
   if (typeof value !== 'string') throw inviteError(`INVITE_${field.toUpperCase()}_INVALID`);
-
   const normalized = value.normalize('NFKC').replace(/\s+/gu, ' ').trim();
   if (required && !normalized) throw inviteError(`INVITE_${field.toUpperCase()}_REQUIRED`);
   if (!normalized) return null;
@@ -88,15 +135,36 @@ function normalizeRealmId(value, { required = false } = {}) {
   return value;
 }
 
-export function createPrototypeInvite(input = {}) {
+function normalizeCreatedSchedule(scheduleId, createdAtMinute, now) {
+  try {
+    return createMissionSchedule(scheduleId, createdAtMinute, { now });
+  } catch {
+    throw inviteError('INVITE_SCHEDULE_INVALID');
+  }
+}
+
+function normalizeParsedSchedule(payload, now) {
+  const present = SCHEDULE_PAYLOAD_FIELDS.filter(field => Object.hasOwn(payload, field));
+  if (present.length === 0) return null;
+  if (present.length !== SCHEDULE_PAYLOAD_FIELDS.length) throw inviteError('INVITE_SCHEDULE_INVALID');
+  try {
+    return normalizeMissionScheduleWindow({
+      createdAtMinute: payload.c,
+      startMinute: payload.s,
+      endMinute: payload.e,
+    }, { now });
+  } catch {
+    throw inviteError('INVITE_SCHEDULE_INVALID');
+  }
+}
+
+export function createPrototypeInvite(input = {}, { now = Date.now() } = {}) {
   assertObjectWithAllowedFields(input, CREATE_FIELDS, 'INVITE_FIELDS_INVALID');
   const { name, theme, promise, missionId, realmId } = input;
   const normalizedName = normalizeInviteText(name, { field: 'name', maxLength: MAX_REALM_NAME });
   if (!ALLOWED_THEMES.has(theme)) throw inviteError('INVITE_THEME_INVALID');
   const normalizedPromise = normalizeInviteText(promise ?? '', {
-    field: 'promise',
-    maxLength: MAX_PROMISE,
-    required: false,
+    field: 'promise', maxLength: MAX_PROMISE, required: false,
   });
   const normalizedRealmId = normalizeRealmId(realmId);
   let normalizedMission;
@@ -109,7 +177,20 @@ export function createPrototypeInvite(input = {}) {
     throw inviteError('INVITE_MISSION_INVALID');
   }
 
-  const payload = { v: INVITE_VERSION, n: normalizedName, t: theme, m: normalizedMission };
+  const schedule = normalizeCreatedSchedule(
+    input.scheduleId ?? globalThis.__creatorverseMissionScheduleId ?? MISSION_SCHEDULE_IDS[0],
+    input.createdAtMinute ?? toEpochMinute(now),
+    now,
+  );
+  const payload = {
+    v: INVITE_VERSION,
+    n: normalizedName,
+    t: theme,
+    m: normalizedMission,
+    c: schedule.createdAtMinute,
+    s: schedule.startMinute,
+    e: schedule.endMinute,
+  };
   if (normalizedPromise) payload.p = normalizedPromise;
   if (normalizedRealmId) payload.r = normalizedRealmId;
 
@@ -119,16 +200,15 @@ export function createPrototypeInvite(input = {}) {
   return token;
 }
 
-export function parsePrototypeInviteToken(token) {
+export function parsePrototypeInviteToken(token, { now = Date.now() } = {}) {
   try {
     if (typeof token !== 'string' || !token.startsWith(TOKEN_PREFIX) || token.length > MAX_TOKEN_LENGTH) {
       throw inviteError('INVITE_TOKEN_INVALID');
     }
-
     const bytes = fromBase64Url(token.slice(TOKEN_PREFIX.length));
     if (!bytes.length || bytes.length > MAX_DECODED_BYTES) throw inviteError('INVITE_PAYLOAD_SIZE_INVALID');
-
     const json = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    assertNoDuplicateTopLevelKeys(json);
     const payload = JSON.parse(json);
     assertObjectWithAllowedFields(payload, PAYLOAD_FIELDS, 'INVITE_FIELDS_INVALID');
     if (payload.v !== INVITE_VERSION) throw inviteError('INVITE_VERSION_INVALID');
@@ -136,50 +216,48 @@ export function parsePrototypeInviteToken(token) {
     const name = normalizeInviteText(payload.n, { field: 'name', maxLength: MAX_REALM_NAME });
     if (!ALLOWED_THEMES.has(payload.t)) throw inviteError('INVITE_THEME_INVALID');
     const promise = normalizeInviteText(payload.p ?? '', {
-      field: 'promise',
-      maxLength: MAX_PROMISE,
-      required: false,
+      field: 'promise', maxLength: MAX_PROMISE, required: false,
     });
     const missionId = normalizeMissionTemplateId(payload.m ?? DEFAULT_MISSION_TEMPLATE_ID, { fallback: false });
     const realmId = normalizeRealmId(payload.r);
+    const schedule = normalizeParsedSchedule(payload, now);
     const invite = { name, theme: payload.t, promise, missionId };
     if (realmId) invite.realmId = realmId;
-
-    return {
-      status: 'valid',
-      invite: Object.freeze(invite),
-    };
+    if (schedule) {
+      invite.scheduleId = schedule.scheduleId;
+      invite.createdAtMinute = schedule.createdAtMinute;
+      invite.startMinute = schedule.startMinute;
+      invite.endMinute = schedule.endMinute;
+    }
+    return { status: 'valid', invite: Object.freeze(invite) };
   } catch {
     return { status: 'invalid' };
   }
 }
 
-export function parsePrototypeInviteFragment(fragment) {
+export function parsePrototypeInviteFragment(fragment, options = {}) {
   const raw = String(fragment ?? '').replace(/^#/u, '');
   if (!raw) return { status: 'none' };
-
   const parameters = new URLSearchParams(raw);
+  const keys = [...parameters.keys()];
   const invites = parameters.getAll('invite');
   if (invites.length === 0) return { status: 'none' };
-  if (invites.length !== 1) return { status: 'invalid' };
-  return parsePrototypeInviteToken(invites[0]);
+  if (invites.length !== 1 || keys.length !== 1 || keys[0] !== 'invite') return { status: 'invalid' };
+  return parsePrototypeInviteToken(invites[0], options);
 }
 
-export function buildPrototypeInviteUrl(baseUrl, token) {
-  const parsedToken = parsePrototypeInviteToken(token);
+export function buildPrototypeInviteUrl(baseUrl, token, options = {}) {
+  const parsedToken = parsePrototypeInviteToken(token, options);
   if (parsedToken.status !== 'valid') throw inviteError('INVITE_TOKEN_INVALID');
-
   let url;
   try {
     url = new URL(baseUrl);
   } catch {
     throw inviteError('INVITE_BASE_URL_INVALID');
   }
-
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
     throw inviteError('INVITE_BASE_URL_INVALID');
   }
-
   url.search = '';
   url.hash = `invite=${token}`;
   return url.toString();
@@ -192,4 +270,5 @@ export const prototypeInviteLimits = Object.freeze({
   maxPromise: MAX_PROMISE,
   themes: Object.freeze([...ALLOWED_THEMES]),
   missions: MISSION_TEMPLATE_IDS,
+  schedules: MISSION_SCHEDULE_IDS,
 });

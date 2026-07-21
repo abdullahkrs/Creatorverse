@@ -393,6 +393,7 @@ export function installMissionResultView(root = document) {
   restoreStoredResult();
   root.addEventListener('click', captureMissionSelection, true);
   root.addEventListener('click', runResultAction);
+  globalThis.addEventListener?.('creatorverse:mission-window-reset', resetResultState);
   const app = root.querySelector('#app');
   if (app) {
     const observer = new MutationObserver(enhanceCompletedMission);
