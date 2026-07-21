@@ -1,0 +1,276 @@
+.realm-continuation {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--cv-space-4);
+  max-inline-size: var(--cv-page-max);
+  margin-inline: auto;
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-block-start: 3px solid var(--cv-color-action);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-color-surface);
+  color: var(--cv-color-text);
+}
+
+main > .realm-continuation {
+  inline-size: calc(100% - (2 * var(--cv-page-pad)));
+  margin-block: var(--cv-space-4) var(--cv-space-8);
+}
+
+.completion-record > .realm-continuation { margin-block-start: var(--cv-space-6); }
+
+.realm-continuation-context,
+.realm-continuation-operation,
+.realm-continuation-result,
+.realm-continuation-share,
+.realm-continuation-realm,
+.realm-continuation-realm dl,
+.realm-continuation-result dl,
+.realm-continuation fieldset,
+.realm-continuation-actions { min-inline-size: 0; }
+
+.realm-continuation-context {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cv-space-4);
+  padding-block-end: var(--cv-space-4);
+  border-block-end: 1px solid var(--cv-color-border);
+}
+
+.realm-continuation-map {
+  inline-size: 6.5rem;
+  block-size: auto;
+  color: var(--cv-color-action);
+}
+
+.continuation-route,
+.continuation-stamp {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.continuation-node {
+  fill: var(--cv-color-surface-raised);
+  stroke: var(--cv-color-border);
+  stroke-width: 2;
+}
+
+.continuation-node.is-complete {
+  fill: var(--cv-color-success);
+  stroke: var(--cv-color-success);
+}
+
+.realm-continuation-realm {
+  display: grid;
+  gap: var(--cv-space-1);
+  text-align: start;
+}
+
+.realm-continuation-realm > strong {
+  overflow-wrap: anywhere;
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-continuation-realm p,
+.realm-continuation-operation h2,
+.realm-continuation-operation p,
+.realm-continuation-realm dl,
+.realm-continuation-result dl,
+.realm-continuation-status { margin: 0; }
+
+.realm-continuation-realm dl,
+.realm-continuation-result dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2) var(--cv-space-6);
+}
+
+.realm-continuation-realm dl > div,
+.realm-continuation-result dl > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--cv-space-2);
+}
+
+.realm-continuation dt {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.realm-continuation dd { margin: 0; font-weight: 800; }
+
+.realm-continuation-operation {
+  display: grid;
+  gap: var(--cv-space-4);
+  align-content: start;
+  text-align: start;
+}
+
+.realm-continuation-operation > div:first-child {
+  display: grid;
+  gap: var(--cv-space-2);
+  max-inline-size: var(--cv-reading-max);
+}
+
+.realm-continuation-operation h2 {
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-continuation-operation p {
+  color: var(--cv-color-text-muted);
+  line-height: var(--cv-leading-normal);
+}
+
+.realm-continuation button,
+.realm-continuation label { min-block-size: var(--cv-target-min); }
+
+.realm-continuation-launch,
+.realm-continuation-share > button,
+.realm-continuation-actions > .primary { inline-size: 100%; }
+
+.realm-continuation fieldset {
+  display: grid;
+  gap: var(--cv-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.realm-continuation legend {
+  margin-block-end: var(--cv-space-2);
+  font-size: var(--cv-text-sm);
+  font-weight: 800;
+}
+
+.realm-continuation-options { display: grid; gap: var(--cv-space-2); }
+
+.realm-continuation-options label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--cv-space-3);
+  padding: var(--cv-space-3) var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  background: var(--cv-color-canvas);
+  cursor: pointer;
+  text-align: start;
+}
+
+.realm-continuation-options label:has(input:checked) {
+  border-color: var(--cv-color-action);
+  background: var(--cv-color-surface-raised);
+}
+
+.realm-continuation-options input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+  accent-color: var(--cv-color-action);
+}
+
+.realm-continuation-options input:focus-visible { outline: none; }
+
+.realm-continuation-options label:has(input:focus-visible) {
+  outline: var(--cv-focus-width) solid var(--cv-color-focus);
+  outline-offset: var(--cv-focus-offset);
+}
+
+.realm-continuation-actions { display: grid; gap: var(--cv-space-2); }
+.realm-continuation-status { min-block-size: 1.5em; font-size: var(--cv-text-sm); }
+
+.realm-continuation-result {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: var(--cv-space-4);
+  align-items: start;
+}
+
+.realm-continuation-result > div { display: grid; gap: var(--cv-space-2); }
+
+.realm-continuation-invite-stamp {
+  inline-size: 4rem;
+  block-size: 4rem;
+  color: var(--cv-color-action);
+}
+
+.realm-continuation-invite-stamp path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.realm-continuation-share { display: grid; gap: var(--cv-space-2); }
+
+.realm-continuation-manual {
+  display: grid;
+  gap: var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.realm-continuation-manual input {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+  padding-inline: var(--cv-space-3);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  background: var(--cv-color-canvas);
+  color: var(--cv-color-text);
+  font: inherit;
+  text-overflow: ellipsis;
+}
+
+.realm-continuation button:disabled { cursor: wait; opacity: 0.65; }
+
+@container (min-width: 34rem) {
+  .realm-continuation-context { grid-template-columns: 7.5rem minmax(0, 1fr); }
+  .realm-continuation-map { inline-size: 7.5rem; }
+  .realm-continuation-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .realm-continuation-actions {
+    grid-template-columns: minmax(10rem, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@container (min-width: 48rem) {
+  .realm-continuation {
+    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1.25fr);
+    gap: var(--cv-space-6);
+    padding: var(--cv-space-6);
+  }
+
+  .realm-continuation-context {
+    grid-template-columns: 1fr;
+    align-content: start;
+    padding-block-end: 0;
+    padding-inline-end: var(--cv-space-6);
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--cv-color-border);
+  }
+
+  .realm-continuation-map { inline-size: min(100%, 12rem); }
+  .realm-continuation-launch,
+  .realm-continuation-share > button,
+  .realm-continuation-actions > .primary {
+    inline-size: fit-content;
+    min-inline-size: 12rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .realm-continuation.is-invite-ready .realm-continuation-invite-stamp {
+    animation: realm-continuation-signal var(--cv-duration-normal) var(--cv-ease-standard);
+  }
+}
+
+@keyframes realm-continuation-signal {
+  from { opacity: 0; transform: translateY(var(--cv-space-2)); }
+  to { opacity: 1; transform: translateY(0); }
+}
