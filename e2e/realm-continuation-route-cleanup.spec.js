@@ -25,7 +25,7 @@ function savedRealmLedger() {
   };
 }
 
-test('receipt navigation removes the stale top-level continuation before receipt rendering', async ({ browser }) => {
+test('invite to receipt navigation preserves the receipt handoff and removes stale continuation', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await context.addInitScript(({ key, ledger }) => {
     localStorage.setItem('creatorverse-locale', 'en');
@@ -35,6 +35,11 @@ test('receipt navigation removes the stale top-level continuation before receipt
   const page = await context.newPage();
   await page.goto('/');
   await expect(page.locator('main > [data-realm-continuation]')).toHaveAttribute('data-state', 'ready');
+
+  await page.evaluate(() => {
+    window.location.hash = '#invite=invalid';
+  });
+  await expect(page.locator('[data-prototype-invite-error]')).toBeVisible();
 
   await page.evaluate(() => {
     window.location.hash = '#receipt=invalid';
