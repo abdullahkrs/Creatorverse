@@ -8,6 +8,7 @@ test.setTimeout(180_000);
 
 const REALM_ID = 'realm_abcdefghijklmnop';
 const LEDGER_KEY = 'creatorverse-creator-ledger-v1';
+const LOCALE_KEY = 'creatorverse-locale';
 const VIEWPORTS = [
   { width: 320, height: 568 },
   { width: 390, height: 844 },
@@ -65,10 +66,15 @@ function receiptToken(index) {
 
 async function createContext(browser, { locale = 'en', viewport = VIEWPORTS[1], state = ledger(0) } = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
-  await context.addInitScript(({ localeId, serializedLedger }) => {
-    localStorage.setItem('creatorverse-locale', localeId);
-    localStorage.setItem('creatorverse-creator-ledger-v1', serializedLedger);
-  }, { localeId: locale, serializedLedger: JSON.stringify(state) });
+  await context.addInitScript(({ localeKey, localeId, ledgerKey, serializedLedger }) => {
+    if (localStorage.getItem(localeKey) === null) localStorage.setItem(localeKey, localeId);
+    if (localStorage.getItem(ledgerKey) === null) localStorage.setItem(ledgerKey, serializedLedger);
+  }, {
+    localeKey: LOCALE_KEY,
+    localeId: locale,
+    ledgerKey: LEDGER_KEY,
+    serializedLedger: JSON.stringify(state),
+  });
   return context;
 }
 
