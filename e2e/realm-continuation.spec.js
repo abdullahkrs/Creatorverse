@@ -161,7 +161,7 @@ test('keyboard, locale reload, resize, zoom, and cancellation preserve a bounded
     if (await page.locator('[data-action="open-realm-continuation"]').evaluate(button => button === document.activeElement)) break;
     await page.keyboard.press('Tab');
   }
-  await expect(page.locator('[data-action="open-realm-continuation"]')).toBeFocused();
+  await expect(page.locator('[data-action="open-realm-continuation']")).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('#realm-continuation-title')).toBeFocused();
   await page.locator('input[name="continuation-mission"][value="relay-sequence"]').check();
@@ -176,16 +176,55 @@ test('keyboard, locale reload, resize, zoom, and cancellation preserve a bounded
   ]);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'selected');
-  await expect(page.locator('input[name="continuation-mission"][value="relay-sequence"]')).toBeChecked();
-  await expect(page.locator('input[name="continuation-schedule"][value="in-1h-24h"]')).toBeChecked();
+  await expect(page.locator('input[name="continuation-mission"][value="relay-sequence"]').toBeChecked();
+  await expect(page.locator('input[name="continuation-schedule"][value="in-1h-24h"]').toBeChecked();
 
   await page.locator('[data-action="cancel-realm-continuation"]').click();
   await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('[data-action="open-realm-continuation"]')).toBeFocused();
+  await expect(page.locator('[data-action="open-realm-continuation"]').toBeFocused();
   const realm = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
   expect(realm.total).toBe(3);
   expect(realm.receipts).toHaveLength(1);
   expect(realm.missions).toBeUndefined();
+  await context.close();
+});
+
+test('expired unconsumed invite is not restored and a fresh mission is issued', async ({ browser }) => {
+  const ledger = savedRealmLedger();
+  const expiredMissionId = 'mission_expired000000';
+  ledger.realms[0].missions = [{
+    id: expiredMissionId,
+    missionId: 'route-choice',
+    scheduleId: 'now-1h',
+    createdAtMinute: Math.floor(Date.now() / 60_000) - 61,
+    consumed: false,
+  }];
+  const context = await createContext(browser, { ledger, viewport: VIEWPORTS[1] });
+  const page = await context.newPage();
+  await page.goto('/');
+
+  await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'ready');
+  await expect(page.locator('[data-action="open-realm-continuation"]')).toBeVisible();
+  const before = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
+  expect(before.total).toBe(3);
+  expect(before.receipts).toHaveLength(1);
+  expect(before.missions).toHaveLength(1);
+
+  await page.locator('[data-action="open-realm-continuation"]').click();
+  await page.locator('input[name="continuation-mission"][value="signal-match"]').check();
+  await page.locator('input[name="continuation-schedule"][value="now-24h"]').check();
+  await page.locator('[data-form="realm-continuation"]').evaluate(form => form.requestSubmit());
+  await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'success');
+
+  const after = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
+  expect(after.total).toBe(3);
+  expect(after.receipts).toEqual(before.receipts);
+  expect(after.missions).toHaveLength(2);
+  expect(after.missions[0].id).toBe(expiredMissionId);
+  expect(after.missions[0].consumed).toBe(false);
+  expect(after.missions[1].id).not.toBe(expiredMissionId);
+  expect(after.missions[1].missionId).toBe('signal-match');
+  expect(after.missions[1].consumed).toBe(false);
   await context.close();
 });
 
