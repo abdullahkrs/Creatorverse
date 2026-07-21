@@ -96,10 +96,11 @@ function buildInvite(realm, mission, { now = Date.now(), baseUrl } = {}) {
 export function restorePendingRealmContinuationInvite(storage, options = {}) {
   const single = getSingleCreatorRealm(storage);
   if (single.status !== 'ready') return { status: single.status };
-  const mission = getPendingCreatorMission(storage, single.realm.id);
+  const now = options.now ?? Date.now();
+  const mission = getPendingCreatorMission(storage, single.realm.id, { now });
   if (!mission) return { status: 'none', realm: single.realm };
   try {
-    return { status: 'ready', ...buildInvite(single.realm, mission, options) };
+    return { status: 'ready', ...buildInvite(single.realm, mission, { ...options, now }) };
   } catch {
     return { status: 'invalid-storage' };
   }
@@ -108,6 +109,7 @@ export function restorePendingRealmContinuationInvite(storage, options = {}) {
 export function createRealmContinuationInvite(storage, input = {}, options = {}) {
   const single = getSingleCreatorRealm(storage);
   if (single.status !== 'ready') return { status: single.status };
+  const now = options.now ?? Date.now();
   let missionId;
   let scheduleId;
   try {
@@ -117,10 +119,10 @@ export function createRealmContinuationInvite(storage, input = {}, options = {})
     return { status: 'invalid' };
   }
 
-  const pending = getPendingCreatorMission(storage, single.realm.id);
+  const pending = getPendingCreatorMission(storage, single.realm.id, { now });
   if (pending) {
     try {
-      return { status: 'ready', reused: true, ...buildInvite(single.realm, pending, options) };
+      return { status: 'ready', reused: true, ...buildInvite(single.realm, pending, { ...options, now }) };
     } catch {
       return { status: 'invalid-storage' };
     }
@@ -130,14 +132,14 @@ export function createRealmContinuationInvite(storage, input = {}, options = {})
   let createdAtMinute;
   try {
     missionInstanceId = createOpaqueIdentifier(options.cryptoLike);
-    createdAtMinute = toEpochMinute(options.now ?? Date.now());
+    createdAtMinute = toEpochMinute(now);
   } catch {
     return { status: 'unavailable' };
   }
   const mission = { id: missionInstanceId, missionId, scheduleId, createdAtMinute, consumed: false };
   let invite;
   try {
-    invite = buildInvite(single.realm, mission, options);
+    invite = buildInvite(single.realm, mission, { ...options, now });
   } catch {
     return { status: 'invalid' };
   }
@@ -148,10 +150,10 @@ export function createRealmContinuationInvite(storage, input = {}, options = {})
     missionId,
     scheduleId,
     createdAtMinute,
-  });
+  }, { now });
   if (issued.status === 'pending') {
     try {
-      return { status: 'ready', reused: true, ...buildInvite(issued.realm, issued.mission, options) };
+      return { status: 'ready', reused: true, ...buildInvite(issued.realm, issued.mission, { ...options, now }) };
     } catch {
       return { status: 'invalid-storage' };
     }
