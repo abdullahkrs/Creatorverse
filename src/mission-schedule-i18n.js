@@ -1,67 +1,60 @@
 const copy = Object.freeze({
   en: Object.freeze({
-    selectorLegend: 'Signal window',
-    selectorHelp: 'Choose when this mission can be played.',
-    selectorValidation: 'Choose one signal window.',
+    selectorLegend: 'Mission availability',
+    selectorValidation: 'Choose one mission window.',
     options: Object.freeze({
-      'now-30m': 'Now · 30 min',
-      'in-1h-30m': 'In 1 h · 30 min',
-      'in-24h-24h': 'In 24 h · 24 h',
+      'now-1h': 'Open now · 1 hour',
+      'now-24h': 'Open now · 24 hours',
+      'in-1h-24h': 'Starts in 1h · open 24h',
     }),
-    kicker: 'Signal window',
-    states: Object.freeze({
-      upcoming: Object.freeze({
-        title: 'Mission opens later',
-        support: 'Return when this signal window opens.',
-        control: 'Not open yet',
-      }),
-      active: Object.freeze({
-        title: 'Mission signal open',
-        support: 'Choose a role and complete the mission.',
-        control: 'Play mission',
-      }),
-      ended: Object.freeze({
-        title: 'Mission window ended',
-        support: 'This signal window is closed.',
-        control: 'Mission ended',
-      }),
-    }),
-    back: 'Back to realm',
-    transitionActive: 'Mission signal is now open.',
-    transitionEnded: 'Mission window has ended.',
+    upcomingTitle: 'Opens soon',
+    startsAt: 'Starts {time}',
+    checkAgain: 'Check again',
+    checking: 'Checking…',
+    expiredTitle: 'Invite expired',
+    expiredSupport: 'This mission is no longer available.',
+    invalidTitle: 'Invite unavailable',
+    invalidSupport: 'This invite cannot be opened.',
+    errorTitle: 'Check unavailable',
+    errorSupport: 'Try checking this mission again.',
+    tryAgain: 'Try again',
+    back: 'Back',
+    transitionActive: 'Mission is now open.',
+    transitionExpired: 'Mission is no longer available.',
   }),
   ar: Object.freeze({
-    selectorLegend: 'نافذة الإشارة',
-    selectorHelp: 'اختر متى يمكن لعب هذه المهمة.',
-    selectorValidation: 'اختر نافذة إشارة واحدة.',
+    selectorLegend: 'إتاحة المهمة',
+    selectorValidation: 'اختر مدة إتاحة واحدة.',
     options: Object.freeze({
-      'now-30m': 'الآن · 30 دقيقة',
-      'in-1h-30m': 'بعد ساعة · 30 دقيقة',
-      'in-24h-24h': 'بعد 24 ساعة · 24 ساعة',
+      'now-1h': 'متاحة الآن · ساعة',
+      'now-24h': 'متاحة الآن · 24 ساعة',
+      'in-1h-24h': 'تبدأ بعد ساعة · متاحة 24 ساعة',
     }),
-    kicker: 'نافذة الإشارة',
-    states: Object.freeze({
-      upcoming: Object.freeze({
-        title: 'المهمة تفتح لاحقًا',
-        support: 'عُد عندما تفتح نافذة الإشارة.',
-        control: 'لم تفتح بعد',
-      }),
-      active: Object.freeze({
-        title: 'إشارة المهمة مفتوحة',
-        support: 'اختر دورًا وأكمل المهمة.',
-        control: 'العب المهمة',
-      }),
-      ended: Object.freeze({
-        title: 'انتهت نافذة المهمة',
-        support: 'أُغلقت نافذة الإشارة هذه.',
-        control: 'انتهت المهمة',
-      }),
-    }),
-    back: 'العودة إلى العالم',
-    transitionActive: 'أصبحت إشارة المهمة مفتوحة الآن.',
-    transitionEnded: 'انتهت نافذة المهمة.',
+    upcomingTitle: 'تبدأ قريبًا',
+    startsAt: 'تبدأ {time}',
+    checkAgain: 'تحقق مجددًا',
+    checking: 'جارٍ التحقق…',
+    expiredTitle: 'انتهت الدعوة',
+    expiredSupport: 'لم تعد هذه المهمة متاحة.',
+    invalidTitle: 'الدعوة غير متاحة',
+    invalidSupport: 'تعذر فتح هذه الدعوة.',
+    errorTitle: 'تعذر التحقق',
+    errorSupport: 'حاول التحقق من المهمة مجددًا.',
+    tryAgain: 'حاول مجددًا',
+    back: 'رجوع',
+    transitionActive: 'أصبحت المهمة متاحة الآن.',
+    transitionExpired: 'لم تعد المهمة متاحة.',
   }),
 });
+
+function keyPaths(value, prefix = '') {
+  return Object.entries(value).flatMap(([key, nested]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    return nested && typeof nested === 'object' && !Array.isArray(nested)
+      ? keyPaths(nested, path)
+      : [path];
+  }).sort();
+}
 
 export function normalizeMissionScheduleLocale(locale) {
   return String(locale || '').toLowerCase().startsWith('ar') ? 'ar' : 'en';
@@ -73,7 +66,7 @@ export function getMissionScheduleCopy(locale) {
 
 export function getMissionScheduleKeySets() {
   return Object.freeze({
-    en: Object.freeze(Object.keys(copy.en).sort()),
-    ar: Object.freeze(Object.keys(copy.ar).sort()),
+    en: Object.freeze(keyPaths(copy.en)),
+    ar: Object.freeze(keyPaths(copy.ar)),
   });
 }
