@@ -140,19 +140,28 @@ export function parseRealmQuarantine(serialized) {
     let recovered = value.records.length > MAX_RECORDS;
     const records = [];
     const realmIds = new Set();
+    const invalidRealmIds = new Set();
     for (const candidate of value.records) {
       try {
         const record = normalizeRecord(candidate);
+        if (invalidRealmIds.has(record.r)) {
+          recovered = true;
+          continue;
+        }
         if (realmIds.has(record.r)) {
+          recovered = true;
+          invalidRealmIds.add(record.r);
+          realmIds.delete(record.r);
+          const existingIndex = records.findIndex(existing => existing.r === record.r);
+          if (existingIndex >= 0) records.splice(existingIndex, 1);
+          continue;
+        }
+        if (records.length >= MAX_RECORDS) {
           recovered = true;
           continue;
         }
         realmIds.add(record.r);
         records.push(record);
-        if (records.length === MAX_RECORDS) {
-          if (value.records.length > records.length) recovered = true;
-          break;
-        }
       } catch {
         recovered = true;
       }
