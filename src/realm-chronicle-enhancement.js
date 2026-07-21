@@ -9,6 +9,14 @@ let expanded = false;
 let pendingAnnouncement = '';
 let restoreToggleFocus = false;
 
+function preserveReadyHierarchy(section) {
+  const operation = section.querySelector(':scope > .realm-continuation-operation');
+  const context = section.querySelector(':scope > .realm-continuation-context');
+  if (operation && context && operation.nextElementSibling !== context) {
+    section.insertBefore(operation, context);
+  }
+}
+
 function replaceChronicle(section, markup, key) {
   const existing = section.querySelector(':scope > [data-realm-chronicle]');
   if (existing?.dataset.enhancementKey === key) return existing;
@@ -40,6 +48,7 @@ function applyEnhancement() {
     }
 
     section.setAttribute('aria-busy', 'true');
+    preserveReadyHierarchy(section);
     const locale = getLocale();
     const chronicle = deriveRealmChronicle(single.realm);
     if (chronicle.status !== 'ready') {
