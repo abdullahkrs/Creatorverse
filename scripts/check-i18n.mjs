@@ -5,6 +5,7 @@ import { getCreatorRealmUpdateCopy } from '../src/creator-realm-update-i18n.js';
 import { getRealmQuarantineCopy } from '../src/realm-quarantine-i18n.js';
 import { getRealmContinuationCopy } from '../src/realm-continuation-i18n.js';
 import { getBeaconDistrictGrowthCopy } from '../src/beacon-district-growth-i18n.js';
+import { getRealmChronicleCopy } from '../src/realm-chronicle-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -29,6 +30,7 @@ const creatorRealmUpdateKeys = assertParity('Creator realm update', getCreatorRe
 const realmQuarantineKeys = assertParity('Realm quarantine', getRealmQuarantineCopy);
 const realmContinuationKeys = assertParity('Realm continuation', getRealmContinuationCopy);
 const beaconDistrictGrowthKeys = assertParity('Beacon District growth', getBeaconDistrictGrowthCopy);
+const realmChronicleKeys = assertParity('Realm chronicle', getRealmChronicleCopy);
 
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
@@ -43,6 +45,8 @@ for (const path of [
   '../src/realm-continuation-view.js',
   '../src/beacon-district-growth-view.js',
   '../src/beacon-district-growth-enhancement.js',
+  '../src/realm-chronicle-view.js',
+  '../src/realm-chronicle-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -50,4 +54,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} continuation keys, and ${beaconDistrictGrowthKeys} Beacon District growth keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, and ${realmChronicleKeys} realm-chronicle keys.`);
