@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { createCompletionReceipt } from '../src/completion-receipt.js';
+import { buildPrototypeInviteUrl, createPrototypeInvite } from '../src/prototype-invite.js';
 
 const LEDGER_KEY = 'creatorverse-creator-ledger-v1';
 const PENDING_RECEIPT_KEY = 'creatorverse-pending-completion-receipt';
@@ -93,5 +94,64 @@ test('duplicate receipt restoration exposes the same-realm continuation without 
   const after = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
   expect(after.total).toBe(3);
   expect(after.receipts).toHaveLength(1);
+  await context.close();
+});
+
+test('invite-to-invite navigation reloads and resets the follower mission template context', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await context.addInitScript(() => localStorage.setItem('creatorverse-locale', 'en'));
+  const page = await context.newPage();
+  await page.goto('/');
+
+  const baseUrl = await page.evaluate(() => `${window.location.origin}${window.location.pathname}`);
+  const now = Date.now();
+  const createdAtMinute = Math.floor(now / 60_000);
+  const firstToken = createPrototypeInvite({
+    name: 'Nova Guild',
+    theme: 'cosmic',
+    promise: '',
+    missionId: 'relay-sequence',
+    realmId: REALM_ID,
+    missionInstanceId: 'mission_relay00001',
+    scheduleId: 'now-24h',
+    createdAtMinute,
+  }, { now });
+  const secondToken = createPrototypeInvite({
+    name: 'Nova Guild',
+    theme: 'cosmic',
+    promise: '',
+    missionId: 'signal-match',
+    realmId: REALM_ID,
+    missionInstanceId: 'mission_signal0001',
+    scheduleId: 'now-24h',
+    createdAtMinute,
+  }, { now });
+  const firstUrl = buildPrototypeInviteUrl(baseUrl, firstToken, { now });
+  const secondUrl = buildPrototypeInviteUrl(baseUrl, secondToken, { now });
+
+  await page.goto(firstUrl);
+  await expect(page.locator('#mission-title')).toHaveText('Link the Relays');
+  await page.locator('[data-role="builder"]').click();
+  await page.locator('[data-mission-command="1"]').click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(
+    sessionStorage.getItem('creatorverse-mission-template-state'),
+  ).step)).toBe(1);
+
+  const reloaded = page.waitForEvent('load');
+  await page.evaluate(hash => {
+    window.location.hash = hash;
+  }, new URL(secondUrl).hash);
+  await reloaded;
+
+  await expect(page.locator('#mission-title')).toHaveText('Match the Signal');
+  await expect(page.locator('[data-mission-command="wave"]')).toBeVisible();
+  const restored = await page.evaluate(() => ({
+    state: JSON.parse(sessionStorage.getItem('creatorverse-mission-template-state')),
+    missionInstanceId: globalThis.__creatorverseMissionInstanceId,
+  }));
+  expect(restored.state.templateId).toBe('signal-match');
+  expect(restored.state.step).toBe(0);
+  expect(restored.state.completed).toBe(false);
+  expect(restored.missionInstanceId).toBe('mission_signal0001');
   await context.close();
 });
