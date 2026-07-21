@@ -134,7 +134,6 @@ async function returnHome(page) {
 
 async function openFreshInvite(page, token) {
   await page.goto(`/#invite=${token}`);
-  await page.reload();
 }
 
 async function expectInvitedContentAbsent(page) {
