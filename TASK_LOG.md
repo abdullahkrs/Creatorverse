@@ -4,6 +4,33 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-21 — CV-MVP-014 bounded realm chronicle
+
+**Outcome:** Let a creator reopening one strict device-local fictional realm inspect a compact, privacy-safe chronology of accepted contributions while keeping **Launch next mission / أطلق المهمة التالية** as the dominant action.
+
+### Implemented
+
+- Added one read-only projection from the existing validated creator ledger; no second store, write path, alternative total, identity field, timestamp, free text, analytics value, or backend was added.
+- Projected only allowlisted mission, role, route, fixed `+3`, resulting total, and Beacon District stage labels; raw realm IDs, receipt IDs, mission-instance IDs, storage keys, fragments, rejected values, and contacts are excluded from chronicle markup.
+- Added newest-first history with seven entries shown by default and one **Show all / عرض الكل** or **Show recent / عرض الأحدث** secondary action for 8–24 entries.
+- Kept the mission launch operation first in DOM and visual order, followed by current district context and the secondary chronicle; rows remain read-only and non-focusable.
+- Added synchronized Arabic and English copy, intentional RTL/LTR numeric isolation, semantic heading and ordered-list structure, logical CSS properties, design tokens, custom mission glyphs, 44 px disclosure targets, retained focus, bounded live announcements, reduced-motion equivalence, and intrinsic mobile-first reflow.
+- Reused strict ledger validation for exact fields, version, realm/district binding, mission/role/route allowlists, fixed contribution, totals, duplicates, controls/bidi, and the 24-record cap; invalid persisted state renders no partial chronicle and leaves the existing safe recovery path authoritative.
+- Added focused unit coverage for `0`, `1`, `7`, `8`, and `24` entries, newest-first totals/stages, hostile state classes, duplicate idempotency, copy budgets, and Arabic/English key parity.
+- Added deterministic Playwright and axe coverage for empty, seven-entry `+21`, 24-entry disclosure, malformed recovery, seven exact receipt imports, launch/cancel/reload/locale stability, duplicate neutrality, keyboard focus, touch targets, overflow, and bilingual screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added no dependency, database, account, credential, paid service, external participant, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #40 links Issue #39 and uses the dedicated `feature/cv-mvp-014-realm-chronicle` branch for one coherent vertical slice.
+- Locked installation, unit/localization/build gates, isolated Railway PR Preview identity, Playwright, axe, browser artifacts, and exact-head evidence remain authoritative before release handoff.
+- Automated scenarios are reproducible engineering regression evidence only; they are not evidence of human comprehension, demand, retention, preference, trust, creator intent, or market validation.
+- Rollback is limited to reverting Pull Request #40; the strict creator ledger schema and authoritative mutation path are unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #39 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-21 — CV-MVP-013 Beacon District growth
 
 **Outcome:** Make repeated valid anonymous contributions visibly grow the existing Beacon District through four bounded stages without changing the strict local ledger, equal `+3` contribution, core mission loop, privacy model, or release safeguards.
