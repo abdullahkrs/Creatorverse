@@ -1,3 +1,8 @@
+/* Keep the global 20rem floor from exceeding the viewport content box when text is scaled. */
+html body {
+  min-inline-size: min(20rem, 100%);
+}
+
 body > .realm-collaboration {
   inline-size: calc(100% - (2 * var(--cv-page-pad)));
   max-inline-size: var(--cv-page-max);
