@@ -114,6 +114,27 @@ async function restoreRealm(page) {
   await expect(page.locator('[data-realm-quarantine-state]')).toHaveAttribute('data-state', 'restored');
 }
 
+async function switchLocale(page, targetLocale) {
+  await Promise.all([
+    page.waitForEvent('load'),
+    page.locator(`[data-locale="${targetLocale}"]`).click(),
+  ]);
+  await expect(page.locator('html')).toHaveAttribute('lang', targetLocale);
+}
+
+async function returnHome(page) {
+  await Promise.all([
+    page.waitForEvent('load'),
+    page.locator('[data-action="quarantine-return-home"]').click(),
+  ]);
+  await expect(page).not.toHaveURL(/#invite=/u);
+}
+
+async function openFreshInvite(page, token) {
+  await page.goto(`/#invite=${token}`);
+  await page.reload();
+}
+
 async function expectInvitedContentAbsent(page) {
   await expect(page.locator('[data-prototype-follower-entry]')).toHaveCount(0);
   await expect(page.locator('[data-mission-result]')).toHaveCount(0);
@@ -177,18 +198,16 @@ for (const locale of ['en', 'ar']) {
     await expect(page.locator('[data-realm-quarantine-state]')).toHaveAttribute('data-state', 'hidden');
 
     const otherLocale = locale === 'ar' ? 'en' : 'ar';
-    await page.locator(`[data-locale="${otherLocale}"]`).click();
-    await expect(page.locator('html')).toHaveAttribute('lang', otherLocale);
+    await switchLocale(page, otherLocale);
     await expect(page.locator('[data-realm-quarantine-state]')).toHaveAttribute('data-state', 'hidden');
-    await page.locator(`[data-locale="${locale}"]`).click();
-    await expect(page.locator('html')).toHaveAttribute('lang', locale);
+    await switchLocale(page, locale);
     await expect(page.locator('[data-realm-quarantine-state]')).toHaveAttribute('data-state', 'hidden');
 
-    await page.goto(`/#invite=${tokenB}`);
+    await openFreshInvite(page, tokenB);
     await expect(page.locator('[data-prototype-follower-entry]')).toContainText('Canopy Relay');
     await expect(page.locator('[data-action="open-realm-safety"]')).toBeVisible();
 
-    await page.goto(`/#invite=${tokenA}`);
+    await openFreshInvite(page, tokenA);
     await expect(page.locator('[data-realm-quarantine-state]')).toHaveAttribute('data-state', 'hidden');
     await page.evaluate(({ storageKey, otherRealm }) => {
       const value = JSON.parse(localStorage.getItem(storageKey));
@@ -199,7 +218,8 @@ for (const locale of ['en', 'ar']) {
     await restoreRealm(page);
     const afterRestore = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), STORAGE_KEY);
     expect(afterRestore.records).toEqual([{ v: 1, r: REALM_C, q: 'personal-private-information' }]);
-    await page.goto(`/#invite=${tokenA}`);
+    await returnHome(page);
+    await openFreshInvite(page, tokenA);
     await expect(page.locator('[data-prototype-follower-entry]')).toContainText('Harbor Guild');
     await expect(page.locator('[data-mission-result]')).toHaveCount(0);
 
@@ -251,7 +271,8 @@ for (const locale of ['en', 'ar']) {
       if (viewport.width === 390) await assertAxe(page, `${locale} hidden`);
 
       await restoreRealm(page);
-      await page.goto(`/#invite=${token}`);
+      await returnHome(page);
+      await openFreshInvite(page, token);
       await page.evaluate(() => { globalThis.__creatorverseFailQuarantineWrites = true; });
       await openSafety(page);
       await chooseReason(page, 'personal-private-information');
