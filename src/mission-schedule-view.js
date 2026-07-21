@@ -290,14 +290,7 @@ function applyFollowerState({ announceChange = false, focusChange = false, force
 
   clearTimeout(boundaryTimer);
   boundaryTimer = null;
-  const shouldReloadTerminal = previousState !== null
-    && previousState !== state
-    && (state === 'expired' || state === 'invalid');
   if (previousState !== state) clearMissionSession();
-  if (shouldReloadTerminal) {
-    window.location.reload();
-    return state;
-  }
   hideMissionForWindow(roleGrid, mission);
 
   const existing = mission.querySelector('[data-mission-window-status]');
