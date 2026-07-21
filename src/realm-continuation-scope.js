@@ -5,10 +5,13 @@ function hasInviteOrReceiptRoute() {
   return parameters.has('invite') || parameters.has('receipt');
 }
 
+function routedWorkflowActive() {
+  return Boolean(globalThis.__creatorverseCompletionReceiptActive || hasInviteOrReceiptRoute());
+}
+
 function competingWorkflowActive() {
   return Boolean(
-    globalThis.__creatorverseCompletionReceiptActive
-    || hasInviteOrReceiptRoute()
+    routedWorkflowActive()
     || document.querySelector(
       '[data-completion-receipt-view], .creator-studio, [data-prototype-follower-entry], [data-prototype-invite-error], [data-mission-result]',
     ),
@@ -32,12 +35,13 @@ function reconcileActionHierarchy(panel, suppressed) {
 
 function reconcileContinuationScope() {
   document.querySelectorAll(PANEL_SELECTOR).forEach(panel => {
-    const suppressed = shouldSuppress(panel);
-    if (suppressed && !panel.closest('.completion-record')) {
+    const completionRecord = panel.closest('.completion-record');
+    if (!completionRecord && routedWorkflowActive()) {
       panel.remove();
       document.querySelector('.experience')?.removeAttribute('hidden');
       return;
     }
+    const suppressed = shouldSuppress(panel);
     panel.toggleAttribute('hidden', suppressed);
     panel.style.display = suppressed ? 'none' : '';
     panel.inert = suppressed;
