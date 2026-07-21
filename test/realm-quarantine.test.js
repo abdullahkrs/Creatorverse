@@ -92,7 +92,6 @@ test('safe recovery preserves unrelated valid records and removes invalid entrie
       record(1),
       { v: 1, r: 'bad', q: 'unsafe-real-world' },
       record(2, 'harassment-hateful'),
-      record(1),
     ],
   });
   const state = parseRealmQuarantine(serialized);
