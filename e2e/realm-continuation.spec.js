@@ -161,7 +161,7 @@ test('keyboard, locale reload, resize, zoom, and cancellation preserve a bounded
     if (await page.locator('[data-action="open-realm-continuation"]').evaluate(button => button === document.activeElement)) break;
     await page.keyboard.press('Tab');
   }
-  await expect(page.locator('[data-action="open-realm-continuation']")).toBeFocused();
+  await expect(page.locator('[data-action="open-realm-continuation"]')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('#realm-continuation-title')).toBeFocused();
   await page.locator('input[name="continuation-mission"][value="relay-sequence"]').check();
@@ -176,12 +176,12 @@ test('keyboard, locale reload, resize, zoom, and cancellation preserve a bounded
   ]);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'selected');
-  await expect(page.locator('input[name="continuation-mission"][value="relay-sequence"]').toBeChecked();
-  await expect(page.locator('input[name="continuation-schedule"][value="in-1h-24h"]').toBeChecked();
+  await expect(page.locator('input[name="continuation-mission"][value="relay-sequence"]')).toBeChecked();
+  await expect(page.locator('input[name="continuation-schedule"][value="in-1h-24h"]')).toBeChecked();
 
   await page.locator('[data-action="cancel-realm-continuation"]').click();
   await expect(page.locator('[data-realm-continuation]')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('[data-action="open-realm-continuation"]').toBeFocused();
+  await expect(page.locator('[data-action="open-realm-continuation"]')).toBeFocused();
   const realm = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).realms[0], LEDGER_KEY);
   expect(realm.total).toBe(3);
   expect(realm.receipts).toHaveLength(1);
