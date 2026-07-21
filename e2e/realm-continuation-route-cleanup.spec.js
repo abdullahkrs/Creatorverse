@@ -98,12 +98,12 @@ test('duplicate receipt restoration exposes the same-realm continuation without 
 });
 
 test('invite-to-invite navigation reloads and resets the follower mission template context', async ({ browser }) => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  await context.addInitScript(() => localStorage.setItem('creatorverse-locale', 'en'));
-  const page = await context.newPage();
-  await page.goto('/');
+  const bootstrapContext = await browser.newContext();
+  const bootstrapPage = await bootstrapContext.newPage();
+  await bootstrapPage.goto('/');
+  const baseUrl = await bootstrapPage.evaluate(() => `${window.location.origin}${window.location.pathname}`);
+  await bootstrapContext.close();
 
-  const baseUrl = await page.evaluate(() => `${window.location.origin}${window.location.pathname}`);
   const now = Date.now();
   const createdAtMinute = Math.floor(now / 60_000);
   const firstToken = createPrototypeInvite({
@@ -129,6 +129,9 @@ test('invite-to-invite navigation reloads and resets the follower mission templa
   const firstUrl = buildPrototypeInviteUrl(baseUrl, firstToken, { now });
   const secondUrl = buildPrototypeInviteUrl(baseUrl, secondToken, { now });
 
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await context.addInitScript(() => localStorage.setItem('creatorverse-locale', 'en'));
+  const page = await context.newPage();
   await page.goto(firstUrl);
   await expect(page.locator('#mission-title')).toHaveText('Link the Relays');
   await page.locator('[data-role="builder"]').click();
