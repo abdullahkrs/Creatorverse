@@ -7,6 +7,7 @@ export const CREATOR_LEDGER_KEY = 'creatorverse-creator-ledger-v1';
 export const CREATOR_LEDGER_VERSION = 1;
 export const CREATOR_LEDGER_LIMIT = 24;
 export const CREATOR_MISSION_LIMIT = 24;
+export const CREATOR_SHARED_PROVENANCE_VERSION = 1;
 const REALM_LIMIT = 8;
 const THEMES = new Set(['cosmic', 'wild', 'future']);
 const MISSIONS = new Set(MISSION_TEMPLATE_IDS);
@@ -16,15 +17,23 @@ const ROUTES = new Set(['sky', 'ocean']);
 const STATE_FIELDS = new Set(['version', 'realms']);
 const LEGACY_REALM_FIELDS = new Set(['id', 'name', 'theme', 'total', 'districtId', 'unlocked', 'receipts']);
 const EXTENDED_REALM_FIELDS = new Set([...LEGACY_REALM_FIELDS, 'missions']);
-const LEGACY_ENTRY_FIELDS = new Set(['id', 'missionId', 'roleId', 'routeId', 'districtId', 'contribution']);
-const EXTENDED_ENTRY_FIELDS = new Set([...LEGACY_ENTRY_FIELDS, 'missionInstanceId']);
+const BASE_ENTRY_FIELDS = new Set(['id', 'missionId', 'roleId', 'routeId', 'districtId', 'contribution']);
 const MISSION_FIELDS = new Set(['id', 'missionId', 'scheduleId', 'createdAtMinute', 'consumed']);
+const SHARED_PROVENANCE_FIELDS = new Set([
+  'version',
+  'sourceKind',
+  'relationshipId',
+  'partnerRealmId',
+  'partnerName',
+  'sharedMissionId',
+]);
 const CONTROL_OR_BIDI = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 
 function plainObject(value, fields) {
   return Boolean(value)
     && typeof value === 'object'
     && !Array.isArray(value)
+    && Object.getPrototypeOf(value) === Object.prototype
     && Object.keys(value).length === fields.size
     && Object.keys(value).every(key => fields.has(key));
 }
@@ -41,6 +50,50 @@ function validName(value) {
     && value.length <= 28
     && !CONTROL_OR_BIDI.test(value)
     && !/[<>]/u.test(value);
+}
+
+function validSharedName(value) {
+  return validName(value)
+    && value === value.normalize('NFKC')
+    && value.trim() === value
+    && !/\s{2,}/u.test(value);
+}
+
+function hasDuplicateObjectKeys(json) {
+  const stack = [];
+  let index = 0;
+  while (index < json.length) {
+    const character = json[index];
+    if (character === '"') {
+      const start = index;
+      index += 1;
+      let escaped = false;
+      while (index < json.length) {
+        const current = json[index];
+        if (escaped) escaped = false;
+        else if (current === '\\') escaped = true;
+        else if (current === '"') { index += 1; break; }
+        index += 1;
+      }
+      if (json[index - 1] !== '"') return true;
+      let cursor = index;
+      while (/\s/u.test(json[cursor] || '')) cursor += 1;
+      if (json[cursor] === ':') {
+        const frame = stack.at(-1);
+        if (!(frame instanceof Set)) return true;
+        let key;
+        try { key = JSON.parse(json.slice(start, index)); } catch { return true; }
+        if (frame.has(key)) return true;
+        frame.add(key);
+      }
+      continue;
+    }
+    if (character === '{') stack.push(new Set());
+    else if (character === '[') stack.push(null);
+    else if (character === '}' || character === ']') stack.pop();
+    index += 1;
+  }
+  return false;
 }
 
 function validMissionInstance(mission) {
@@ -65,11 +118,29 @@ function isPendingMission(mission, now = Date.now()) {
   }
 }
 
-function validEntry(entry) {
-  const fields = Object.hasOwn(entry || {}, 'missionInstanceId') ? EXTENDED_ENTRY_FIELDS : LEGACY_ENTRY_FIELDS;
+export function isValidSharedContributionProvenance(value, { realmId = '', entryId = '' } = {}) {
+  return plainObject(value, SHARED_PROVENANCE_FIELDS)
+    && value.version === CREATOR_SHARED_PROVENANCE_VERSION
+    && value.sourceKind === 'shared'
+    && validIdentifier(value.relationshipId)
+    && validIdentifier(value.partnerRealmId)
+    && (!realmId || value.partnerRealmId !== realmId)
+    && validSharedName(value.partnerName)
+    && validIdentifier(value.sharedMissionId)
+    && (!entryId || value.sharedMissionId === entryId);
+}
+
+function validEntry(entry, realmId) {
+  const fields = new Set(BASE_ENTRY_FIELDS);
+  const hasMissionInstance = Object.hasOwn(entry || {}, 'missionInstanceId');
+  const hasProvenance = Object.hasOwn(entry || {}, 'provenance');
+  if (hasMissionInstance) fields.add('missionInstanceId');
+  if (hasProvenance) fields.add('provenance');
   return plainObject(entry, fields)
     && validIdentifier(entry.id)
-    && (!Object.hasOwn(entry, 'missionInstanceId') || validIdentifier(entry.missionInstanceId))
+    && (!hasMissionInstance || validIdentifier(entry.missionInstanceId))
+    && (!hasProvenance || isValidSharedContributionProvenance(entry.provenance, { realmId, entryId: entry.id }))
+    && !(hasMissionInstance && hasProvenance)
     && MISSIONS.has(entry.missionId)
     && ROLES.has(entry.roleId)
     && ROUTES.has(entry.routeId)
@@ -91,7 +162,7 @@ function validRealm(realm) {
     || typeof realm.unlocked !== 'boolean'
     || !Array.isArray(realm.receipts)
     || realm.receipts.length > CREATOR_LEDGER_LIMIT
-    || !realm.receipts.every(validEntry)
+    || !realm.receipts.every(entry => validEntry(entry, realm.id))
     || new Set(realm.receipts.map(entry => entry.id)).size !== realm.receipts.length
     || realm.total !== realm.receipts.length * DISTRICT_CONTRIBUTION
     || realm.unlocked !== (realm.total >= DISTRICT_CONTRIBUTION)) {
@@ -137,6 +208,7 @@ export function inspectCreatorLedger(storage = globalThis.localStorage) {
   try {
     const serialized = storage?.getItem(CREATOR_LEDGER_KEY);
     if (!serialized) return { status: 'empty', state: emptyState() };
+    if (hasDuplicateObjectKeys(serialized)) return { status: 'invalid', state: emptyState() };
     const parsed = JSON.parse(serialized);
     if (!validateState(parsed)) return { status: 'invalid', state: emptyState() };
     return { status: 'ready', state: structuredClone(parsed) };
@@ -246,9 +318,15 @@ export function issueCreatorMission(storage, input = {}, { now = Date.now() } = 
 }
 
 export function importCompletionReceipt(storage, receipt) {
-  if (!receipt || typeof receipt !== 'object') return { status: 'invalid' };
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) return { status: 'invalid' };
   if (!validIdentifier(receipt.realmId) || !validIdentifier(receipt.receiptId)) return { status: 'invalid' };
   if (Object.hasOwn(receipt, 'missionInstanceId') && !validIdentifier(receipt.missionInstanceId)) return { status: 'invalid' };
+  const hasProvenance = Object.hasOwn(receipt, 'provenance');
+  if (hasProvenance && !isValidSharedContributionProvenance(receipt.provenance, {
+    realmId: receipt.realmId,
+    entryId: receipt.receiptId,
+  })) return { status: 'invalid' };
+  if (hasProvenance && Object.hasOwn(receipt, 'missionInstanceId')) return { status: 'invalid' };
   if (!MISSIONS.has(receipt.missionId) || !ROLES.has(receipt.roleId) || !ROUTES.has(receipt.routeId)) {
     return { status: 'invalid' };
   }
@@ -291,6 +369,7 @@ export function importCompletionReceipt(storage, receipt) {
     contribution: DISTRICT_CONTRIBUTION,
   };
   if (receipt.missionInstanceId) entry.missionInstanceId = receipt.missionInstanceId;
+  if (hasProvenance) entry.provenance = structuredClone(receipt.provenance);
   if (missionIndex >= 0) {
     missions = missions.map((mission, index) => index === missionIndex ? { ...mission, consumed: true } : mission);
   }
