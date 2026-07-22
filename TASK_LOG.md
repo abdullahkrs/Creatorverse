@@ -4,6 +4,33 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-PIVOT-002 living-world share media
+
+**Outcome:** Let a follower or creator turn one validated partial or completed Folded Horizon result into one real portrait PNG and share it with the strict event link, with a bounded save-image and copy-link fallback and no event-progress mutation.
+
+### Implemented
+
+- Added one authored deterministic `1080×1920` PNG renderer using the existing Folded Horizon palette and Loombridge visual language; it creates distinct partial anticipation and completed far-shore reveal frames without DOM screenshots, browser chrome, external images, fonts, services, gradients, glows, QR codes, or generic poster templates.
+- Added an exact bounded media projection that accepts only the strict living-world event shape and current validated progress, exposes no raw identifiers, URL fragments, storage keys, timestamps, creator input, diagnostics, or metadata, and always uses the fixed safe filename `creatorverse-folded-horizon.png`.
+- Added independently composed Arabic RTL and English LTR artifact typography, isolated localized progress, truthful partial/completed copy, fixed portrait safe zones, a world scene occupying 75% of the frame height, and localized visible-state text alternatives.
+- Replaced text-only result sharing with one explicit **Share update / شارك التحديث** action that generates exactly one PNG, uses native one-file sharing when supported, treats cancellation neutrally, and falls back to one semantic preview with Save image, Copy link, clipboard-denied manual selection, retry, Escape, object-URL cleanup, and predictable focus restoration.
+- Preserved the exact event snapshot through generation, repeat, native sharing, cancellation, save, copy, locale change, failure, and retry; the media path adds no contribution, progress write, completion mark, stored media record, sound, vibration, animation replay, or remote-state claim.
+- Added synchronized media localization, token-based mobile-first fallback styling, 44 px controls, visible focus, 200% text-zoom reflow, reduced-motion equivalence, and bounded idle, generating, sharing, cancelled, shared, preview, saved, copied, denied, unavailable, error, retry, and recovery states.
+- Added focused unit coverage for exact dimensions, strict projection, identifier and filename safety, partial/completed distinction, Arabic/English parity, copy budgets, strict event URL transport, capability branching, failure classification, and mutation neutrality.
+- Added deterministic Playwright and axe coverage for follower and owner partial/completed media, native file share, cancellation, denied fallback, PNG download, clipboard denial, generation failure/retry, Escape/focus, invalid recovery, all required responsive sizes, Arabic/English, RTL/LTR, reduced motion, and `320×568` at 200% text zoom; decoded artifacts are checked for PNG signature, exact size, non-empty pixels, dominant scene, material state difference, and absence of textual metadata.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, upload, remote renderer, social OAuth, analytics, tracking, custom font, framework migration, or Production mutation.
+
+### Validation
+
+- Pull Request #52 links Issue #51 and uses the dedicated `feature/cv-pivot-002-living-world-media` branch for one coherent vertical slice.
+- Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, PNG integrity, real responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated scenarios and generated files are reproducible engineering and visual regression evidence only; they are not evidence of human comprehension, enjoyment, sharing intent, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
+- Rollback is limited to reverting Pull Request #52; event progress, local storage schemas, dependencies, accounts, credentials, external services, Railway configuration, and Production state remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, decoded portrait artifacts, and bilingual browser evidence for independent QA; move Issue #51 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-PIVOT-001 living community world
 
 **Outcome:** Let a creator launch one bounded fictional world event and let a follower enter the world directly, complete one short contribution, see one local truthful Loombridge change, and share the resulting world snapshot without encountering administrative product surfaces.
@@ -47,8 +74,8 @@ Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview,
 - Reused the existing creator ledger import path after strict target and collaboration verification so each matching realm can receive exactly one local `+3`; wrong realm, removed or mismatched collaboration, duplicate, malformed state, ledger-cap, and storage failure preserve prior valid state and fail closed.
 - Added synchronized Arabic and English copy, intentional RTL/LTR composition, bidirectional isolation, semantic headings, fieldsets, facts, live regions, predictable focus, independent receipt action states, 44 px targets, 200% reflow, reduced-motion equivalence, logical CSS properties, existing design tokens, and intrinsic mobile-first layouts.
 - Added one restrained original two-terminal mission rail and receipt split treatment with no dashboard, repeated cards, gradients, glows, decorative geometry, emoji, placeholder icons, or oversized marketing heading.
-- Added focused unit coverage for strict codecs, hostile payloads, exact pair and target binding, two-receipt derivation, equal independent import, duplicate idempotency, wrong-realm and removed-collaboration rejection, altered contribution, atomic storage failure, localization parity, and copy budgets.
-- Added deterministic Playwright and axe coverage using three isolated browser contexts for invite creation, follower completion, two independent receipt actions, wrong-realm rejection, exact-once creator imports, removed-collaboration failure, duplicate neutrality, 200% zoom, minimum targets, overflow, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added focused unit coverage for strict codecs, hostile payloads, exact pair and target binding, two-receipt derivation, equal independent import, duplicate idempotency, wrong-realm and removed-collaboration rejection, altered contribution, atomic storage failure, bilingual parity, and the two-word copy budget.
+- Added deterministic Playwright and axe evidence for a mixed solo/shared chronicle, real product receipt import, duplicate neutrality, relationship removal after acceptance, hidden raw identifiers and prohibited claims, primary-action hierarchy, 44 px target, RTL/LTR, overflow, 200% text size, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
 - Added a focused 320×568 release repair for 200% text size: compact token-based shell spacing, single-column mission facts, readable realm names, and independently wrapping receipt actions. A deterministic browser gate now requires the shared-mission card to use at least 85% of the viewport, keeps essential text columns readable, and verifies both receipt controls remain fully inside the viewport.
 - Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, profile, upload, notification, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
 
@@ -85,7 +112,7 @@ Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview,
 - Pull Request #44 links Issue #43 and uses the dedicated `feature/cv-mvp-016-collaboration-handshake` branch for one coherent vertical slice.
 - Locked `npm ci`, unit/localization/build checks, isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, browser-report integrity, and exact-head artifacts are authoritative before release handoff.
 - Automated two-context scenarios are reproducible protocol and engineering regression evidence only; they are not evidence of human collaboration, comprehension, consent, identity, delivery, demand, retention, preference, trust, creator intent, or market validation.
-- Rollback is limited to reverting Pull Request #44 and removing only the strict pending and confirmation-preview local keys; existing collaboration records, creator ledger, missions, receipts, district projection, creator updates, fixed `+3`, dependencies, and environments remain unchanged.
+- Rollback is limited to reverting Pull Request #44 and removing only the strict pending and confirmation-preview local keys; existing collaboration records, creator ledger, missions, receipts, district projection, creator updates, fixed `+3`, dependencies, accounts, and environments remain unchanged.
 
 ### Next best task
 
@@ -98,7 +125,7 @@ Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview,
 ### Implemented
 
 - Added a versioned fragment-only proposal codec with exact keys, bounded opaque identifiers, allowlisted realm archetypes, strict names, size limits, duplicate/unknown-field rejection, hostile Unicode and bidi rejection, and immediate browser-history cleanup.
-- Added one strict local collaboration record containing only local/source realm IDs, proposal ID, source bounded name, and source archetype; no timestamp, identity, contact, free text, analytics, follower data, mission data, receipt, ledger entry, energy value, or second progress store was added.
+- Added one strict local collaboration record containing only local/source realm IDs, proposal ID, source bounded name, and source archetype; no timestamp, identity, contact, free text, analytics value, follower data, mission data, receipt, ledger entry, energy value, or second progress store was added.
 - Added explicit preview and acceptance, self-link rejection, one-link capacity, duplicate idempotency, verified write-or-no-write handling, safe recovery, concise removal confirmation, and removal isolation.
 - Integrated one secondary **Collaborate / تعاون** action after the dominant **Launch next mission / أطلق المهمة التالية** action, with a restrained custom signal-splice SVG and no dashboard, inbox, profile grid, repeated cards, gradients, glows, emoji, or decorative geometry.
 - Added capability-based Share/Copy with pending, copied/shared, cancelled, denied, failed, unsupported/manual-copy, and retry states without claiming delivery, viewing, external acceptance, identity, or ownership.
