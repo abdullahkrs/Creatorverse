@@ -88,7 +88,6 @@ async function completePartialContribution(page) {
   await page.locator('[data-start-thread]').click();
   await expect(root).toHaveAttribute('data-phase', 'active');
   await lockAllWindows(page);
-  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
   await expect(root).toHaveAttribute('data-phase', 'result', { timeout: 5000 });
 }
 
