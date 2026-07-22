@@ -4,6 +4,34 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-MVP-017 equal shared mission
+
+**Outcome:** Let one creator with a strict reciprocal local collaboration launch one bounded safe mission that a follower completes once to create two independent target-bound return receipts, each worth the existing fixed `+3` only after the matching creator explicitly imports it locally.
+
+### Implemented
+
+- Added exact versioned fragment-only shared-invite and shared-receipt codecs with bounded opaque identifiers, strict realm-pair, relationship, mission, schedule, completion, target, role, route, district, and fixed-contribution binding; duplicate and unknown fields, unsupported shape, malformed encoding, unsafe Unicode controls, query transport, self-pairs, altered contribution, and oversized input fail closed.
+- Added one secondary **Shared mission / مهمة مشتركة** action only inside a confirmed collaboration context while preserving **Launch next mission / أطلق المهمة التالية** as the sole dominant saved-realm action.
+- Reused the three existing allowlisted mission templates and fixed schedule presets without free text, target accounts, external URLs, rewards, audience fields, hashtags, messages, or open mission creation.
+- Added a follower path with one bounded realm-pair context, existing role and mission interaction, exact window enforcement, completion-once persistence, and exactly two independent receipt actions; the UI never combines them into a `+6` value or claims delivery, identity, ownership, remote approval, synchronization, or online state.
+- Reused the existing creator ledger import path after strict target and collaboration verification so each matching realm can receive exactly one local `+3`; wrong realm, removed or mismatched collaboration, duplicate, malformed state, ledger-cap, and storage failure preserve prior valid state and fail closed.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, bidirectional isolation, semantic headings, fieldsets, facts, live regions, predictable focus, independent receipt action states, 44 px targets, 200% reflow, reduced-motion equivalence, logical CSS properties, existing design tokens, and intrinsic mobile-first layouts.
+- Added one restrained original two-terminal mission rail and receipt split treatment with no dashboard, repeated cards, gradients, glows, decorative geometry, emoji, placeholder icons, or oversized marketing heading.
+- Added focused unit coverage for strict codecs, hostile payloads, exact pair and target binding, two-receipt derivation, equal independent import, duplicate idempotency, wrong-realm and removed-collaboration rejection, altered contribution, atomic storage failure, localization parity, and copy budgets.
+- Added deterministic Playwright and axe coverage using three isolated browser contexts for invite creation, follower completion, two independent receipt actions, wrong-realm rejection, exact-once creator imports, removed-collaboration failure, duplicate neutrality, 200% zoom, minimum targets, overflow, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, profile, upload, notification, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #46 links Issue #45 and uses the dedicated `feature/cv-mvp-017-equal-shared-mission` branch for one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build checks, isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated three-context scenarios are reproducible protocol simulation and engineering regression evidence only; they are not evidence of human identity, consent, comprehension, delivery, collaboration, demand, retention, preference, trust, creator intent, audience crossover, or market validation.
+- Rollback is limited to reverting Pull Request #46 and removing only strict shared-mission session previews; existing collaboration records, creator ledger schema, solo missions, prior receipts, district projection, fixed `+3`, dependencies, accounts, and environments remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #45 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-MVP-016 reciprocal collaboration handshake
 
 **Outcome:** Let the creator who generated one strict device-local collaboration proposal import a bounded confirmation returned by the accepting creator and explicitly complete one matching reciprocal local link without accounts, backend synchronization, identity claims, rewards, or progress mutation.
