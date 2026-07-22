@@ -29,7 +29,7 @@ function signalArtwork(state) {
 
 function realmIdentity(label, realm, copy) {
   return `
-    <div class="realm-handshake-realm">
+    <div class="realm-collaboration-realm realm-handshake-realm">
       <span>${escapeHtml(label)}</span>
       <strong><bdi>${escapeHtml(realm.name)}</bdi></strong>
       <small>${escapeHtml(copy[realm.theme])}</small>
@@ -57,14 +57,14 @@ function status(message = '') {
 export function renderPendingHandshake({ locale, realm, action, message = '', discardOpen = false, manualUrl = '' }) {
   const copy = getRealmCollaborationCopy(locale);
   return `
-    <section class="realm-collaboration realm-collaboration-handshake is-pending" data-realm-collaboration data-state="pending-awaiting-confirmation" aria-labelledby="realm-handshake-title">
+    <section class="realm-collaboration realm-collaboration-handshake is-pending" data-realm-collaboration data-state="proposal-ready" data-pending-state="awaiting-confirmation" aria-labelledby="realm-handshake-title">
       ${heading(copy.relationshipLabel, copy.pendingTitle, copy.pendingSupport, copy.close)}
       <div class="realm-handshake-origin">
         ${realmIdentity(copy.yourRealmLabel, realm, copy)}
         ${signalArtwork('pending')}
       </div>
       <div class="realm-handshake-actions">
-        <button class="secondary" type="button" data-action="resume-realm-collaboration" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
+        <button class="secondary" type="button" data-action="share-realm-collaboration" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
         <button class="secondary" type="button" data-action="discard-pending-realm-collaboration">${escapeHtml(copy.discard)}</button>
       </div>
       ${manualUrl ? `<label class="realm-collaboration-manual"><span>${escapeHtml(copy.manual)}</span><input readonly dir="ltr" value="${escapeHtml(manualUrl)}"></label>` : ''}
