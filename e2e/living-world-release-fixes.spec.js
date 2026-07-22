@@ -131,7 +131,7 @@ test('collective completion shows one visual outcome, one impact, and one share 
   await completeContribution(page);
 
   await expect(page.locator('.living-world-result-copy h2')).toHaveText(copy.result.complete);
-  await expect(page.locator('.living-world-result-copy p')).toHaveText(copy.result.completeImpact);
+  await expect(page.locator('.living-world-result-copy > p:not([data-living-status])')).toHaveText(copy.result.completeImpact);
   await expect(page.locator('[data-result-action="share"]')).toHaveText(copy.result.shareOpening);
   await expect(page.locator('.living-world-share-copy')).toBeHidden();
 
