@@ -56,7 +56,11 @@ test('living world event token is exact and language independent', () => {
   });
   const token = encodeLivingWorldEvent(created, { now: NOW });
   assert.deepEqual(decodeLivingWorldEvent(token, { now: NOW }), created);
-  const url = buildLivingWorldUrl(created, { progress: 18, baseUrl: 'https://example.test/path?ignored=yes' });
+  const url = buildLivingWorldUrl(created, {
+    progress: 18,
+    baseUrl: 'https://example.test/path?ignored=yes',
+    now: NOW,
+  });
   const parsed = eventFromLocation(new URL(url).hash, { now: NOW });
   assert.equal(parsed.status, 'ready');
   assert.equal(parsed.event.progress, 18);
