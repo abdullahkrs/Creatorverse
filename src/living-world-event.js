@@ -180,7 +180,16 @@ export function readLivingWorldState(storage, event, options = {}) {
 }
 
 export function commitLivingWorldContribution(storage, event, options = {}) {
-  const validated = validateEventShape(event, { now: options.now ?? Date.now() });
+  let validated;
+  try {
+    validated = validateEventShape(event, { now: options.now ?? Date.now() });
+  } catch {
+    const progress = Number.isSafeInteger(event?.progress) && event.progress >= 0 && event.progress <= 48
+      ? event.progress
+      : 0;
+    return { status: 'storage-error', progress };
+  }
+
   let store;
   try { store = readStore(storage); } catch { return { status: 'storage-error', progress: validated.progress }; }
   const existing = store.data.events.find(record => record.eventId === validated.eventId);
