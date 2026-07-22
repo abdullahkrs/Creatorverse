@@ -67,16 +67,29 @@ async function waitForNotch(page, index) {
   }, index, { timeout: 5000, polling: 'raf' });
 }
 
-async function completeContribution(page) {
-  const root = page.locator('[data-living-world][data-route="event"]');
+async function lockAllWindows(page) {
   const lock = page.locator('[data-living-world-lock]');
-  await page.locator('[data-start-thread]').click();
-  await expect(root).toHaveAttribute('data-phase', 'active');
   for (let index = 0; index < 3; index += 1) {
     await waitForNotch(page, index);
     await lock.click();
   }
+}
+
+async function completeContribution(page) {
+  const root = page.locator('[data-living-world][data-route="event"]');
+  await page.locator('[data-start-thread]').click();
+  await expect(root).toHaveAttribute('data-phase', 'active');
+  await lockAllWindows(page);
   await expect(root).toHaveAttribute('data-phase', 'complete', { timeout: 5000 });
+}
+
+async function completePartialContribution(page) {
+  const root = page.locator('[data-living-world][data-route="event"]');
+  await page.locator('[data-start-thread]').click();
+  await expect(root).toHaveAttribute('data-phase', 'active');
+  await lockAllWindows(page);
+  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
+  await expect(root).toHaveAttribute('data-phase', 'result', { timeout: 5000 });
 }
 
 test('320px at 200 percent keeps creator context and every utility inside the viewport without overlap', async ({ browser }) => {
@@ -118,6 +131,30 @@ test('320px at 200 percent keeps creator context and every utility inside the vi
 
   await page.screenshot({
     path: 'test-results/living-world/ar-320x568-200-percent-release.png',
+    fullPage: true,
+  });
+  await context.close();
+});
+
+test('320px partial progress keeps one outcome, one impact, and one share action without collision', async ({ browser }) => {
+  const context = await createContext(browser, 'en');
+  const page = await context.newPage();
+  await page.goto(eventUrl(makeEvent({ progress: 15, target: 24 })));
+  await completePartialContribution(page);
+
+  await expect(page.locator('.living-world-share-copy')).toBeHidden();
+  const outcome = page.locator('.living-world-result-copy h2');
+  const impact = page.locator('.living-world-result-copy > p:not([data-living-status])');
+  const share = page.locator('[data-result-action="share"]');
+
+  const outcomeBox = await expectWithinViewport(page, outcome, 'partial outcome');
+  const impactBox = await expectWithinViewport(page, impact, 'partial impact');
+  const shareBox = await expectWithinViewport(page, share, 'partial share action');
+  expect(boxesOverlap(outcomeBox, impactBox), 'outcome and impact overlap').toBe(false);
+  expect(boxesOverlap(impactBox, shareBox), 'impact and share overlap').toBe(false);
+
+  await page.screenshot({
+    path: 'test-results/living-world/en-320x568-partial-progress-release.png',
     fullPage: true,
   });
   await context.close();
