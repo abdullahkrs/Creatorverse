@@ -163,8 +163,11 @@ function readStore(storage) {
   return { serialized, data: { version: 1, events } };
 }
 
-export function readLivingWorldState(storage, event) {
-  const validated = validateEventShape(event, { allowExpired: true });
+export function readLivingWorldState(storage, event, options = {}) {
+  const validated = validateEventShape(event, {
+    allowExpired: true,
+    now: options.now ?? Date.now(),
+  });
   try {
     const { data } = readStore(storage);
     const record = data.events.find(item => item.eventId === validated.eventId);
