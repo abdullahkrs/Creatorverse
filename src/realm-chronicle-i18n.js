@@ -9,6 +9,7 @@ const COPY = Object.freeze({
     showingRecentTemplate: 'Showing recent {count} contributions.',
     contributionLabel: 'Contribution',
     totalLabel: 'Realm total',
+    sharedMission: 'Shared mission',
     missions: Object.freeze({
       'route-choice': 'Choose a Route',
       'relay-sequence': 'Link the Relays',
@@ -40,6 +41,7 @@ const COPY = Object.freeze({
     showingRecentTemplate: 'يتم عرض أحدث المساهمات وعددها {count}.',
     contributionLabel: 'المساهمة',
     totalLabel: 'إجمالي العالم',
+    sharedMission: 'مهمة مشتركة',
     missions: Object.freeze({
       'route-choice': 'اختر مسارًا',
       'relay-sequence': 'اربط المرحّلات',
