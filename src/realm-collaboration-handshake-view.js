@@ -58,7 +58,7 @@ export function renderPendingHandshake({ locale, realm, action, message = '', di
   const copy = getRealmCollaborationCopy(locale);
   return `
     <section class="realm-collaboration realm-collaboration-handshake is-pending" data-realm-collaboration data-state="proposal-ready" data-pending-state="awaiting-confirmation" aria-labelledby="realm-handshake-title">
-      ${heading(copy.relationshipLabel, copy.pendingTitle, copy.pendingSupport, copy.close)}
+      ${heading(copy.relationshipLabel, copy.pendingTitle, copy.pendingSupport)}
       <div class="realm-handshake-origin">
         ${realmIdentity(copy.yourRealmLabel, realm, copy)}
         ${signalArtwork('pending')}
@@ -104,7 +104,7 @@ export function renderConfirmationPreview({ locale, local, accepting, confirming
   const copy = getRealmCollaborationCopy(locale);
   return `
     <section class="realm-collaboration realm-collaboration-handshake is-confirmation" data-realm-collaboration data-state="confirmation-preview" aria-labelledby="realm-handshake-title">
-      ${heading(copy.relationshipLabel, copy.completeTitle, copy.completeSupport, copy.close)}
+      ${heading(copy.relationshipLabel, copy.completeTitle, copy.completeSupport)}
       <div class="realm-handshake-identities">
         ${realmIdentity(copy.yourRealmLabel, local, copy)}
         ${signalArtwork('confirmation')}
@@ -162,9 +162,10 @@ export function renderHandshakeError({ locale, kind, message = '', hasPending = 
 
 export function renderReturnConfirmationControl({ locale, action, message = '', manualUrl = '' }) {
   const copy = getRealmCollaborationCopy(locale);
+  const pending = action.label === copy.sharing || action.label === copy.copying;
   return `
     <div class="realm-handshake-return" data-handshake-return>
-      <button class="secondary" type="button" data-action="return-realm-collaboration-confirmation" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
+      <button class="secondary" type="button" data-action="return-realm-collaboration-confirmation" ${pending ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
       ${manualUrl ? `<label class="realm-collaboration-manual"><span>${escapeHtml(copy.confirmationManual)}</span><input readonly dir="ltr" value="${escapeHtml(manualUrl)}"></label>` : ''}
       ${status(message)}
     </div>
