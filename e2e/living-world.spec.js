@@ -171,7 +171,7 @@ test('share update opens the same bounded event snapshot in a fresh context', as
   await friend.goto(copied);
   await expect(friend.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(friend.locator('[data-living-world]')).toHaveAttribute('data-phase', 'ready');
-  await expect(friend.locator('.living-world-progress strong')).toContainText('٦ / ١٢');
+  await expect(friend.locator('.living-world-progress strong bdi')).toHaveText('6 / 12');
   await first.close();
   await second.close();
 });
