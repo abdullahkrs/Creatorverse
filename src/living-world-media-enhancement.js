@@ -44,13 +44,6 @@ function setStatus(button, message) {
   announce(message);
 }
 
-function rememberIdleLabel(button) {
-  if (!button?.dataset.mediaIdleLabel) {
-    button.dataset.mediaIdleLabel = button.textContent?.trim() || mediaCopy().action;
-  }
-  return button.dataset.mediaIdleLabel;
-}
-
 function setButtonState(button, state, label, disabled) {
   if (!button) return;
   if (button.dataset.mediaState !== state) button.dataset.mediaState = state;
@@ -65,15 +58,14 @@ function setButtonState(button, state, label, disabled) {
 
 function restoreButton(button, { focus = false } = {}) {
   if (!button?.isConnected) return;
-  setButtonState(button, 'idle', rememberIdleLabel(button), false);
+  setButtonState(button, 'idle', mediaCopy().action, false);
   if (focus) button.focus({ preventScroll: true });
 }
 
 function syncShareButtons() {
   document.querySelectorAll(SHARE_SELECTOR).forEach(button => {
-    const idleLabel = rememberIdleLabel(button);
     if (!button.dataset.mediaState || button.dataset.mediaState === 'idle') {
-      setButtonState(button, 'idle', idleLabel, false);
+      setButtonState(button, 'idle', mediaCopy().action, false);
     }
   });
 }
@@ -133,8 +125,11 @@ function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
-      if (typeof reader.result === 'string' && reader.result.startsWith('data:image/png;base64,')) resolve(reader.result);
-      else reject(new Error('MEDIA_PREVIEW_FAILED'));
+      if (typeof reader.result === 'string' && reader.result.startsWith('data:image/png;base64,')) {
+        resolve(reader.result);
+      } else {
+        reject(new Error('MEDIA_PREVIEW_FAILED'));
+      }
     }, { once: true });
     reader.addEventListener('error', () => reject(new Error('MEDIA_PREVIEW_FAILED')), { once: true });
     reader.readAsDataURL(blob);
@@ -215,7 +210,7 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
   save.href = activeObjectUrl;
   save.download = LIVING_WORLD_MEDIA_FILENAME;
   save.dataset.livingMediaSave = 'true';
-  save.addEventListener('click', () => { setText(status, copy.saved); });
+  save.addEventListener('click', () => setText(status, copy.saved));
 
   const copyButton = element('button', 'living-world-secondary', copy.copy);
   copyButton.type = 'button';
@@ -243,7 +238,6 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
 async function handleMediaShare(button) {
   if (activeShare) return;
   activeShare = true;
-  rememberIdleLabel(button);
   const copy = mediaCopy();
   setButtonState(button, 'generating', copy.generating, true);
   setStatus(button, copy.generating);
