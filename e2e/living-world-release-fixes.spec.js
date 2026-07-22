@@ -2,6 +2,7 @@ import { webcrypto } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { buildLivingWorldUrl, createLivingWorldEvent } from '../src/living-world-event.js';
 import { getLivingWorldCopy } from '../src/living-world-i18n.js';
+import { getLivingWorldMediaCopy } from '../src/living-world-media-i18n.js';
 
 let sequence = 9000;
 
@@ -168,7 +169,7 @@ test('collective completion shows one visual outcome, one impact, and one share 
 
   await expect(page.locator('.living-world-result-copy h2')).toHaveText(copy.result.complete);
   await expect(page.locator('.living-world-result-copy > p:not([data-living-status])')).toHaveText(copy.result.completeImpact);
-  await expect(page.locator('[data-result-action="share"]')).toHaveText(copy.result.shareOpening);
+  await expect(page.locator('[data-result-action="share"]')).toHaveText(getLivingWorldMediaCopy('en').action);
   await expect(page.locator('.living-world-share-copy')).toBeHidden();
 
   const visibleOutcomeCount = await page.evaluate(text => [...document.querySelectorAll('h1, h2, strong')]
