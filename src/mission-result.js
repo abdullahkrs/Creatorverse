@@ -3,6 +3,7 @@ import { DEFAULT_MISSION_TEMPLATE_ID, normalizeMissionTemplateId } from './missi
 import { parseCompletionReceiptFragment } from './completion-receipt.js';
 import { parsePrototypeInviteFragment } from './prototype-invite.js';
 import { parseRealmCollaborationHash } from './realm-collaboration.js';
+import { parseRealmCollaborationConfirmationHash } from './realm-collaboration-handshake.js';
 
 const ROLE_IDS = new Set(['builder', 'explorer', 'guardian']);
 const ROUTE_IDS = new Set(['sky', 'ocean']);
@@ -90,10 +91,21 @@ function getValidatedRealmCollaborationFragment(hash) {
   return `collab=${parameters.get('collab')}`;
 }
 
+function getValidatedRealmCollaborationConfirmationFragment(hash) {
+  const raw = String(hash ?? '').replace(/^#/u, '');
+  if (!raw) return '';
+  const parameters = new URLSearchParams(raw);
+  const keys = [...parameters.keys()];
+  if (keys.length !== 1 || keys[0] !== 'collab-confirm') return '';
+  if (parseRealmCollaborationConfirmationHash(`#${raw}`).status !== 'ready') return '';
+  return `collab-confirm=${parameters.get('collab-confirm')}`;
+}
+
 export function getPublicHttpUrl(value, {
   preserveCompletionReceipt = false,
   preservePrototypeInvite = false,
   preserveRealmCollaboration = false,
+  preserveRealmCollaborationConfirmation = false,
 } = {}) {
   try {
     const url = new URL(String(value));
@@ -108,8 +120,12 @@ export function getPublicHttpUrl(value, {
     const collaborationFragment = !receiptFragment && !inviteFragment && preserveRealmCollaboration
       ? getValidatedRealmCollaborationFragment(url.hash)
       : '';
+    const confirmationFragment = !receiptFragment && !inviteFragment && !collaborationFragment
+      && preserveRealmCollaborationConfirmation
+      ? getValidatedRealmCollaborationConfirmationFragment(url.hash)
+      : '';
     url.search = '';
-    url.hash = receiptFragment || inviteFragment || collaborationFragment;
+    url.hash = receiptFragment || inviteFragment || collaborationFragment || confirmationFragment;
     return url.toString();
   } catch {
     return null;
@@ -144,6 +160,7 @@ export function buildClipboardText(payload) {
     preserveCompletionReceipt: true,
     preservePrototypeInvite: true,
     preserveRealmCollaboration: true,
+    preserveRealmCollaborationConfirmation: true,
   }) || '';
   return `${text}\n${url}`.trim();
 }
