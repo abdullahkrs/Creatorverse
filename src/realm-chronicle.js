@@ -17,7 +17,10 @@ const STAGE_BY_THRESHOLD = Object.freeze([
 
 function freezeResult(value) {
   if (Array.isArray(value.entries)) {
-    value.entries = Object.freeze(value.entries.map(entry => Object.freeze(entry)));
+    value.entries = Object.freeze(value.entries.map(entry => Object.freeze({
+      ...entry,
+      ...(entry.provenance ? { provenance: Object.freeze({ ...entry.provenance }) } : {}),
+    })));
   }
   return Object.freeze(value);
 }
@@ -56,6 +59,12 @@ export function deriveRealmChronicleFromState(state) {
       contribution: DISTRICT_CONTRIBUTION,
       totalEnergy,
       stageId: realmChronicleStageForEnergy(totalEnergy),
+      ...(entry.provenance ? {
+        provenance: {
+          sourceKind: entry.provenance.sourceKind,
+          partnerName: entry.provenance.partnerName,
+        },
+      } : {}),
     };
   }).reverse();
 
