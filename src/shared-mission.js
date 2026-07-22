@@ -141,7 +141,10 @@ function decodePayload(token, prefix, maximum) {
 }
 
 function exactFragment(hash, key) {
-  const raw = String(hash ?? '').replace(/^#/u, '');
+  const transport = String(hash ?? '');
+  if (!transport) return { status: 'none' };
+  if (!transport.startsWith('#')) return { status: 'none' };
+  const raw = transport.slice(1);
   if (!raw) return { status: 'none' };
   const parameters = new URLSearchParams(raw);
   const values = parameters.getAll(key);
