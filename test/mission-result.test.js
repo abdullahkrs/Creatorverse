@@ -13,6 +13,10 @@ import {
   createRealmCollaborationProposal,
   parseRealmCollaborationHash,
 } from '../src/realm-collaboration.js';
+import {
+  encodeRealmCollaborationConfirmation,
+  parseRealmCollaborationConfirmationHash,
+} from '../src/realm-collaboration-handshake.js';
 
 const result = createMissionResult({
   roleId: 'builder',
@@ -31,6 +35,16 @@ const collaborationProposal = createRealmCollaborationProposal({
   cryptoLike: { randomUUID: () => '12345678-1234-1234-1234-123456789abc' },
   baseUrl: 'https://creatorverse.example/play',
 });
+
+const collaborationConfirmation = Object.freeze({
+  version: 1,
+  proposalId: collaborationProposal.proposal.proposalId,
+  sourceRealmId: collaborationProposal.proposal.sourceRealmId,
+  acceptingRealmId: 'realm_local_000000002',
+  acceptingName: 'Canopy Relay',
+  acceptingTheme: 'wild',
+});
+const collaborationConfirmationUrl = `https://creatorverse.example/play#collab-confirm=${encodeRealmCollaborationConfirmation(collaborationConfirmation)}`;
 
 test('creates allowlisted, bounded result data', () => {
   assert.deepEqual(result, {
@@ -133,11 +147,32 @@ test('uses clipboard fallback, reports failure, and blocks repeated activation',
   assert.equal(copiedUrl, collaborationProposal.url);
   assert.equal(parseRealmCollaborationHash(new URL(copiedUrl).hash).status, 'ready');
 
+  const confirmationPayload = {
+    title: 'Creatorverse',
+    text: 'Canopy Relay',
+    url: collaborationConfirmationUrl,
+  };
+  const confirmationController = createMissionResultActionController({
+    navigatorLike: {},
+    payload: confirmationPayload,
+    copyText: async value => { copied = value; },
+  });
+  assert.deepEqual(await confirmationController.activate(), { status: 'copied', mode: 'copy' });
+  const copiedConfirmationUrl = copied.split('\n').at(-1);
+  assert.equal(copiedConfirmationUrl, collaborationConfirmationUrl);
+  assert.equal(parseRealmCollaborationConfirmationHash(new URL(copiedConfirmationUrl).hash).status, 'ready');
+
   const malformedCollaboration = buildClipboardText({
     text: 'Signal Haven',
     url: 'https://creatorverse.example/play#collab=not-valid',
   });
   assert.equal(malformedCollaboration, 'Signal Haven\nhttps://creatorverse.example/play');
+
+  const malformedConfirmation = buildClipboardText({
+    text: 'Canopy Relay',
+    url: 'https://creatorverse.example/play#collab-confirm=not-valid',
+  });
+  assert.equal(malformedConfirmation, 'Canopy Relay\nhttps://creatorverse.example/play');
 
   const failedCopy = createMissionResultActionController({
     navigatorLike: {},

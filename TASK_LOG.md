@@ -4,6 +4,34 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-MVP-016 reciprocal collaboration handshake
+
+**Outcome:** Let the creator who generated one strict device-local collaboration proposal import a bounded confirmation returned by the accepting creator and explicitly complete one matching reciprocal local link without accounts, backend synchronization, identity claims, rewards, or progress mutation.
+
+### Implemented
+
+- Added one strict versioned pending outbound proposal record containing only the existing validated proposal ID, source realm ID, bounded realm name, and allowlisted archetype; one-pending capacity, predictable resume, explicit discard confirmation, verified write/remove behavior, and fail-closed malformed storage are enforced.
+- Added an exact versioned fragment-only `collab-confirm` codec containing only proposal ID, source realm ID, and the accepting realm's validated opaque ID, bounded name, and allowlisted archetype; duplicate/unknown keys, unsupported versions, malformed encoding, controls, bidi overrides, unsafe identifiers, self-links, oversized payloads, query transport, and reflected raw values are rejected.
+- Added immediate confirmation-fragment history cleanup, strict session-scoped preview persistence, exact proposal/source binding, one-link capacity, explicit proposer confirmation, duplicate idempotency, atomic collaboration write plus matched-pending removal, rollback on storage failure, and safe mismatch/no-pending/already-linked recovery.
+- Added recipient **Return confirmation / أرسل التأكيد** capability-based Share/Copy states without delivery, viewing, identity, ownership, remote consent, synchronization, or revocation claims.
+- Added synchronized Arabic and English pending, confirmation, success, failure, discard, and local-removal copy with intentional RTL/LTR composition, bidirectional isolation, semantic headings/dialogs/live regions, predictable focus, 44 px controls, 200% text reflow, reduced-motion equivalence, logical CSS properties, existing design tokens, and intrinsic mobile-first layouts.
+- Extended the existing signal-splice identity with one restrained original circuit-closing SVG; no dashboard, inbox, profile grid, repeated cards, gradients, glows, decorative geometry, emoji, placeholder avatars, or oversized marketing heading was added.
+- Added focused unit coverage for pending validation/capacity/discard, exact confirmation fields and size bounds, hostile payload rejection, binding, self/cross-realm rejection, no-pending and mismatch recovery, duplicate idempotency, atomic failure rollback, preview persistence, local-only isolation, copy budgets, and localization parity.
+- Added deterministic Playwright and axe scenarios with two isolated browser contexts for pending proposal creation, recipient acceptance and confirmation return, proposer preview and exact-once completion, reload and locale persistence, duplicate neutrality, no-pending recovery, one-sided local removal, storage failure, 200% zoom, orientation, minimum targets, overflow, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added a focused 200% text-zoom reflow safeguard so the saved-realm operation and its primary and collaboration actions shrink and wrap inside the 320 px collaboration preview; the release scenario now checks both page and internal control overflow.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, timestamp, contact, chat, follower data, notification, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #44 links Issue #43 and uses the dedicated `feature/cv-mvp-016-collaboration-handshake` branch for one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build checks, isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, browser-report integrity, and exact-head artifacts are authoritative before release handoff.
+- Automated two-context scenarios are reproducible protocol and engineering regression evidence only; they are not evidence of human collaboration, comprehension, consent, identity, delivery, demand, retention, preference, trust, creator intent, or market validation.
+- Rollback is limited to reverting Pull Request #44 and removing only the strict pending and confirmation-preview local keys; existing collaboration records, creator ledger, missions, receipts, district projection, creator updates, fixed `+3`, dependencies, and environments remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #43 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-MVP-015 reversible realm collaboration
 
 **Outcome:** Let one creator generate a bounded proposal from a strict local fictional realm and let a different creator explicitly accept one reversible device-local collaboration link without accounts, contacts, chat, backend state, rewards, or progress mutation.

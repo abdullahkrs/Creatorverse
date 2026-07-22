@@ -51,6 +51,8 @@ for (const path of [
   '../src/realm-chronicle-enhancement.js',
   '../src/realm-collaboration-view.js',
   '../src/realm-collaboration-enhancement.js',
+  '../src/realm-collaboration-handshake-view.js',
+  '../src/realm-collaboration-handshake-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -58,4 +60,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, and ${realmCollaborationKeys} realm-collaboration keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, and ${realmCollaborationKeys} realm-collaboration keys.`);

@@ -57,6 +57,13 @@ async function expectNoOverflow(page, label) {
   expect(overflow, label).toBeLessThanOrEqual(1);
 }
 
+async function expectNoInternalOverflow(page, selectors, label) {
+  for (const selector of selectors) {
+    const overflow = await page.locator(selector).evaluate(element => element.scrollWidth - element.clientWidth);
+    expect(overflow, `${label}: ${selector}`).toBeLessThanOrEqual(1);
+  }
+}
+
 async function expectNoSeriousAxeViolations(page) {
   const axe = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
@@ -133,6 +140,12 @@ test('collaboration preview survives 200 percent text reflow and orientation cha
   });
   await expect(page.locator('[data-action="open-realm-continuation"]')).toBeVisible();
   await expect(page.locator('[data-action="accept-realm-collaboration"]')).toBeVisible();
+  await expectNoInternalOverflow(page, [
+    '.realm-continuation-operation',
+    '.realm-continuation-operation > div:first-child',
+    '.realm-continuation-launch',
+    '.realm-collaboration-open',
+  ], '200 percent saved-realm reflow');
   await expectNoOverflow(page, '200 percent text reflow must not overflow');
 
   await page.setViewportSize({ width: 568, height: 320 });
