@@ -109,7 +109,7 @@ test('shared invite is exact, bounded, opaque, and fragment-only', () => {
   assert.deepEqual(decodeSharedMissionInvite(encodeSharedMissionInvite(outcome.invite), { now: NOW }), outcome.invite);
 });
 
-test('shared invite rejects duplicate, unknown, query, self-pair, hostile, and oversized state', () => {
+test('shared invite rejects duplicate, unknown, non-fragment, self-pair, hostile, and oversized state', () => {
   const { outcome } = createFixture();
   const compact = {
     v: 1,
@@ -134,7 +134,7 @@ test('shared invite rejects duplicate, unknown, query, self-pair, hostile, and o
   const duplicate = rawToken('csm1.', duplicateJson);
   assert.equal(parseSharedMissionInviteFragment(`#${SHARED_MISSION_INVITE_FRAGMENT}=${duplicate}`, { now: NOW }).status, 'invalid');
   assert.equal(parseSharedMissionInviteFragment(`#${SHARED_MISSION_INVITE_FRAGMENT}=${outcome.token}&x=1`, { now: NOW }).status, 'invalid');
-  assert.equal(parseSharedMissionInviteFragment(`?${SHARED_MISSION_INVITE_FRAGMENT}=${outcome.token}`, { now: NOW }).status, 'none');
+  assert.equal(parseSharedMissionInviteFragment(`https://preview.example.test/app?${SHARED_MISSION_INVITE_FRAGMENT}=${outcome.token}`, { now: NOW }).status, 'none');
   assert.equal(parseSharedMissionInviteFragment(`#${SHARED_MISSION_INVITE_FRAGMENT}=${'a'.repeat(sharedMissionLimits.maxInviteTokenLength + 1)}`, { now: NOW }).status, 'invalid');
 
   assert.equal(isValidSharedMissionInvite({ ...outcome.invite, linkedRealmId: outcome.invite.initiatorRealmId }, { now: NOW }), false);
