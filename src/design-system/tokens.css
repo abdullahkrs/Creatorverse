@@ -63,6 +63,28 @@
   --cv-color-success: #69d49a;
   --cv-color-warning: #f0bd68;
   --cv-color-danger: #ff8f91;
+
+  /* Folded Horizon living-world roles */
+  --cv-world-sky: #111722;
+  --cv-world-sky-raised: #1b2330;
+  --cv-world-far-stone: #29313b;
+  --cv-world-near-stone: #171d25;
+  --cv-world-mist: #343f49;
+  --cv-world-shutter: #343a40;
+  --cv-world-tower: #40464d;
+  --cv-world-tower-cut: #20262d;
+  --cv-world-stone-line: #626970;
+  --cv-world-stone-raised: #252d36;
+  --cv-world-overlay: rgba(11, 13, 18, 0.78);
+  --cv-world-cord: #6f7479;
+  --cv-world-slat-dark: #2c333a;
+  --cv-world-thread: #efcf72;
+  --cv-world-thread-bright: #ffe69a;
+  --cv-world-thread-muted: #9f8851;
+  --cv-world-thread-deep: #5b4b24;
+  --cv-world-action-text: #171408;
+  --cv-world-window-dark: #9f8851;
+  --cv-world-plant: #7d9d78;
 }
 
 @media (min-width: 40rem) {
