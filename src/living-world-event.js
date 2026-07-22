@@ -131,9 +131,13 @@ export function eventFromLocation(hash, options = {}) {
   }
 }
 
-export function buildLivingWorldUrl(event, { progress = event.progress, baseUrl = globalThis.location?.href || 'https://example.test/' } = {}) {
+export function buildLivingWorldUrl(event, {
+  progress = event.progress,
+  baseUrl = globalThis.location?.href || 'https://example.test/',
+  now = Date.now(),
+} = {}) {
   const url = new URL(baseUrl);
-  url.hash = `${LIVING_WORLD_FRAGMENT}=${encodeLivingWorldEvent({ ...event, progress })}`;
+  url.hash = `${LIVING_WORLD_FRAGMENT}=${encodeLivingWorldEvent({ ...event, progress }, { now })}`;
   return url.toString();
 }
 
