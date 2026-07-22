@@ -115,7 +115,7 @@ test('one accepted contribution advances exactly once and duplicate attempts rem
   assert.deepEqual(first, { status: 'accepted', progress: 8, completed: false });
   const second = commitLivingWorldContribution(storage, current, { now: NOW });
   assert.deepEqual(second, { status: 'duplicate', progress: 8, completed: false });
-  assert.deepEqual(readLivingWorldState(storage, current), { status: 'duplicate', progress: 8, contributed: true });
+  assert.deepEqual(readLivingWorldState(storage, current, { now: NOW }), { status: 'duplicate', progress: 8, contributed: true });
   const stored = JSON.parse(storage.getItem(LIVING_WORLD_STORAGE_KEY));
   assert.equal(stored.events.length, 1);
   assert.equal(stored.events[0].progress, 8);
@@ -136,7 +136,7 @@ test('goal completion is bounded and never grants extra progress', () => {
 test('malformed storage and unverified writes fail closed without partial progress', () => {
   const current = event({ progress: 4 });
   const malformed = memoryStorage([[LIVING_WORLD_STORAGE_KEY, '{bad']]);
-  assert.equal(readLivingWorldState(malformed, current).status, 'storage-error');
+  assert.equal(readLivingWorldState(malformed, current, { now: NOW }).status, 'storage-error');
   assert.equal(commitLivingWorldContribution(malformed, current, { now: NOW }).status, 'storage-error');
 
   const values = new Map();
@@ -156,7 +156,7 @@ test('a stale or mismatched local record cannot overwrite the event snapshot', (
     version: 1,
     events: [{ eventId: current.eventId, target: 24, progress: 9, contributed: false }],
   })]]);
-  assert.equal(readLivingWorldState(stale, current).status, 'storage-error');
+  assert.equal(readLivingWorldState(stale, current, { now: NOW }).status, 'storage-error');
   assert.equal(commitLivingWorldContribution(stale, current, { now: NOW }).status, 'storage-error');
 });
 
