@@ -276,7 +276,8 @@ function ensureTrigger(context) {
     trigger = template.content.firstElementChild;
     actions.prepend(trigger);
   }
-  trigger.textContent = getSharedMissionCopy(getLocale()).action;
+  const label = getSharedMissionCopy(getLocale()).action;
+  if (trigger.textContent !== label) trigger.textContent = label;
   trigger.setAttribute('aria-expanded', String(setupOpen));
   return trigger;
 }
