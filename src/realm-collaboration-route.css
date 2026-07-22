@@ -14,6 +14,23 @@ html body .nav-actions {
   flex-wrap: wrap;
 }
 
+/* Let the saved-realm operation and its actions shrink within the preview at 200% text zoom. */
+html body .realm-continuation-operation > div:first-child,
+html body .realm-continuation-operation > .realm-continuation-launch,
+html body .realm-continuation-operation > .realm-collaboration-open {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+@media (max-width: 30rem) {
+  html body .realm-continuation-operation > .realm-continuation-launch,
+  html body .realm-continuation-operation > .realm-collaboration-open {
+    padding-inline: var(--cv-space-3);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 body > .realm-collaboration {
   inline-size: calc(100% - (2 * var(--cv-page-pad)));
   max-inline-size: var(--cv-page-max);
