@@ -1,0 +1,60 @@
+/* CV-PIVOT-001 focused QA release repairs.
+   Keeps the 320px/200% utility strip readable and removes duplicate completion copy. */
+
+@media (max-width: 22rem) {
+  .living-world-creator-strip {
+    inset-inline: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+  }
+
+  .living-world-creator {
+    inline-size: 100%;
+    gap: 8px;
+  }
+
+  .living-world-emblem {
+    flex-basis: 32px;
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .living-world-creator span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .living-world-creator small {
+    display: none;
+  }
+
+  .living-world-utilities {
+    inline-size: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .living-world-language {
+    min-block-size: 44px;
+    padding: 2px;
+  }
+
+  .living-world-language button,
+  .living-world-sound {
+    inline-size: 44px;
+    min-inline-size: 44px;
+    block-size: 44px;
+    min-block-size: 44px;
+  }
+
+  .living-world-stage {
+    padding-block-start: calc(112px + env(safe-area-inset-top));
+    padding-inline: 16px;
+  }
+}
+
+[data-living-world][data-phase="complete"] .living-world-share-copy {
+  display: none;
+}
