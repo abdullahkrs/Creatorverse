@@ -33,7 +33,8 @@ function makeEvent({ progress = 15, target = 24, duration = '24h' } = {}) {
 }
 
 function eventUrl(value) {
-  return buildLivingWorldUrl(value, { baseUrl: 'http://127.0.0.1:4173/' });
+  const absolute = buildLivingWorldUrl(value, { baseUrl: 'https://example.test/' });
+  return `/${new URL(absolute).hash}`;
 }
 
 async function createContext(browser, { locale = 'en', viewport = VIEWPORTS[1], reducedMotion = 'no-preference', audio = true, storageFailure = false } = {}) {
@@ -90,7 +91,7 @@ async function waitForNotch(page, index) {
   await expect(root).toHaveAttribute('data-notch-active', 'true', { timeout: 5000 });
 }
 
-async function completeContribution(page, { screenshots = null } = {}) {
+async function completeContribution(page, { screenshots = null, finalPhase = /result|complete/u } = {}) {
   const root = page.locator('[data-living-world][data-route="event"]');
   await page.locator('[data-start-thread]').click();
   await expect(root).toHaveAttribute('data-phase', 'active');
@@ -102,9 +103,13 @@ async function completeContribution(page, { screenshots = null } = {}) {
   await waitForNotch(page, 2);
   if (screenshots) await page.screenshot({ path: screenshots.third, fullPage: true });
   await page.locator('[data-living-world-lock]').click();
+  if (finalPhase === 'storage-error') {
+    await expect(root).toHaveAttribute('data-phase', 'storage-error', { timeout: 5000 });
+    return;
+  }
   await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
   if (screenshots) await page.screenshot({ path: screenshots.impact, fullPage: true });
-  await expect(root).toHaveAttribute('data-phase', /result|complete/u, { timeout: 5000 });
+  await expect(root).toHaveAttribute('data-phase', finalPhase, { timeout: 5000 });
 }
 
 for (const locale of LOCALES) {
@@ -244,8 +249,7 @@ test('storage failure preserves the previous world and exposes one safe retry', 
   const context = await createContext(browser, { locale: 'en', storageFailure: true });
   const page = await context.newPage();
   await page.goto(eventUrl(makeEvent({ progress: 7 })));
-  await completeContribution(page);
-  await expect(page.locator('[data-living-world]')).toHaveAttribute('data-phase', 'storage-error');
+  await completeContribution(page, { finalPhase: 'storage-error' });
   await expect(page.locator('[data-result-action="retry"]')).toBeVisible();
   await expect(page.locator('.living-world-progress strong')).toContainText('7 / 24');
   await context.close();
