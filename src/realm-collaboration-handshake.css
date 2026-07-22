@@ -1,0 +1,142 @@
+.realm-collaboration-handshake {
+  gap: var(--cv-space-4);
+}
+
+.realm-handshake-origin,
+.realm-handshake-identities {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cv-space-3);
+  min-inline-size: 0;
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+  background: var(--cv-color-canvas);
+}
+
+.realm-handshake-realm {
+  display: grid;
+  gap: var(--cv-space-1);
+  min-inline-size: 0;
+  padding: var(--cv-space-3);
+  border-inline-start: 3px solid var(--cv-color-action);
+  text-align: start;
+}
+
+.realm-handshake-realm span,
+.realm-handshake-realm small {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.realm-handshake-realm strong {
+  overflow-wrap: anywhere;
+  font-size: var(--cv-text-lg);
+  line-height: var(--cv-leading-tight);
+}
+
+.realm-handshake-signal {
+  justify-self: center;
+  inline-size: min(100%, 13rem);
+  block-size: auto;
+  color: var(--cv-color-action);
+  overflow: visible;
+}
+
+.realm-handshake-terminal path,
+.realm-handshake-terminal circle,
+.realm-handshake-circuit,
+.realm-handshake-junction {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.realm-handshake-terminal circle,
+.realm-handshake-junction {
+  fill: var(--cv-color-surface-raised);
+}
+
+.realm-handshake-signal[data-handshake-signal="open"] .realm-handshake-circuit,
+.realm-handshake-signal[data-handshake-signal="pending"] .realm-handshake-circuit-last {
+  stroke-dasharray: 3 10;
+}
+
+.realm-handshake-signal[data-handshake-signal="pending"] .realm-handshake-circuit-first,
+.realm-handshake-signal[data-handshake-signal="confirmation"] .realm-handshake-circuit-first {
+  stroke-dasharray: 8 6;
+}
+
+.realm-handshake-signal[data-handshake-signal="confirmation"] .realm-handshake-circuit-last {
+  stroke-dasharray: 2 8;
+}
+
+.realm-handshake-signal[data-handshake-signal="linked"] .realm-handshake-circuit,
+.realm-handshake-signal[data-handshake-signal="linked"] .realm-handshake-junction {
+  stroke: var(--cv-color-success);
+}
+
+.realm-handshake-signal[data-handshake-signal="linked"] .realm-handshake-junction {
+  fill: var(--cv-color-success);
+}
+
+.realm-handshake-actions,
+.realm-handshake-return {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-2);
+}
+
+.realm-handshake-actions > button,
+.realm-handshake-return > button {
+  inline-size: 100%;
+  min-block-size: var(--cv-target-min);
+}
+
+.realm-handshake-return {
+  align-items: start;
+  padding-block-start: var(--cv-space-3);
+  border-block-start: 1px solid var(--cv-color-border);
+}
+
+.realm-handshake-return .realm-collaboration-manual,
+.realm-handshake-return .realm-collaboration-status {
+  flex: 1 1 100%;
+}
+
+.realm-collaboration-handshake.is-success {
+  border-block-start-color: var(--cv-color-success);
+}
+
+.realm-collaboration-handshake.is-error {
+  border-block-start-color: var(--cv-color-warning);
+}
+
+@container (min-width: 34rem) {
+  .realm-handshake-identities {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.8fr) minmax(0, 1fr);
+  }
+
+  .realm-handshake-origin {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.8fr);
+  }
+
+  .realm-handshake-actions > button,
+  .realm-handshake-return > button {
+    inline-size: fit-content;
+    min-inline-size: 10rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .realm-handshake-signal[data-handshake-signal="linked"] .realm-handshake-circuit-last {
+    animation: realm-handshake-close var(--cv-duration-normal) var(--cv-ease-standard) both;
+  }
+}
+
+@keyframes realm-handshake-close {
+  from { stroke-dasharray: 3 10; }
+  to { stroke-dasharray: 90 0; }
+}
