@@ -255,6 +255,18 @@ test('storage failure preserves the previous world and exposes one safe retry', 
   await context.close();
 });
 
+test('an event expiring during active contribution exits to a safe retry state', async ({ browser }) => {
+  const context = await createContext(browser, { locale: 'en' });
+  const page = await context.newPage();
+  const value = { ...makeEvent({ progress: 7 }), expiresAt: Date.now() + 3200 };
+  await page.goto(eventUrl(value));
+  await completeContribution(page, { finalPhase: 'storage-error' });
+  await expect(page.locator('[data-result-action="retry"]')).toBeVisible();
+  await expect(page.locator('.living-world-progress strong')).toContainText('7 / 24');
+  expect(await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY)).toBeNull();
+  await context.close();
+});
+
 test('320px at 200 percent text zoom keeps the world and primary action usable', async ({ browser }) => {
   const context = await createContext(browser, { locale: 'ar', viewport: VIEWPORTS[0], reducedMotion: 'reduce' });
   const page = await context.newPage();
