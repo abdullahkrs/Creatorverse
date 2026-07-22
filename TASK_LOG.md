@@ -4,6 +4,32 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-MVP-018 truthful shared chronicle provenance
+
+**Outcome:** Let a creator distinguish one accepted shared-mission contribution from a solo contribution inside the existing device-local realm chronicle using only a bounded historical partner-realm label, while preserving the existing fixed `+3`, independent realm totals, privacy model, and dominant mission-launch action.
+
+### Implemented
+
+- Extended only the existing creator-ledger receipt entry with one optional exact versioned provenance object containing `sourceKind: shared`, the validated relationship and partner realm identifiers, the bounded partner realm name, and the shared mission identifier; solo and legacy entries remain valid without migration.
+- Bound provenance to the pending strict shared-receipt preview, local realm, reciprocal collaboration record, target realm, relationship, mission, role, route, district, and fixed contribution before the same atomic ledger write; malformed, unknown, duplicate-key, oversized, hostile-control, self-linked, mismatched, removed-collaboration, duplicate, and storage-failure paths fail closed without partial mutation.
+- Projected only `sourceKind` and the escaped bounded partner realm name into the read-only chronicle; relationship, realm, receipt, completion, and mission identifiers never enter visible markup.
+- Added one restrained neutral two-node signal mark and **Shared mission · {realm} / مهمة مشتركة · {realm}** beneath the existing row facts, with no new screen, card, action, dashboard, gradient, glow, decorative geometry, placeholder icon, hover-only behavior, or oversized heading.
+- Preserved newest-first history, the default seven-entry disclosure, one independent `+3`, the existing realm total and stage, non-focusable rows, the dominant **Launch next mission / أطلق المهمة التالية** operation, intentional Arabic RTL and English LTR composition, bidi isolation, logical properties, design tokens, reduced-motion equivalence, and intrinsic 200% text reflow.
+- Added focused unit coverage for strict provenance validation and projection, exact-once import, relationship-removal history retention, legacy/solo compatibility, target/relationship/partner binding, hostile and duplicate nested fields, atomic storage failure, bilingual parity, and the two-word copy budget.
+- Added deterministic Playwright and axe evidence for a mixed solo/shared chronicle, real product receipt import, duplicate neutrality, relationship removal after acceptance, hidden raw identifiers and prohibited claims, primary-action hierarchy, 44 px target, RTL/LTR, overflow, 200% text size, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, profile, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #48 links Issue #47 and uses the dedicated `feature/cv-mvp-018-shared-provenance` branch for one coherent vertical slice.
+- Locked `npm ci`, unit/localization/build checks, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated scenarios are reproducible protocol simulation and engineering regression evidence only; they are not evidence of human identity, consent, comprehension, delivery, collaboration, demand, retention, preference, trust, creator intent, audience crossover, or market validation.
+- Rollback is limited to reverting Pull Request #48; existing solo entries remain backward-compatible, accepted provenance is device-local, and no dependency, account, credential, external service, or environment rollback is required.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #47 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-MVP-017 equal shared mission
 
 **Outcome:** Let one creator with a strict reciprocal local collaboration launch one bounded safe mission that a follower completes once to create two independent target-bound return receipts, each worth the existing fixed `+3` only after the matching creator explicitly imports it locally.
