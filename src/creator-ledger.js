@@ -2,6 +2,7 @@ import { completionReceiptLimits } from './completion-receipt.js';
 import { DISTRICT_CONTRIBUTION, DISTRICT_ID } from './district-progress.js';
 import { MISSION_TEMPLATE_IDS } from './mission-templates.js';
 import { MISSION_SCHEDULE_IDS, classifyMissionSchedule } from './mission-schedule.js';
+import { resolvePendingSharedContributionProvenance } from './shared-contribution-provenance.js';
 
 export const CREATOR_LEDGER_KEY = 'creatorverse-creator-ledger-v1';
 export const CREATOR_LEDGER_VERSION = 1;
@@ -320,13 +321,14 @@ export function issueCreatorMission(storage, input = {}, { now = Date.now() } = 
 export function importCompletionReceipt(storage, receipt) {
   if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) return { status: 'invalid' };
   if (!validIdentifier(receipt.realmId) || !validIdentifier(receipt.receiptId)) return { status: 'invalid' };
-  if (Object.hasOwn(receipt, 'missionInstanceId') && !validIdentifier(receipt.missionInstanceId)) return { status: 'invalid' };
-  const hasProvenance = Object.hasOwn(receipt, 'provenance');
-  if (hasProvenance && !isValidSharedContributionProvenance(receipt.provenance, {
+  const hasMissionInstance = Object.hasOwn(receipt, 'missionInstanceId');
+  if (hasMissionInstance && !validIdentifier(receipt.missionInstanceId)) return { status: 'invalid' };
+  const hasExplicitProvenance = Object.hasOwn(receipt, 'provenance');
+  if (hasExplicitProvenance && !isValidSharedContributionProvenance(receipt.provenance, {
     realmId: receipt.realmId,
     entryId: receipt.receiptId,
   })) return { status: 'invalid' };
-  if (hasProvenance && Object.hasOwn(receipt, 'missionInstanceId')) return { status: 'invalid' };
+  if (hasExplicitProvenance && hasMissionInstance) return { status: 'invalid' };
   if (!MISSIONS.has(receipt.missionId) || !ROLES.has(receipt.roleId) || !ROUTES.has(receipt.routeId)) {
     return { status: 'invalid' };
   }
@@ -340,6 +342,14 @@ export function importCompletionReceipt(storage, receipt) {
   const realmIndex = state.realms.findIndex(realm => realm.id === receipt.realmId);
   if (realmIndex < 0) return { status: 'mismatch' };
   const realm = state.realms[realmIndex];
+
+  let provenance = hasExplicitProvenance ? structuredClone(receipt.provenance) : null;
+  if (!provenance && !hasMissionInstance) {
+    const pending = resolvePendingSharedContributionProvenance(storage, receipt, realm);
+    if (pending.status === 'invalid') return { status: 'invalid', realm: structuredClone(realm) };
+    if (pending.status === 'ready') provenance = structuredClone(pending.provenance);
+  }
+
   if (realm.receipts.some(entry => entry.id === receipt.receiptId)) {
     return { status: 'duplicate', realm: structuredClone(realm) };
   }
@@ -349,7 +359,7 @@ export function importCompletionReceipt(storage, receipt) {
 
   let missions = Array.isArray(realm.missions) ? realm.missions : null;
   let missionIndex = -1;
-  if (receipt.missionInstanceId) {
+  if (hasMissionInstance) {
     missionIndex = missions?.findIndex(mission => mission.id === receipt.missionInstanceId) ?? -1;
     if (missionIndex < 0 || missions[missionIndex].missionId !== receipt.missionId) {
       return { status: 'mismatch', realm: structuredClone(realm) };
@@ -368,8 +378,8 @@ export function importCompletionReceipt(storage, receipt) {
     districtId: receipt.districtId,
     contribution: DISTRICT_CONTRIBUTION,
   };
-  if (receipt.missionInstanceId) entry.missionInstanceId = receipt.missionInstanceId;
-  if (hasProvenance) entry.provenance = structuredClone(receipt.provenance);
+  if (hasMissionInstance) entry.missionInstanceId = receipt.missionInstanceId;
+  if (provenance) entry.provenance = provenance;
   if (missionIndex >= 0) {
     missions = missions.map((mission, index) => index === missionIndex ? { ...mission, consumed: true } : mission);
   }
