@@ -183,3 +183,22 @@ test('collective completion shows one visual outcome, one impact, and one share 
   });
   await context.close();
 });
+
+test('portrait fallback exposes one decodable inline PNG preview', async ({ browser }) => {
+  const context = await createContext(browser, 'en');
+  const page = await context.newPage();
+  await page.goto(eventUrl(makeEvent({ progress: 15, target: 24 })));
+  await completePartialContribution(page);
+  await page.locator('[data-result-action="share"]').click();
+
+  const preview = page.locator('[data-living-media-dialog] img');
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveAttribute('src', /^data:image\/png;base64,/u);
+  const dimensions = await preview.evaluate(async image => {
+    await image.decode();
+    return { width: image.naturalWidth, height: image.naturalHeight };
+  });
+  expect(dimensions).toEqual({ width: 1080, height: 1920 });
+
+  await context.close();
+});
