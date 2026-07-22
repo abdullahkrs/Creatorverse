@@ -19,13 +19,14 @@ Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-th
 - Added one restrained original two-terminal mission rail and receipt split treatment with no dashboard, repeated cards, gradients, glows, decorative geometry, emoji, placeholder icons, or oversized marketing heading.
 - Added focused unit coverage for strict codecs, hostile payloads, exact pair and target binding, two-receipt derivation, equal independent import, duplicate idempotency, wrong-realm and removed-collaboration rejection, altered contribution, atomic storage failure, localization parity, and copy budgets.
 - Added deterministic Playwright and axe coverage using three isolated browser contexts for invite creation, follower completion, two independent receipt actions, wrong-realm rejection, exact-once creator imports, removed-collaboration failure, duplicate neutrality, 200% zoom, minimum targets, overflow, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added a focused 320×568 release repair for 200% text size: compact token-based shell spacing, single-column mission facts, readable realm names, and independently wrapping receipt actions. A deterministic browser gate now requires the shared-mission card to use at least 85% of the viewport, keeps essential text columns readable, and verifies both receipt controls remain fully inside the viewport.
 - Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, profile, upload, notification, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
 
 ### Validation
 
 - Pull Request #46 links Issue #45 and uses the dedicated `feature/cv-mvp-017-equal-shared-mission` branch for one coherent vertical slice.
 - Locked `npm ci`, unit/localization/build checks, isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
-- Automated three-context scenarios are reproducible protocol simulation and engineering regression evidence only; they are not evidence of human identity, consent, comprehension, delivery, collaboration, demand, retention, preference, trust, creator intent, audience crossover, or market validation.
+- Automated three-context scenarios and the focused reflow gate are reproducible protocol simulation and engineering regression evidence only; they are not evidence of human identity, consent, comprehension, delivery, collaboration, demand, retention, preference, trust, creator intent, audience crossover, or market validation.
 - Rollback is limited to reverting Pull Request #46 and removing only strict shared-mission session previews; existing collaboration records, creator ledger schema, solo missions, prior receipts, district projection, fixed `+3`, dependencies, accounts, and environments remain unchanged.
 
 ### Next best task
