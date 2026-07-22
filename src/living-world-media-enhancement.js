@@ -29,21 +29,32 @@ function statusFor(button) {
     ?.querySelector('[data-living-status]') || document.querySelector('[data-living-status]');
 }
 
+function setText(node, value) {
+  if (!node) return;
+  const next = value || '';
+  if (node.textContent !== next) node.textContent = next;
+}
+
 function announce(message) {
-  const region = document.querySelector('[data-living-announcement]');
-  if (region) region.textContent = message || '';
+  setText(document.querySelector('[data-living-announcement]'), message);
 }
 
 function setStatus(button, message) {
-  const status = statusFor(button);
-  if (status) status.textContent = message || '';
+  setText(statusFor(button), message);
   announce(message);
+}
+
+function rememberIdleLabel(button) {
+  if (!button?.dataset.mediaIdleLabel) {
+    button.dataset.mediaIdleLabel = button.textContent?.trim() || mediaCopy().action;
+  }
+  return button.dataset.mediaIdleLabel;
 }
 
 function setButtonState(button, state, label, disabled) {
   if (!button) return;
   if (button.dataset.mediaState !== state) button.dataset.mediaState = state;
-  if (button.textContent !== label) button.textContent = label;
+  setText(button, label);
   if (button.disabled !== disabled) button.disabled = disabled;
   if (disabled) {
     if (button.getAttribute('aria-busy') !== 'true') button.setAttribute('aria-busy', 'true');
@@ -54,14 +65,15 @@ function setButtonState(button, state, label, disabled) {
 
 function restoreButton(button, { focus = false } = {}) {
   if (!button?.isConnected) return;
-  setButtonState(button, 'idle', mediaCopy().action, false);
+  setButtonState(button, 'idle', rememberIdleLabel(button), false);
   if (focus) button.focus({ preventScroll: true });
 }
 
 function syncShareButtons() {
   document.querySelectorAll(SHARE_SELECTOR).forEach(button => {
+    const idleLabel = rememberIdleLabel(button);
     if (!button.dataset.mediaState || button.dataset.mediaState === 'idle') {
-      setButtonState(button, 'idle', mediaCopy().action, false);
+      setButtonState(button, 'idle', idleLabel, false);
     }
   });
 }
@@ -117,6 +129,18 @@ function element(name, className = '', text = '') {
   return node;
 }
 
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      if (typeof reader.result === 'string' && reader.result.startsWith('data:image/png;base64,')) resolve(reader.result);
+      else reject(new Error('MEDIA_PREVIEW_FAILED'));
+    }, { once: true });
+    reader.addEventListener('error', () => reject(new Error('MEDIA_PREVIEW_FAILED')), { once: true });
+    reader.readAsDataURL(blob);
+  });
+}
+
 function revealManualLink(container, url, copy) {
   if (container.querySelector('[data-living-media-manual]')) return;
   const group = element('div', 'living-world-media-manual');
@@ -141,12 +165,11 @@ async function copySafeLink({ url, dialog, dialogStatus, hostButton }) {
   try {
     if (typeof navigator.clipboard?.writeText !== 'function') throw new Error('CLIPBOARD_UNAVAILABLE');
     await navigator.clipboard.writeText(url);
-    dialogStatus.textContent = copy.copied;
-    const hostStatus = statusFor(hostButton);
-    if (hostStatus) hostStatus.textContent = getLivingWorldCopy(getLocale()).share.copied;
+    setText(dialogStatus, copy.copied);
+    setText(statusFor(hostButton), getLivingWorldCopy(getLocale()).share.copied);
     return true;
   } catch {
-    dialogStatus.textContent = copy.manual;
+    setText(dialogStatus, copy.manual);
     revealManualLink(dialog.querySelector('[data-living-media-body]'), url, copy);
     return false;
   }
@@ -156,6 +179,7 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
   closeDialog();
   cleanupDialog();
   const copy = mediaCopy();
+  const previewUrl = await blobToDataUrl(blob);
   activeObjectUrl = URL.createObjectURL(blob);
   returnFocus = hostButton;
 
@@ -175,7 +199,7 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
   const body = element('div', 'living-world-media-body');
   body.dataset.livingMediaBody = 'true';
   const preview = element('img', 'living-world-media-preview');
-  preview.src = activeObjectUrl;
+  preview.src = previewUrl;
   preview.alt = model.alternative;
   preview.width = model.width;
   preview.height = model.height;
@@ -191,7 +215,7 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
   save.href = activeObjectUrl;
   save.download = LIVING_WORLD_MEDIA_FILENAME;
   save.dataset.livingMediaSave = 'true';
-  save.addEventListener('click', () => { status.textContent = copy.saved; });
+  save.addEventListener('click', () => { setText(status, copy.saved); });
 
   const copyButton = element('button', 'living-world-secondary', copy.copy);
   copyButton.type = 'button';
@@ -219,6 +243,7 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
 async function handleMediaShare(button) {
   if (activeShare) return;
   activeShare = true;
+  rememberIdleLabel(button);
   const copy = mediaCopy();
   setButtonState(button, 'generating', copy.generating, true);
   setStatus(button, copy.generating);
