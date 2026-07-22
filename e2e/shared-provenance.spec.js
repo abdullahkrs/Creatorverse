@@ -85,9 +85,13 @@ function sharedReceiptToken() {
 async function createContext(browser, locale, viewport) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   await context.addInitScript(({ localeKey, localeId, ledgerKey, ledgerValue, collaborationKey, collaborationValue }) => {
-    if (localStorage.getItem(localeKey) === null) localStorage.setItem(localeKey, localeId);
-    if (localStorage.getItem(ledgerKey) === null) localStorage.setItem(ledgerKey, ledgerValue);
-    if (localStorage.getItem(collaborationKey) === null) localStorage.setItem(collaborationKey, collaborationValue);
+    const seedKey = '__creatorverse_shared_provenance_seeded';
+    if (sessionStorage.getItem(seedKey) !== 'true') {
+      localStorage.setItem(localeKey, localeId);
+      localStorage.setItem(ledgerKey, ledgerValue);
+      localStorage.setItem(collaborationKey, collaborationValue);
+      sessionStorage.setItem(seedKey, 'true');
+    }
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
   }, {
     localeKey: LOCALE_KEY,
@@ -158,6 +162,7 @@ for (const locale of LOCALES) {
 
       await page.evaluate(key => localStorage.removeItem(key), COLLAB_KEY);
       await page.reload();
+      expect(await page.evaluate(key => localStorage.getItem(key), COLLAB_KEY)).toBeNull();
       await expect(page.locator('[data-shared-provenance]')).toHaveCount(1);
       await expect(page.locator('[data-shared-provenance] bdi')).toHaveText(PARTNER.name);
       await expect(page.locator('body')).not.toContainText(
