@@ -1,5 +1,5 @@
 /* CV-PIVOT-001 focused QA release repairs.
-   Keeps the 320px/200% utility strip readable and removes duplicate completion copy. */
+   Keeps the 320px/200% utility strip readable and removes competing result copy. */
 
 @media (max-width: 22rem) {
   .living-world-creator-strip {
@@ -52,6 +52,12 @@
   .living-world-stage {
     padding-block-start: calc(112px + env(safe-area-inset-top));
     padding-inline: 16px;
+  }
+
+  /* The title block already carries the live collective progress at this width.
+     Keep one outcome, one impact line, and one share action in the result area. */
+  [data-living-world][data-phase="result"] .living-world-share-copy {
+    display: none;
   }
 }
 
