@@ -1,11 +1,7 @@
 import { webcrypto } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
-import {
-  SHARED_MISSION_PROGRESS_KEY,
-  createSharedMissionInvite,
-  createSharedMissionReceipts,
-} from '../src/shared-mission.js';
+import { createSharedMissionInvite } from '../src/shared-mission.js';
 
 mkdirSync('test-results/shared-mission', { recursive: true });
 
@@ -24,7 +20,7 @@ function memoryStorage(entries = []) {
   };
 }
 
-function completedFollowerState() {
+function activeInviteToken() {
   const collaboration = {
     version: 1,
     localRealmId: SOURCE.id,
@@ -34,63 +30,33 @@ function completedFollowerState() {
     sourceTheme: LINKED.theme,
   };
   const storage = memoryStorage([[COLLAB_KEY, JSON.stringify(collaboration)]]);
-  const now = Date.now();
   const issued = createSharedMissionInvite(
     storage,
     SOURCE,
     collaboration,
     { missionId: 'route-choice', scheduleId: 'now-1h' },
-    { now, cryptoLike: webcrypto, baseUrl: 'https://example.test/' },
+    { now: Date.now(), cryptoLike: webcrypto, baseUrl: 'https://example.test/' },
   );
   expect(issued.status).toBe('ready');
-
-  const result = createSharedMissionReceipts(
-    issued.invite,
-    { roleId: 'builder', routeId: 'sky' },
-    { now, cryptoLike: webcrypto, baseUrl: 'https://example.test/' },
-  );
-  expect(result.status).toBe('ready');
-
-  return {
-    token: issued.token,
-    progress: {
-      version: 1,
-      missionInstanceId: issued.invite.missionInstanceId,
-      roleId: 'builder',
-      step: 0,
-      completed: true,
-      routeId: 'sky',
-      result: {
-        completionId: result.completionId,
-        receipts: result.receipts.map(({ targetRealmId, targetName, token, url }) => ({
-          targetRealmId,
-          targetName,
-          token,
-          url,
-        })),
-      },
-    },
-  };
+  return issued.token;
 }
 
 test('320px shared mission keeps professional reflow at 200% text size', async ({ browser }) => {
-  const state = completedFollowerState();
+  const token = activeInviteToken();
   const context = await browser.newContext({
     viewport: { width: 320, height: 568 },
     reducedMotion: 'reduce',
   });
-  await context.addInitScript(({ localeKey, progressKey, progress }) => {
+  await context.addInitScript(localeKey => {
     localStorage.setItem(localeKey, 'en');
-    sessionStorage.setItem(progressKey, JSON.stringify(progress));
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
-  }, {
-    localeKey: LOCALE_KEY,
-    progressKey: SHARED_MISSION_PROGRESS_KEY,
-    progress: state.progress,
-  });
+  }, LOCALE_KEY);
 
   const page = await context.newPage();
-  await page.goto(`/#shared-mission=${state.token}`);
+  await page.goto(`/#shared-mission=${token}`);
+  await expect(page.locator('[data-shared-mission][data-state="active"]')).toBeVisible();
+  await page.locator('[data-action="select-shared-role"][data-role="builder"]').click();
+  await page.locator('[data-action="activate-shared-mission"][data-command="sky"]').click();
   await expect(page.locator('[data-shared-mission][data-state="complete"]')).toBeVisible();
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
 
