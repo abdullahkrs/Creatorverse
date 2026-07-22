@@ -4,6 +4,34 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-22 — CV-PIVOT-001 living community world
+
+**Outcome:** Let a creator launch one bounded fictional world event and let a follower enter the world directly, complete one short contribution, see one local truthful Loombridge change, and share the resulting world snapshot without encountering administrative product surfaces.
+
+### Implemented
+
+- Added the original **Folded Horizon / الأفق المطوي** full-screen scene with a 12-slat **Loombridge / جسر النور**, layered terraces, sealed far shore, restrained ambient motion, visible partial construction, and a bounded final opening transformation.
+- Added the 12-second **Thread the Light / مرّر النور** interaction with three deterministic loom windows, touch/scene/keyboard locking, two-of-three acceptance, one fixed strand only, failure/retry, duplicate neutrality, and no scores, ranks, streaks, bonuses, currency, or random rewards.
+- Added exact versioned fragment-only event links with allowlisted motif, landmark, duration, target, bounded creator name, expiry, target and progress; duplicate/unknown fields, unsupported versions, unsafe controls and bidi overrides, malformed encoding, oversized payloads, invalid targets, and expired events fail closed.
+- Added one strict capped local event store with exact fields, event/target binding, write verification, rollback on storage failure, stale-state rejection, and one accepted progress mutation per event/browser context.
+- Added direct world entry, partial progress, contribution travel, impact-before-copy, collective completion, portrait-friendly share state, fresh-context share links, compact creator launch, optional muted sound after explicit interaction, optional restrained haptics, and reduced-motion equivalents.
+- Preserved legacy routes while adding one compact **Live event / حدث حي** entry; direct event and creator-launch routes hide dashboards, ledgers, receipts, imports, chronicles, provenance, collaboration administration, analytics, rankings, tables, steppers, profiles, and technical terminology.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, bidi-isolated numeric progress, semantic SVG and form structure, visible focus, 44 px targets, bounded live announcements, logical CSS properties, mobile-first intrinsic layout, and living-world semantic design tokens.
+- Added focused unit coverage for codecs, expiry, hostile and duplicate fields, allowlists, exact-once contribution, goal completion, stale/malformed storage, write rollback, lock evaluation, slat projection, copy budgets, and Arabic/English parity.
+- Added deterministic Playwright and axe scenarios for creator launch, direct world entry, touch and keyboard contribution, first/third windows, energy impact, exact-once progress, duplicate reload, failed retry, storage failure, completion reveal, share-to-fresh-context, invalid recovery, muted/unsupported audio, reduced motion, 200% text zoom, and Arabic/English screenshots at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, upload, social API, scraping, React migration, Tailwind migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Issue #49 uses the dedicated `feature/cv-pivot-001-living-world` branch for one coherent vertical slice.
+- Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, real responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated scenarios are reproducible protocol simulation and engineering regression evidence only; they are not evidence of human comprehension, enjoyment, community attachment, virality, demand, retention, preference, or market validation.
+- Rollback is limited to reverting the linked pull request and removing the bounded living-world local and session keys; existing legacy realm, ledger, mission, receipt, collaboration, dependency, account, and environment state remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser artifacts for independent QA; move Issue #49 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-MVP-017 equal shared mission
 
 **Outcome:** Let one creator with a strict reciprocal local collaboration launch one bounded safe mission that a follower completes once to create two independent target-bound return receipts, each worth the existing fixed `+3` only after the matching creator explicitly imports it locally.
