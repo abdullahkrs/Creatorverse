@@ -86,23 +86,25 @@ async function expectQuality(page, label) {
 }
 
 async function waitForNotch(page, index) {
-  const root = page.locator('[data-living-world][data-route="event"]');
-  await expect(root).toHaveAttribute('data-window-index', String(index), { timeout: 5000 });
-  await expect(root).toHaveAttribute('data-notch-active', 'true', { timeout: 5000 });
+  await page.waitForFunction(expectedIndex => {
+    const root = document.querySelector('[data-living-world][data-route="event"]');
+    return root?.dataset.windowIndex === String(expectedIndex) && root.dataset.notchActive === 'true';
+  }, index, { timeout: 5000, polling: 'raf' });
 }
 
 async function completeContribution(page, { screenshots = null, finalPhase = /result|complete/u } = {}) {
   const root = page.locator('[data-living-world][data-route="event"]');
+  const lock = page.locator('[data-living-world-lock]');
   await page.locator('[data-start-thread]').click();
   await expect(root).toHaveAttribute('data-phase', 'active');
   await waitForNotch(page, 0);
+  await lock.click();
   if (screenshots) await page.screenshot({ path: screenshots.first, fullPage: true });
-  await page.locator('[data-living-world-lock]').click();
   await waitForNotch(page, 1);
-  await page.locator('[data-living-world-lock]').click();
+  await lock.click();
   await waitForNotch(page, 2);
+  await lock.click();
   if (screenshots) await page.screenshot({ path: screenshots.third, fullPage: true });
-  await page.locator('[data-living-world-lock]').click();
   if (finalPhase === 'storage-error') {
     await expect(root).toHaveAttribute('data-phase', 'storage-error', { timeout: 5000 });
     return;
