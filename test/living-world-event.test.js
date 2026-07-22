@@ -133,6 +133,15 @@ test('goal completion is bounded and never grants extra progress', () => {
   assert.equal(deriveLoombridgeSlats(24, 24), 12);
 });
 
+test('an event expiring during the interaction fails closed without mutation', () => {
+  const storage = memoryStorage();
+  const current = { ...event({ progress: 6 }), expiresAt: NOW + 500 };
+  assert.deepEqual(commitLivingWorldContribution(storage, current, { now: NOW + 501 }), {
+    status: 'storage-error', progress: 6,
+  });
+  assert.equal(storage.getItem(LIVING_WORLD_STORAGE_KEY), null);
+});
+
 test('malformed storage and unverified writes fail closed without partial progress', () => {
   const current = event({ progress: 4 });
   const malformed = memoryStorage([[LIVING_WORLD_STORAGE_KEY, '{bad']]);
