@@ -462,7 +462,7 @@ export function importSharedMissionReceipt(storage, receipt) {
   if (inspected.status !== 'ready') return inspected;
   const outcome = importCompletionReceipt(storage, {
     realmId: receipt.targetRealmId,
-    receiptId: receipt.receiptId,
+    receiptId: receipt.sharedMissionId,
     missionId: receipt.missionId,
     roleId: receipt.roleId,
     routeId: receipt.routeId,
