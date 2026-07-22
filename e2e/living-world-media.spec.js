@@ -269,6 +269,7 @@ test('denied native share falls back to save and copy without progress mutation'
   await completeContribution(page);
   const before = await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY);
   const { dialog } = await openFallback(page);
+  await dialog.locator('[data-living-media-copy]').click();
   await expect(dialog.locator('[data-living-media-status]')).toContainText(getLivingWorldMediaCopy('en').copied);
   expect(await page.evaluate(() => sessionStorage.getItem('__media_clipboard'))).toContain('#world-event=');
   expect(await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY)).toBe(before);
@@ -282,6 +283,7 @@ test('clipboard denial preserves save and reveals one selectable safe link', asy
   await completeContribution(page);
   const { dialog } = await openFallback(page);
   await expect(dialog.locator('[data-living-media-save]')).toBeVisible();
+  await dialog.locator('[data-living-media-copy]').click();
   const manual = dialog.locator('[data-living-media-manual] input');
   await expect(manual).toBeVisible();
   await expect(manual).toHaveValue(/#world-event=/u);
