@@ -17,11 +17,19 @@ function focusConfirmedHeading() {
   });
 }
 
+function resetSameDocumentConfirmation(event) {
+  if (!location.hash.includes('collab-confirm') || !successHeading()) return;
+  event.stopImmediatePropagation();
+  location.reload();
+}
+
 document.addEventListener('click', event => {
   const action = event.target.closest?.('[data-action="confirm-realm-collaboration-handshake"]');
   if (!action || action.disabled || action.getAttribute('aria-busy') === 'true') return;
   confirmationFocusPending = true;
 }, true);
+
+window.addEventListener('hashchange', resetSameDocumentConfirmation, true);
 
 const app = document.querySelector('#app');
 if (app) {
