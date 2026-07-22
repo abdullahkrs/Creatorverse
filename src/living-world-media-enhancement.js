@@ -17,6 +17,7 @@ let activeShare = false;
 let activeDialog = null;
 let activeObjectUrl = '';
 let returnFocus = null;
+let shareSyncQueued = false;
 
 function mediaCopy() {
   return getLivingWorldMediaCopy(getLocale());
@@ -41,11 +42,14 @@ function setStatus(button, message) {
 
 function setButtonState(button, state, label, disabled) {
   if (!button) return;
-  button.dataset.mediaState = state;
-  button.textContent = label;
-  button.disabled = disabled;
-  if (disabled) button.setAttribute('aria-busy', 'true');
-  else button.removeAttribute('aria-busy');
+  if (button.dataset.mediaState !== state) button.dataset.mediaState = state;
+  if (button.textContent !== label) button.textContent = label;
+  if (button.disabled !== disabled) button.disabled = disabled;
+  if (disabled) {
+    if (button.getAttribute('aria-busy') !== 'true') button.setAttribute('aria-busy', 'true');
+  } else if (button.hasAttribute('aria-busy')) {
+    button.removeAttribute('aria-busy');
+  }
 }
 
 function restoreButton(button, { focus = false } = {}) {
@@ -60,6 +64,21 @@ function syncShareButtons() {
       setButtonState(button, 'idle', mediaCopy().action, false);
     }
   });
+}
+
+function queueShareButtonSync() {
+  if (shareSyncQueued) return;
+  shareSyncQueued = true;
+  queueMicrotask(() => {
+    shareSyncQueued = false;
+    syncShareButtons();
+  });
+}
+
+function mutationAddsShareButton(mutation) {
+  return [...mutation.addedNodes].some(node => node.nodeType === Node.ELEMENT_NODE && (
+    node.matches?.(SHARE_SELECTOR) || node.querySelector?.(SHARE_SELECTOR)
+  ));
 }
 
 function currentSnapshot() {
@@ -267,9 +286,11 @@ document.addEventListener('click', event => {
 
 window.addEventListener('hashchange', () => {
   closeDialog();
-  syncShareButtons();
+  queueShareButtonSync();
 });
 
-const observer = new MutationObserver(syncShareButtons);
+const observer = new MutationObserver(mutations => {
+  if (mutations.some(mutationAddsShareButton)) queueShareButtonSync();
+});
 observer.observe(document.querySelector('#app') || document.body, { childList: true, subtree: true });
-syncShareButtons();
+queueShareButtonSync();
