@@ -27,7 +27,11 @@ jobs:
         run: npm ci
       - name: Verify browser proxy syntax
         run: npm run test:proxy-syntax
-      - name: Run unit tests
+      - name: Verify shared mission protocol
+        run: node --test test/shared-mission.test.js
+      - name: Verify shared mission replay protection
+        run: node --test test/shared-mission-replay.test.js
+      - name: Run complete unit suite
         run: npm run test:unit
       - name: Verify localization parity
         run: npm run test:i18n
