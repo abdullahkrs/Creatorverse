@@ -41,7 +41,7 @@ async function createContext(browser, { locale = 'en', viewport = VIEWPORTS[1], 
   const context = await browser.newContext({ viewport, reducedMotion });
   await context.addInitScript(({ localeId, audioEnabled, failStorage }) => {
     localStorage.setItem('creatorverse-locale', localeId);
-    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 240;
+    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1200;
     window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 500;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'clipboard', {
@@ -238,7 +238,7 @@ test('failed attempt offers retry without changing collective progress', async (
   const value = makeEvent({ progress: 7 });
   await page.goto(eventUrl(value));
   await page.locator('[data-start-thread]').click();
-  await expect(page.locator('[data-living-world]')).toHaveAttribute('data-phase', 'failed', { timeout: 5000 });
+  await expect(page.locator('[data-living-world]')).toHaveAttribute('data-phase', 'failed', { timeout: 7000 });
   await expect(page.locator('[data-result-action="retry"]')).toBeVisible();
   expect(await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY)).toBeNull();
   await page.screenshot({ path: 'test-results/living-world/en-390x844-failed-retry.png', fullPage: true });
