@@ -27,8 +27,22 @@ jobs:
         run: npm ci
       - name: Verify browser proxy syntax
         run: npm run test:proxy-syntax
-      - name: Verify shared mission protocol
-        run: node --test test/shared-mission.test.js
+      - name: Verify shared invite round trip
+        run: node --test --test-name-pattern='shared invite is exact' test/shared-mission.test.js
+      - name: Verify hostile shared invite rejection
+        run: node --test --test-name-pattern='shared invite rejects' test/shared-mission.test.js
+      - name: Verify equal receipt derivation
+        run: node --test --test-name-pattern='one completion derives' test/shared-mission.test.js
+      - name: Verify independent creator imports
+        run: node --test --test-name-pattern='each creator independently' test/shared-mission.test.js
+      - name: Verify shared receipt binding failures
+        run: node --test --test-name-pattern='wrong realm' test/shared-mission.test.js
+      - name: Verify atomic shared receipt retry
+        run: node --test --test-name-pattern='ledger storage failure' test/shared-mission.test.js
+      - name: Verify hostile shared receipt rejection
+        run: node --test --test-name-pattern='receipt codec rejects' test/shared-mission.test.js
+      - name: Verify shared mission copy parity
+        run: node --test --test-name-pattern='Arabic and English copy' test/shared-mission.test.js
       - name: Verify shared mission replay protection
         run: node --test test/shared-mission-replay.test.js
       - name: Run complete unit suite
