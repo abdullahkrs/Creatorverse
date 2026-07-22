@@ -19,7 +19,6 @@ import { getRealmCollaborationCopy } from './realm-collaboration-i18n.js';
 import {
   renderConfirmationPreview,
   renderHandshakeError,
-  renderHandshakeReady,
   renderHandshakeSuccess,
   renderPendingHandshake,
   renderReturnConfirmationControl,
@@ -71,6 +70,7 @@ function consumeConfirmationTransport() {
     url.searchParams.delete('collab-confirm');
     clearRealmCollaborationConfirmationPreview(sessionStorage);
     confirmationInvalid = true;
+    confirmationFocusPending = true;
     consumed = true;
   }
 
@@ -84,10 +84,12 @@ function consumeConfirmationTransport() {
       } catch {
         clearRealmCollaborationConfirmationPreview(sessionStorage);
         confirmationInvalid = true;
+        confirmationFocusPending = true;
       }
     } else {
       clearRealmCollaborationConfirmationPreview(sessionStorage);
       confirmationInvalid = true;
+      confirmationFocusPending = true;
     }
     url.hash = '';
     consumed = true;
@@ -149,10 +151,10 @@ function proposalMessage(copy) {
     denied: copy.denied,
     failed: copy.failed,
     unsupported: copy.failed,
-  }[proposalState] || '';
+  }[proposalState] || confirmationMessage;
 }
 
-function confirmationShareMessage(copy) {
+function returnMessage(copy) {
   return {
     shared: copy.confirmationShared,
     copied: copy.confirmationCopied,
@@ -169,25 +171,11 @@ function parseMarkup(markup) {
   return template.content.firstElementChild;
 }
 
-function applyPanelMarkup(panel, markup, key) {
-  if (!panel) return null;
-  if (panel.dataset.handshakeKey === key) return panel;
-  const next = parseMarkup(markup);
-  const renderKey = panel.dataset.renderKey;
-  panel.className = next.className;
-  panel.setAttribute('data-state', next.dataset.state || 'ready');
-  panel.setAttribute('aria-labelledby', next.getAttribute('aria-labelledby') || 'realm-handshake-title');
-  panel.replaceChildren(...next.childNodes);
-  panel.dataset.handshakeKey = key;
-  if (renderKey) panel.dataset.renderKey = renderKey;
-  return panel;
-}
-
 function readySection() {
   return document.querySelector('[data-realm-continuation][data-state="ready"]');
 }
 
-function collaborationPanel(section) {
+function collaborationPanel(section = readySection()) {
   return section?.querySelector(':scope > [data-realm-collaboration]') || null;
 }
 
@@ -195,8 +183,28 @@ function ensurePanelOpen(section) {
   const current = collaborationPanel(section);
   if (current) return current;
   const trigger = section?.querySelector('[data-action="open-realm-collaboration"]');
-  if (trigger && trigger.getAttribute('aria-expanded') !== 'true') trigger.click();
+  if (trigger) trigger.click();
   return collaborationPanel(section);
+}
+
+function applyPanelMarkup(panel, markup, key) {
+  if (!panel) return null;
+  if (panel.dataset.handshakeKey === key) return panel;
+  const next = parseMarkup(markup);
+  const renderKey = panel.dataset.renderKey;
+  panel.className = next.className;
+  for (const attribute of [...panel.attributes]) {
+    if (attribute.name.startsWith('data-') && !['data-realm-collaboration', 'data-render-key'].includes(attribute.name)) {
+      panel.removeAttribute(attribute.name);
+    }
+  }
+  for (const attribute of [...next.attributes]) {
+    if (attribute.name !== 'class') panel.setAttribute(attribute.name, attribute.value);
+  }
+  panel.replaceChildren(...next.childNodes);
+  panel.dataset.handshakeKey = key;
+  if (renderKey) panel.dataset.renderKey = renderKey;
+  return panel;
 }
 
 function realmFromRecord(record) {
@@ -205,8 +213,9 @@ function realmFromRecord(record) {
 
 function classifyConfirmation(realm, confirmation) {
   if (!confirmation || confirmation.sourceRealmId !== realm.id || confirmation.acceptingRealmId === realm.id) {
-    return { status: 'mismatch' };
+    return { status: 'mismatch', pending: null };
   }
+
   const linked = inspectRealmCollaboration(localStorage, realm.id);
   if (linked.status === 'ready') {
     const same = linked.record.proposalId === confirmation.proposalId
@@ -218,13 +227,15 @@ function classifyConfirmation(realm, confirmation) {
   if (linked.status !== 'empty') return { status: 'storage' };
 
   const pending = inspectPendingRealmCollaboration(localStorage, realm.id);
-  if (pending.status === 'empty') return { status: 'no-pending' };
-  if (pending.status !== 'ready') return { status: 'storage' };
+  if (pending.status === 'empty') return { status: 'no-pending', pending: null };
+  if (pending.status !== 'ready') return { status: 'storage', pending: null };
   const matches = pending.proposal.proposalId === confirmation.proposalId
     && pending.proposal.sourceRealmId === confirmation.sourceRealmId
     && pending.proposal.sourceName === realm.name
     && pending.proposal.sourceTheme === realm.theme;
-  return matches ? { status: 'ready', pending: pending.proposal } : { status: 'mismatch', pending: pending.proposal };
+  return matches
+    ? { status: 'ready', pending: pending.proposal }
+    : { status: 'mismatch', pending: pending.proposal };
 }
 
 function renderStandalone(markup, key) {
@@ -245,19 +256,37 @@ function renderStandalone(markup, key) {
 }
 
 function appendReturnControl(panel, locale, realm, collaboration) {
-  if (!panel || !collaboration?.record || panel.dataset.state === 'confirmation-preview') return;
+  if (!panel || !collaboration?.record || !['linked', 'removal-confirmation'].includes(panel.dataset.state)) return;
   const copy = getRealmCollaborationCopy(locale);
-  const existing = panel.querySelector('[data-handshake-return]');
   const action = sharePresentation(copy, returnController, returnState, copy.returnConfirmation);
   const manual = ['denied', 'failed', 'unsupported'].includes(returnState) ? returnOutcome?.url || '' : '';
+  const key = `${locale}:${collaboration.record.proposalId}:${returnState}:${manual}`;
+  const existing = panel.querySelector('[data-handshake-return]');
+  if (existing?.dataset.returnKey === key) return;
   const next = parseMarkup(renderReturnConfirmationControl({
     locale,
     action,
-    message: confirmationShareMessage(copy),
+    message: returnMessage(copy),
     manualUrl: manual,
   }));
+  next.dataset.returnKey = key;
   if (existing) existing.replaceWith(next);
   else panel.append(next);
+}
+
+function focusWithin(panel, selector) {
+  if (!selector || !panel) return;
+  queueMicrotask(() => panel.querySelector(selector)?.focus({ preventScroll: true }));
+}
+
+function restoreBasePanel(nextFocus = '[data-action="open-realm-collaboration"]') {
+  const section = readySection();
+  const panel = collaborationPanel(section);
+  panel?.remove();
+  const trigger = section?.querySelector('[data-action="open-realm-collaboration"]');
+  trigger?.click();
+  focusSelector = nextFocus;
+  scheduleEnhancement();
 }
 
 function applyEnhancement() {
@@ -272,11 +301,13 @@ function applyEnhancement() {
 
     if (single.status !== 'ready' || !section) {
       if (preview || confirmationInvalid) {
-        const markup = renderHandshakeError({ locale, kind: confirmationInvalid ? 'invalid' : 'no-pending' });
-        const standalone = renderStandalone(markup, `${locale}:${confirmationInvalid ? 'invalid' : 'no-realm'}`);
-        if (confirmationFocusPending) {
+        const kind = confirmationInvalid ? 'invalid' : 'no-pending';
+        const panel = renderStandalone(renderHandshakeError({ locale, kind }), `${locale}:${kind}`);
+        if (confirmationFocusPending || focusSelector) {
+          const selector = focusSelector || '#realm-handshake-title';
           confirmationFocusPending = false;
-          queueMicrotask(() => standalone.querySelector('#realm-handshake-title')?.focus({ preventScroll: true }));
+          focusSelector = '';
+          focusWithin(panel, selector);
         }
       } else {
         document.querySelector('[data-realm-handshake-standalone]')?.remove();
@@ -293,21 +324,35 @@ function applyEnhancement() {
       if (!panel) return;
       let markup;
       let key;
+
       if (confirmationSuccess) {
-        const accepting = realmFromRecord(confirmationSuccess);
-        markup = renderHandshakeSuccess({ locale, local: realm, accepting, message: confirmationMessage });
-        key = `${locale}:success:${confirmationSuccess.proposalId}`;
+        markup = renderHandshakeSuccess({
+          locale,
+          local: realm,
+          accepting: realmFromRecord(confirmationSuccess),
+          message: confirmationMessage,
+        });
+        key = `${locale}:success:${confirmationSuccess.proposalId}:${confirmationMessage}`;
       } else if (confirmationInvalid) {
         markup = renderHandshakeError({ locale, kind: 'invalid' });
         key = `${locale}:invalid-confirmation`;
       } else {
         const classification = classifyConfirmation(realm, preview);
+        const effectiveStatus = confirmationOperation && confirmationOperation !== 'confirming'
+          ? confirmationOperation
+          : classification.status;
+
         if (classification.status === 'duplicate') {
           confirmationSuccess = classification.record;
+          confirmationFocusPending = false;
           clearRealmCollaborationConfirmationPreview(sessionStorage);
-          markup = renderHandshakeSuccess({ locale, local: realm, accepting: realmFromRecord(classification.record) });
-          key = `${locale}:duplicate-success:${classification.record.proposalId}`;
-        } else if (classification.status === 'ready' && confirmationOperation !== 'storage') {
+          markup = renderHandshakeSuccess({
+            locale,
+            local: realm,
+            accepting: realmFromRecord(classification.record),
+          });
+          key = `${locale}:duplicate:${classification.record.proposalId}`;
+        } else if (effectiveStatus === 'ready' || confirmationOperation === 'confirming') {
           markup = renderConfirmationPreview({
             locale,
             local: realm,
@@ -319,24 +364,27 @@ function applyEnhancement() {
             confirming: confirmationOperation === 'confirming',
             message: confirmationMessage,
           });
-          key = `${locale}:confirmation-preview:${preview.proposalId}:${confirmationOperation}:${confirmationMessage}`;
+          key = `${locale}:preview:${preview.proposalId}:${confirmationOperation}:${confirmationMessage}`;
         } else {
-          const kind = confirmationOperation === 'storage' ? 'storage' : classification.status;
+          const kind = ['storage', 'mismatch', 'no-pending', 'already-linked'].includes(effectiveStatus)
+            ? effectiveStatus
+            : 'invalid';
           markup = renderHandshakeError({
             locale,
             kind,
             message: confirmationMessage,
             hasPending: Boolean(classification.pending),
           });
-          key = `${locale}:confirmation-error:${kind}:${Boolean(classification.pending)}:${confirmationMessage}`;
+          key = `${locale}:error:${kind}:${Boolean(classification.pending)}:${confirmationMessage}`;
         }
       }
+
       panel = applyPanelMarkup(panel, markup, key);
       if (confirmationFocusPending || focusSelector) {
         const selector = focusSelector || '#realm-handshake-title';
         confirmationFocusPending = false;
         focusSelector = '';
-        queueMicrotask(() => panel.querySelector(selector)?.focus({ preventScroll: true }));
+        focusWithin(panel, selector);
       }
       return;
     }
@@ -362,11 +410,11 @@ function applyEnhancement() {
         message: proposalMessage(copy),
         discardOpen,
         manualUrl: manual,
-      }), `${locale}:pending:${pending.proposal.proposalId}:${proposalState}:${discardOpen}`);
+      }), `${locale}:pending:${pending.proposal.proposalId}:${proposalState}:${discardOpen}:${confirmationMessage}`);
       if (focusSelector) {
         const selector = focusSelector;
         focusSelector = '';
-        queueMicrotask(() => panel.querySelector(selector)?.focus({ preventScroll: true }));
+        focusWithin(panel, selector);
       }
       return;
     }
@@ -374,18 +422,21 @@ function applyEnhancement() {
     if (pending.status !== 'empty' && pending.status !== 'ready') {
       panel = ensurePanelOpen(section);
       if (!panel) return;
-      applyPanelMarkup(panel, renderHandshakeError({ locale, kind: 'storage' }), `${locale}:pending-storage`);
+      panel = applyPanelMarkup(panel, renderHandshakeError({ locale, kind: 'storage' }), `${locale}:pending-storage`);
+      if (focusSelector) {
+        const selector = focusSelector;
+        focusSelector = '';
+        focusWithin(panel, selector);
+      }
       return;
     }
 
-    if (panel?.dataset.handshakeKey?.startsWith(`${locale}:ready-after-discard`)) return;
-
-    if (panel && collaboration.status === 'ready' && ['linked', 'removal-confirmation'].includes(panel.dataset.state)) {
+    if (panel && collaboration.status === 'ready') {
       appendReturnControl(panel, locale, realm, collaboration);
       if (focusSelector) {
         const selector = focusSelector;
         focusSelector = '';
-        queueMicrotask(() => panel.querySelector(selector)?.focus({ preventScroll: true }));
+        focusWithin(panel, selector);
       }
     }
   } finally {
@@ -414,10 +465,10 @@ function createProposal() {
     proposalState = 'idle';
     proposalForceCopy = false;
     discardOpen = false;
+    confirmationMessage = '';
     syncProposalController(single.realm);
     focusSelector = '[data-action="resume-realm-collaboration"]';
   } else {
-    confirmationOperation = 'storage';
     confirmationMessage = getRealmCollaborationCopy(getLocale()).storageSupport;
     focusSelector = '#realm-handshake-title';
   }
@@ -464,21 +515,14 @@ function confirmDiscard() {
     proposalState = 'idle';
     proposalForceCopy = false;
     discardOpen = false;
-    const panel = collaborationPanel(readySection());
-    if (panel) {
-      applyPanelMarkup(panel, renderHandshakeReady({
-        locale: getLocale(),
-        realm: single.realm,
-        message: getRealmCollaborationCopy(getLocale()).pendingDiscarded,
-      }), `${getLocale()}:ready-after-discard`);
-      focusSelector = '[data-action="create-realm-collaboration"]';
-    }
+    confirmationMessage = getRealmCollaborationCopy(getLocale()).pendingDiscarded;
+    restoreBasePanel('[data-action="create-realm-collaboration"]');
   } else {
     discardOpen = false;
     confirmationMessage = getRealmCollaborationCopy(getLocale()).storageSupport;
     focusSelector = '#realm-handshake-title';
+    scheduleEnhancement();
   }
-  scheduleEnhancement();
 }
 
 async function returnConfirmation() {
@@ -520,9 +564,11 @@ function confirmHandshake() {
       clearRealmCollaborationConfirmationPreview(sessionStorage);
       confirmationInvalid = false;
       confirmationOperation = '';
-      confirmationMessage = getRealmCollaborationCopy(getLocale()).confirmedSupport;
+      confirmationMessage = outcome.status === 'success'
+        ? getRealmCollaborationCopy(getLocale()).confirmedSupport
+        : '';
       confirmationSuccess = outcome.record;
-      focusSelector = '#realm-handshake-title';
+      focusSelector = outcome.status === 'success' ? '#realm-handshake-title' : '';
     } else if (outcome.status === 'storage-error' || outcome.status === 'invalid-storage') {
       confirmationOperation = 'storage';
       confirmationMessage = getRealmCollaborationCopy(getLocale()).storageSupport;
@@ -536,17 +582,28 @@ function confirmHandshake() {
   });
 }
 
-function closeHandshake() {
+function cancelHandshake() {
+  const pending = getSingleCreatorRealm(localStorage);
   clearRealmCollaborationConfirmationPreview(sessionStorage);
   confirmationInvalid = false;
   confirmationOperation = '';
   confirmationMessage = '';
   confirmationSuccess = null;
-  const close = collaborationPanel(readySection())?.querySelector('[data-action="close-realm-collaboration"]');
-  if (close) close.click();
-  else document.querySelector('[data-realm-handshake-standalone]')?.remove();
-  focusSelector = '[data-action="open-realm-collaboration"]';
-  scheduleEnhancement();
+  if (pending.status === 'ready' && inspectPendingRealmCollaboration(localStorage, pending.realm.id).status === 'ready') {
+    focusSelector = '[data-action="resume-realm-collaboration"]';
+    scheduleEnhancement();
+  } else {
+    restoreBasePanel('[data-action="open-realm-collaboration"]');
+  }
+}
+
+function finishHandshake() {
+  clearRealmCollaborationConfirmationPreview(sessionStorage);
+  confirmationInvalid = false;
+  confirmationOperation = '';
+  confirmationMessage = '';
+  confirmationSuccess = null;
+  restoreBasePanel('[data-action="open-realm-collaboration"]');
 }
 
 function resumeMatchingProposal() {
@@ -574,12 +631,18 @@ function handleClickCapture(event) {
     'finish-realm-collaboration-handshake',
     'resume-matching-realm-collaboration',
   ]);
+
   if (!owned.has(action)) {
-    if (action === 'accept-realm-collaboration' || action === 'remove-realm-collaboration' || action === 'keep-realm-collaboration') {
-      queueMicrotask(scheduleEnhancement);
-    }
+    if ([
+      'accept-realm-collaboration',
+      'remove-realm-collaboration',
+      'keep-realm-collaboration',
+      'confirm-remove-realm-collaboration',
+      'open-realm-collaboration',
+    ].includes(action)) queueMicrotask(scheduleEnhancement);
     return;
   }
+
   event.preventDefault();
   event.stopImmediatePropagation();
   if (action === 'create-realm-collaboration') createProposal();
@@ -590,7 +653,8 @@ function handleClickCapture(event) {
   else if (action === 'return-realm-collaboration-confirmation') returnConfirmation();
   else if (action === 'confirm-realm-collaboration-handshake') confirmHandshake();
   else if (action === 'resume-matching-realm-collaboration') resumeMatchingProposal();
-  else closeHandshake();
+  else if (action === 'finish-realm-collaboration-handshake') finishHandshake();
+  else cancelHandshake();
 }
 
 function handleKeydown(event) {
