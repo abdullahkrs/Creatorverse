@@ -64,7 +64,7 @@ export function renderPendingHandshake({ locale, realm, action, message = '', di
         ${signalArtwork('pending')}
       </div>
       <div class="realm-handshake-actions">
-        <button class="secondary" type="button" data-action="share-realm-collaboration" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
+        <button class="secondary" type="button" data-action="resume-realm-collaboration" ${action.disabled ? 'disabled aria-busy="true"' : ''}>${escapeHtml(action.label)}</button>
         <button class="secondary" type="button" data-action="discard-pending-realm-collaboration">${escapeHtml(copy.discard)}</button>
       </div>
       ${manualUrl ? `<label class="realm-collaboration-manual"><span>${escapeHtml(copy.manual)}</span><input readonly dir="ltr" value="${escapeHtml(manualUrl)}"></label>` : ''}
