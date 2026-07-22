@@ -195,10 +195,6 @@ async function openFallback({ blob, model, url, hostButton, initialStatus = '' }
   else dialog.setAttribute('open', '');
   restoreButton(hostButton);
   save.focus({ preventScroll: true });
-
-  // The initiating share press is an explicit user action. Pre-copying keeps the
-  // strict event link ready while preserving Save and Copy as independent controls.
-  await copySafeLink({ url, dialog, dialogStatus: status, hostButton });
 }
 
 async function handleMediaShare(button) {
