@@ -7,6 +7,7 @@ import { getRealmContinuationCopy } from '../src/realm-continuation-i18n.js';
 import { getBeaconDistrictGrowthCopy } from '../src/beacon-district-growth-i18n.js';
 import { getRealmChronicleCopy } from '../src/realm-chronicle-i18n.js';
 import { getRealmCollaborationCopy } from '../src/realm-collaboration-i18n.js';
+import { getSharedMissionCopy } from '../src/shared-mission-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -33,6 +34,7 @@ const realmContinuationKeys = assertParity('Realm continuation', getRealmContinu
 const beaconDistrictGrowthKeys = assertParity('Beacon District growth', getBeaconDistrictGrowthCopy);
 const realmChronicleKeys = assertParity('Realm chronicle', getRealmChronicleCopy);
 const realmCollaborationKeys = assertParity('Realm collaboration', getRealmCollaborationCopy);
+const sharedMissionKeys = assertParity('Shared mission', getSharedMissionCopy);
 
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
@@ -53,6 +55,8 @@ for (const path of [
   '../src/realm-collaboration-enhancement.js',
   '../src/realm-collaboration-handshake-view.js',
   '../src/realm-collaboration-handshake-enhancement.js',
+  '../src/shared-mission-view.js',
+  '../src/shared-mission-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -60,4 +64,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, and ${realmCollaborationKeys} realm-collaboration keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, ${realmCollaborationKeys} realm-collaboration keys, and ${sharedMissionKeys} shared-mission keys.`);
