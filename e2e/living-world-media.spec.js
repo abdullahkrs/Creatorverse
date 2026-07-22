@@ -257,26 +257,31 @@ test('native share cancellation is neutral and restores focus', async ({ browser
   await context.close();
 });
 
-test('denied native share falls back to save and copy without progress mutation', async ({ browser }) => {
+test('denied native share preserves the fallback state until Copy link is pressed', async ({ browser }) => {
   const context = await createContext(browser, { nativeShare: 'denied' });
   const page = await context.newPage();
   await page.goto(eventUrl(makeEvent()));
   await completeContribution(page);
   const before = await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY);
   const { dialog } = await openFallback(page);
-  await expect(dialog.locator('[data-living-media-status]')).toContainText(getLivingWorldMediaCopy('en').copied);
+  await expect(dialog.locator('[data-living-media-status]')).toHaveText(getLivingWorldMediaCopy('en').shareUnavailable);
+  expect(await page.evaluate(() => sessionStorage.getItem('__media_clipboard'))).toBeNull();
+  await dialog.locator('[data-living-media-copy]').click();
+  await expect(dialog.locator('[data-living-media-status]')).toHaveText(getLivingWorldMediaCopy('en').copied);
   expect(await page.evaluate(() => sessionStorage.getItem('__media_clipboard'))).toContain('#world-event=');
   expect(await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_STORAGE_KEY)).toBe(before);
   await context.close();
 });
 
-test('clipboard denial preserves save and reveals one selectable safe link', async ({ browser }) => {
+test('clipboard denial preserves save and reveals one selectable safe link after explicit Copy link', async ({ browser }) => {
   const context = await createContext(browser, { clipboard: 'denied' });
   const page = await context.newPage();
   await page.goto(eventUrl(makeEvent()));
   await completeContribution(page);
   const { dialog } = await openFallback(page);
   await expect(dialog.locator('[data-living-media-save]')).toBeVisible();
+  await expect(dialog.locator('[data-living-media-manual]')).toHaveCount(0);
+  await dialog.locator('[data-living-media-copy]').click();
   const manual = dialog.locator('[data-living-media-manual] input');
   await expect(manual).toBeVisible();
   await expect(manual).toHaveValue(/#world-event=/u);
