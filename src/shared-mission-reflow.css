@@ -1,0 +1,56 @@
+/* CV-MVP-017 release repair: preserve readable shared-mission reflow under text scaling. */
+@media (max-width: 30rem) {
+  .shared-mission-shell {
+    padding-inline: var(--cv-space-2);
+  }
+
+  .shared-mission {
+    gap: var(--cv-space-4);
+    padding: var(--cv-space-2);
+  }
+
+  .shared-mission-heading,
+  .shared-mission-pair {
+    gap: var(--cv-space-2);
+  }
+
+  .shared-mission-pair {
+    padding-block: var(--cv-space-2);
+  }
+
+  .shared-mission-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cv-space-1);
+  }
+
+  .shared-mission-facts dt,
+  .shared-mission-facts dd,
+  .shared-mission-realm strong {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .shared-mission-receipt-actions {
+    gap: var(--cv-space-3);
+  }
+
+  .shared-mission-receipt-action {
+    gap: var(--cv-space-2);
+    padding-block: var(--cv-space-3);
+  }
+
+  .shared-mission-receipt-action button {
+    min-inline-size: 0;
+    padding-inline: var(--cv-space-3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: var(--cv-space-1);
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}

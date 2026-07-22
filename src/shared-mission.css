@@ -1,0 +1,335 @@
+.shared-mission {
+  inline-size: min(100%, var(--cv-page-max));
+  margin-block: var(--cv-space-6);
+  margin-inline: auto;
+  padding: var(--cv-space-4);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-color-surface);
+  color: var(--cv-color-text);
+  display: grid;
+  gap: var(--cv-space-6);
+  overflow-wrap: anywhere;
+}
+
+.shared-mission[hidden] { display: none; }
+
+.shared-mission-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cv-space-4);
+}
+
+.shared-mission-heading > div {
+  max-inline-size: var(--cv-reading-max);
+}
+
+.shared-mission-heading h2,
+.shared-mission-heading h3,
+.shared-mission-play h3 {
+  margin-block: var(--cv-space-1) var(--cv-space-2);
+  font-size: var(--cv-text-xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.shared-mission-heading p,
+.shared-mission-play p,
+.shared-mission-status,
+.shared-mission-receipt-action p {
+  margin-block: 0;
+  color: var(--cv-color-text-muted);
+  line-height: var(--cv-leading-normal);
+}
+
+.shared-mission-trigger,
+.shared-mission button,
+.shared-mission input {
+  min-block-size: var(--cv-target-min);
+}
+
+.shared-mission button {
+  touch-action: manipulation;
+}
+
+.shared-mission-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--cv-space-3);
+  align-items: center;
+  padding-block: var(--cv-space-3);
+  border-block: 1px solid var(--cv-color-border);
+}
+
+.shared-mission-realm {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--cv-space-1);
+}
+
+.shared-mission-realm span {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-xs);
+}
+
+.shared-mission-realm strong {
+  font-size: var(--cv-text-lg);
+  line-height: var(--cv-leading-normal);
+}
+
+.shared-mission-signal {
+  inline-size: 100%;
+  block-size: auto;
+  max-block-size: 5.25rem;
+  color: var(--cv-color-action);
+}
+
+.shared-mission-terminal path,
+.shared-mission-junction {
+  fill: var(--cv-color-surface-raised);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.shared-mission-terminal circle {
+  fill: currentColor;
+}
+
+.shared-mission-rail {
+  fill: none;
+  stroke: var(--cv-color-border);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shared-mission[data-state="invite-ready"] .shared-mission-rail,
+.shared-mission[data-state="active"] .shared-mission-rail,
+.shared-mission[data-state="complete"] .shared-mission-rail,
+.shared-mission[data-state="success"] .shared-mission-rail {
+  stroke: var(--cv-color-action);
+  stroke-dasharray: 180;
+  animation: shared-mission-connect var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.shared-mission[data-state="complete"] .shared-mission-junction {
+  fill: var(--cv-color-success);
+}
+
+@keyframes shared-mission-connect {
+  from { stroke-dashoffset: 180; }
+  to { stroke-dashoffset: 0; }
+}
+
+.shared-mission-form,
+.shared-mission-play {
+  display: grid;
+  gap: var(--cv-space-5);
+}
+
+.shared-mission fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.shared-mission legend {
+  margin-block-end: var(--cv-space-3);
+  font-weight: 700;
+}
+
+.shared-mission-options,
+.shared-mission-role-options > div,
+.shared-mission-command-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--cv-space-2);
+}
+
+.shared-mission-options label {
+  min-block-size: var(--cv-target-min);
+  display: flex;
+  align-items: center;
+  gap: var(--cv-space-3);
+  padding: var(--cv-space-3);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+  background: var(--cv-color-surface-raised);
+  cursor: pointer;
+}
+
+.shared-mission-options label:has(input:checked) {
+  border-color: var(--cv-color-action);
+}
+
+.shared-mission-options input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  flex: 0 0 auto;
+}
+
+.shared-mission-role-options button {
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-md);
+  background: var(--cv-color-surface-raised);
+  color: var(--cv-color-text);
+}
+
+.shared-mission-role-options button[aria-pressed="true"] {
+  border-color: var(--cv-color-action);
+  color: var(--cv-color-action);
+}
+
+.shared-mission-command-grid button {
+  min-inline-size: 0;
+  white-space: normal;
+}
+
+.shared-mission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cv-space-3);
+}
+
+.shared-mission-actions > button {
+  min-inline-size: min(100%, 12rem);
+}
+
+.shared-mission-facts {
+  display: grid;
+  gap: var(--cv-space-2);
+  margin: 0;
+}
+
+.shared-mission-facts > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--cv-space-3);
+  padding-block: var(--cv-space-2);
+  border-block-end: 1px solid var(--cv-color-border);
+}
+
+.shared-mission-facts dt {
+  color: var(--cv-color-text-muted);
+}
+
+.shared-mission-facts dd {
+  min-inline-size: 0;
+  margin: 0;
+  font-weight: 700;
+}
+
+.shared-mission-manual {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--cv-space-2);
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.shared-mission-manual input {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--cv-space-3);
+  border: 1px solid var(--cv-color-border);
+  border-radius: var(--cv-radius-sm);
+  background: var(--cv-color-canvas);
+  color: var(--cv-color-text);
+  font: inherit;
+}
+
+.shared-mission-receipt-actions {
+  display: grid;
+  gap: var(--cv-space-4);
+  margin-block-start: var(--cv-space-2);
+}
+
+.shared-mission-receipt-action {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--cv-space-3);
+  padding-block: var(--cv-space-4);
+  border-block-start: 1px solid var(--cv-color-border);
+}
+
+.shared-mission-receipt-action button {
+  inline-size: 100%;
+}
+
+.shared-mission-status {
+  min-block-size: 1.5em;
+}
+
+.shared-mission-step,
+.shared-mission-target {
+  color: var(--cv-color-text);
+  font-weight: 700;
+}
+
+.shared-mission-shell {
+  inline-size: 100%;
+  min-block-size: 60vh;
+  padding: var(--cv-page-pad);
+}
+
+html[dir="rtl"] .shared-mission {
+  text-align: start;
+}
+
+html[dir="rtl"] .shared-mission-pair {
+  direction: rtl;
+}
+
+html[dir="rtl"] .shared-mission-signal {
+  direction: ltr;
+}
+
+@media (min-width: 40rem) {
+  .shared-mission { padding: var(--cv-space-6); }
+
+  .shared-mission-pair {
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.8fr) minmax(0, 1fr);
+  }
+
+  .shared-mission-realm:last-child { text-align: end; }
+
+  .shared-mission-options,
+  .shared-mission-role-options > div,
+  .shared-mission-command-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .shared-mission-command-grid:not(.shared-mission-command-grid-three) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shared-mission-receipt-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shared-mission-receipt-action {
+    border: 1px solid var(--cv-color-border);
+    border-radius: var(--cv-radius-md);
+    padding: var(--cv-space-4);
+  }
+}
+
+@media (min-width: 64rem) {
+  .shared-mission-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .shared-mission-form .shared-mission-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shared-mission-rail {
+    animation: none !important;
+    stroke-dasharray: none !important;
+  }
+}
