@@ -25,8 +25,14 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked dependencies
         run: npm ci
-      - name: Unit, localization, Railway verifier, and build gates
-        run: npm run check
+      - name: Verify browser proxy syntax
+        run: npm run test:proxy-syntax
+      - name: Run unit tests
+        run: npm run test:unit
+      - name: Verify localization parity
+        run: npm run test:i18n
+      - name: Build production bundle
+        run: npm run build
 
   railway-preview:
     if: github.event_name == 'pull_request'
