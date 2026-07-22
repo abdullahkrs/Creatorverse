@@ -133,8 +133,8 @@ async function completeFollower(page, locale) {
   await page.locator('[data-action="share-shared-receipt"][data-receipt-index="1"]').click();
   const receiptB = await clipboardUrl(page, 'shared-receipt');
   expect(receiptA).not.toBe(receiptB);
-  await expect(page.locator('[data-receipt-index="0"] .shared-mission-status')).not.toBeEmpty();
-  await expect(page.locator('[data-receipt-index="1"] .shared-mission-status')).not.toBeEmpty();
+  await expect(page.locator('.shared-mission-receipt-action[data-receipt-card-index="0"] .shared-mission-status')).not.toBeEmpty();
+  await expect(page.locator('.shared-mission-receipt-action[data-receipt-card-index="1"] .shared-mission-status')).not.toBeEmpty();
   return { receiptA, receiptB };
 }
 
