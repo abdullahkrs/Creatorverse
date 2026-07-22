@@ -8,6 +8,7 @@ import { getBeaconDistrictGrowthCopy } from '../src/beacon-district-growth-i18n.
 import { getRealmChronicleCopy } from '../src/realm-chronicle-i18n.js';
 import { getRealmCollaborationCopy } from '../src/realm-collaboration-i18n.js';
 import { getSharedMissionCopy } from '../src/shared-mission-i18n.js';
+import { getLivingWorldCopy } from '../src/living-world-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -35,6 +36,7 @@ const beaconDistrictGrowthKeys = assertParity('Beacon District growth', getBeaco
 const realmChronicleKeys = assertParity('Realm chronicle', getRealmChronicleCopy);
 const realmCollaborationKeys = assertParity('Realm collaboration', getRealmCollaborationCopy);
 const sharedMissionKeys = assertParity('Shared mission', getSharedMissionCopy);
+const livingWorldKeys = assertParity('Living world', getLivingWorldCopy);
 
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
@@ -57,6 +59,7 @@ for (const path of [
   '../src/realm-collaboration-handshake-enhancement.js',
   '../src/shared-mission-view.js',
   '../src/shared-mission-enhancement.js',
+  '../src/living-world-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -64,4 +67,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, ${realmCollaborationKeys} realm-collaboration keys, and ${sharedMissionKeys} shared-mission keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, ${realmCollaborationKeys} realm-collaboration keys, ${sharedMissionKeys} shared-mission keys, and ${livingWorldKeys} living-world keys.`);
