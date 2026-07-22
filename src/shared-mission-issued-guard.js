@@ -45,12 +45,24 @@ function closeStaleSetup() {
   if (close instanceof HTMLButtonElement && !close.disabled) close.click();
 }
 
+function normalizeReceiptSelectors(root = document) {
+  root.querySelectorAll?.('.shared-mission-receipt-action[data-receipt-index]').forEach(card => {
+    card.dataset.receiptCardIndex = card.dataset.receiptIndex;
+    card.removeAttribute('data-receipt-index');
+  });
+}
+
 function enforceIssuedInviteBinding() {
   const inspected = inspectIssuedSharedMissionBinding(localStorage, sessionStorage);
   if (inspected.status !== 'stale') return false;
   clearIssuedInvite(sessionStorage);
   queueMicrotask(closeStaleSetup);
   return true;
+}
+
+function enforceRuntimeContracts() {
+  normalizeReceiptSelectors();
+  enforceIssuedInviteBinding();
 }
 
 function handleClickCapture(event) {
@@ -66,13 +78,13 @@ function handleClickCapture(event) {
 
 if (typeof document !== 'undefined' && typeof window !== 'undefined') {
   document.addEventListener('click', handleClickCapture, true);
-  window.addEventListener('storage', enforceIssuedInviteBinding);
+  window.addEventListener('storage', enforceRuntimeContracts);
 
   const app = document.querySelector('#app');
   if (app) {
-    const observer = new MutationObserver(enforceIssuedInviteBinding);
+    const observer = new MutationObserver(enforceRuntimeContracts);
     observer.observe(app, { childList: true, subtree: true });
   }
 
-  enforceIssuedInviteBinding();
+  enforceRuntimeContracts();
 }
