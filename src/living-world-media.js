@@ -12,6 +12,7 @@ const SAFE_NAME = /^[\p{L}\p{N}][\p{L}\p{N} .'-]{0,27}$/u;
 const UNSAFE_TEXT = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u;
 const TARGETS = new Set([12, 24, 48]);
 const DURATIONS = new Set(['6h', '24h']);
+const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 
 function exactKeys(value, keys) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -39,7 +40,9 @@ function validateEvent(event) {
 }
 
 function localizedNumber(value, locale) {
-  return new Intl.NumberFormat(locale === 'ar' ? 'ar' : 'en', { useGrouping: false }).format(value);
+  const plain = String(value);
+  if (locale !== 'ar') return plain;
+  return plain.replace(/\d/gu, digit => ARABIC_INDIC_DIGITS[Number(digit)]);
 }
 
 export function createLivingWorldMediaModel(event, progress, locale = 'en') {
