@@ -32,6 +32,28 @@ function missionGlyph(missionId) {
   return `<span class="realm-chronicle-glyph" aria-hidden="true"><svg viewBox="0 0 20 18" focusable="false">${paths[missionId] || ''}</svg></span>`;
 }
 
+function sharedSignalMarkup() {
+  return `
+    <span class="realm-chronicle-shared-mark" aria-hidden="true">
+      <svg viewBox="0 0 28 12" focusable="false">
+        <circle cx="5" cy="6" r="3"></circle>
+        <path d="M8 6h12"></path>
+        <circle cx="23" cy="6" r="3"></circle>
+      </svg>
+    </span>
+  `;
+}
+
+function provenanceMarkup(entry, copy) {
+  if (entry.provenance?.sourceKind !== 'shared') return '';
+  return `
+    <span class="realm-chronicle-provenance" data-shared-provenance>
+      ${sharedSignalMarkup()}
+      <span>${escapeHtml(copy.sharedMission)} <span aria-hidden="true">·</span> <bdi dir="auto">${escapeHtml(entry.provenance.partnerName)}</bdi></span>
+    </span>
+  `;
+}
+
 function rowMarkup(entry, copy) {
   return `
     <li class="realm-chronicle-entry">
@@ -49,6 +71,7 @@ function rowMarkup(entry, copy) {
         <strong><span class="realm-chronicle-live">${escapeHtml(copy.contributionLabel)}</span><bdi dir="ltr">+${entry.contribution}</bdi></strong>
         <span class="realm-chronicle-entry-total"><span class="realm-chronicle-live">${escapeHtml(copy.totalLabel)}</span><bdi dir="ltr">${entry.totalEnergy}</bdi></span>
       </span>
+      ${provenanceMarkup(entry, copy)}
     </li>
   `;
 }
