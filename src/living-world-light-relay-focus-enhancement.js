@@ -89,6 +89,19 @@ function cameraTarget(root) {
   return active.length > 0 ? Number(active.at(-1).dataset.lanternIndex) : 0;
 }
 
+function applyTextScaleProjection(root, { viewportWidth, viewportHeight }) {
+  const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const largePhoneText = viewportWidth <= 390 && rootFontSize >= 24;
+  root.dataset.relayTextScale = largePhoneText ? 'large-phone' : 'default';
+
+  if (largePhoneText) {
+    const worldStart = Math.min(216, Math.max(196, Math.round(viewportHeight * 0.35)));
+    root.style.setProperty('--relay-large-text-world-start', `${worldStart}px`);
+  } else {
+    root.style.removeProperty('--relay-large-text-world-start');
+  }
+}
+
 function projectCurrentRelay() {
   const root = document.querySelector('[data-living-light-relay][data-route="relay"]');
   if (root) applyRelayWorldFocus(root);
@@ -110,6 +123,7 @@ export function applyRelayWorldFocus(root, {
   const world = root.querySelector('[data-light-relay-world]');
   if (!world) return null;
 
+  applyTextScaleProjection(root, { viewportWidth, viewportHeight });
   applyLanternStates(root);
   const complete = root.dataset.phase === 'complete';
   const targetIndex = cameraTarget(root);
@@ -140,6 +154,13 @@ function scheduleApply() {
 if (app) {
   const observer = new MutationObserver(scheduleApply);
   observer.observe(app, { childList: true, subtree: true });
+
+  const textScaleObserver = new MutationObserver(scheduleApply);
+  textScaleObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['style', 'class'],
+  });
+
   addEventListener('resize', scheduleApply, { passive: true });
   addEventListener('popstate', scheduleApply, { passive: true });
   scheduleApply();
