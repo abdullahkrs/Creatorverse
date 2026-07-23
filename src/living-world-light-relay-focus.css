@@ -1,0 +1,174 @@
+.light-relay-stage {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.light-relay-world[data-relay-camera] {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: visible;
+}
+
+.light-relay-title-block {
+  max-inline-size: min(15rem, 48vw);
+}
+
+.light-relay-actions,
+.light-relay-active,
+.light-relay-result {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--cv-world-near-stone) 95%, transparent) 28%
+  );
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-stem,
+.signal-lantern[data-lantern-state="dormant"] .lantern-shutter,
+.signal-lantern[data-lantern-state="dormant"] .lantern-core {
+  opacity: 0.58;
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-stem {
+  stroke-width: 1;
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-path,
+.signal-lantern[data-lantern-state="dormant"] .lantern-detail,
+.signal-lantern[data-lantern-state="dormant"] .lantern-cradle {
+  opacity: 0;
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-shutter-start {
+  transform: translateX(-2px) rotate(-3deg);
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-shutter-end {
+  transform: translateX(2px) rotate(3deg);
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-core {
+  fill: var(--cv-world-tower-cut);
+  stroke-width: 2.4;
+}
+
+.lantern-inner-ring {
+  fill: none;
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 1.8;
+  pointer-events: none;
+}
+
+.signal-lantern[data-lantern-state="accepted"] .lantern-core {
+  fill: var(--cv-world-thread-bright);
+}
+
+.signal-lantern[data-lantern-state="accepted"] .lantern-cradle {
+  opacity: 0;
+}
+
+.light-relay-structure.is-unfinished .light-relay-underlay {
+  stroke-dasharray: none;
+}
+
+.light-relay-structure.is-unfinished .light-relay-strand {
+  stroke-dasharray: 11 9;
+}
+
+.light-relay-energy-bead {
+  fill: var(--cv-world-thread-bright);
+  stroke: var(--cv-world-thread-deep);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 4px var(--cv-world-thread));
+  pointer-events: none;
+}
+
+.living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-start {
+  animation: relay-shutter-start var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-end {
+  animation: relay-shutter-end var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+@keyframes relay-shutter-start {
+  from { transform: translateX(-2px) rotate(-3deg); }
+  to { transform: translateX(-5px) rotate(-8deg); }
+}
+
+@keyframes relay-shutter-end {
+  from { transform: translateX(2px) rotate(3deg); }
+  to { transform: translateX(5px) rotate(8deg); }
+}
+
+@media (max-width: 29.94rem) {
+  .light-relay-title-block {
+    inset-block-start: clamp(4.25rem, 12svh, 5.75rem);
+    inset-inline: var(--cv-space-3);
+    max-inline-size: min(13rem, 52vw);
+  }
+
+  .light-relay-title-block h1 {
+    font-size: clamp(1.25rem, 5.5vw, 1.7rem);
+  }
+
+  .light-relay-actions,
+  .light-relay-active,
+  .light-relay-result {
+    padding-inline: var(--cv-space-3);
+    padding-block-start: var(--cv-space-3);
+  }
+}
+
+@media (max-width: 24.4rem) and (max-height: 52rem) {
+  .light-relay-hint {
+    display: none;
+  }
+
+  .light-relay-title-block {
+    inset-block-start: 4rem;
+    gap: var(--cv-space-1);
+  }
+
+  .light-relay-progress span {
+    max-inline-size: 12ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-start,
+  .living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-end {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .signal-lantern[data-lantern-state="dormant"] .lantern-stem,
+  .signal-lantern[data-lantern-state="dormant"] .lantern-shutter,
+  .signal-lantern[data-lantern-state="dormant"] .lantern-core {
+    opacity: 1;
+    stroke: GrayText;
+  }
+
+  .signal-lantern[data-lantern-state="target"] .lantern-core,
+  .signal-lantern[data-lantern-state="target"] .lantern-inner-ring,
+  .signal-lantern[data-lantern-state="target"] .lantern-cradle,
+  .light-relay-clamp {
+    fill: Canvas;
+    stroke: Highlight;
+  }
+
+  .signal-lantern[data-lantern-state="active"] .lantern-core,
+  .signal-lantern[data-lantern-state="accepted"] .lantern-core,
+  .light-relay-energy-bead {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+
+  .light-relay-structure.is-unfinished .light-relay-strand {
+    stroke-dasharray: 11 9;
+  }
+}
