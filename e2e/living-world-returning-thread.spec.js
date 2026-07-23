@@ -114,9 +114,9 @@ async function createContext(browser, {
   }) => {
     localStorage.setItem(localeKey, localeId);
     // Keep deterministic windows generous enough that touch/keyboard actions cannot race a frame boundary in CI.
-    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1000;
+    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1200;
     window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 180;
-    window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 1000;
+    window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 900;
     window.__CREATORVERSE_CHAPTER_IMPACT_MS__ = 500;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'canShare', { configurable: true, value: undefined });
@@ -274,7 +274,7 @@ test('accepted touch contribution creates one stable thread and keyboard chapter
   await expect(page.locator('.signal-lantern.is-active')).toHaveCount(4);
   await page.screenshot({ path: 'test-results/living-world-returning-thread/en-accepted-lantern-impact.png', fullPage: true });
   await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'result', { timeout: 7000 });
-  await expect(page.locator('.chapter-result-copy p')).toHaveText('Your thread reached the lantern');
+  await expect(page.locator('.chapter-result-copy > p:not([data-chapter-status])')).toHaveText('Your thread reached the lantern');
   expect(await page.evaluate(key => localStorage.getItem(key), RETURNING_THREAD_STORAGE_KEY)).toBe(storedThread);
 
   await page.reload();
