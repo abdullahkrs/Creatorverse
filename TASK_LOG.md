@@ -16,20 +16,23 @@ Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-
 - Added exactly one compact energy bead constrained to the authored unfinished route during the existing active contribution; reduced-motion mode omits travel while preserving source, connected strand, and accepted-target state order.
 - Removed stale target and unfinished-strand cues after authoritative local progress has moved forward, without exposing indices, transport details, storage values, or diagnostics.
 - Preserved the strict relay codec, expiry, exact-next-lantern binding, exact-once mutation, failure and retry, Returning Thread, portrait media, creator launch, optional sound, and completed chapter behavior.
+- Added an authored large-text phone composition that separates creator context, 44 px utilities, title, progress, world target, unfinished path, impact status, and the dominant action at `320×568` with 200% text instead of scaling overlapping overlays in place.
 - Added focused unit tests for camera bounds, unchanged world coordinates, completed-world framing, structural state projection, and invalid-target rejection.
 - Added deterministic bilingual Playwright and axe coverage for first-viewport geometry, target position, visible world structure, 44 px controls, overlay separation, touch and keyboard input, in-route energy, accepted impact, failure and retry, stale recovery, reduced motion, required responsive sizes, and `320×568` at 200% text.
+- Added exact Arabic and English large-text geometry gates and viewport screenshots for ready and accepted states, including creator/utilities/title/progress/action/target/path non-intersection.
 - Added no dependency, account, credential, paid service, external participant, manual evidence, backend, database, analytics, tracking, upload, remote asset, framework migration, camera controls, human-only gate, or Production mutation.
 
 ### Validation
 
 - Issue #59 is the single active cycle, branch `feature/cv-pivot-006-relay-world-focus` is dedicated to it, and PR #60 is open without merge.
+- The QA blocker on Arabic `320×568` at 200% text is addressed on the existing branch with authored layout and deterministic non-intersection gates; exact-head CI and browser artifacts remain authoritative before release handoff.
 - Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, bilingual responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
 - Automated scenarios and screenshots are reproducible engineering and visual-regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, sharing behavior, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
 - Rollback is limited to reverting PR #60; existing event, chapter, relay, progress, media, Returning Thread, dependencies, Railway configuration, and Production remain unchanged.
 
 ### Next best task
 
-Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, bilingual browser screenshots, and geometry assertions for independent QA; move Issue #59 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+Use the final unchanged PR head, exact-head GitHub CI, isolated Railway Preview, bilingual browser screenshots, and geometry assertions for independent QA; move Issue #59 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
 
 ## 2026-07-23 — CV-PIVOT-005 one-step light relay
 
