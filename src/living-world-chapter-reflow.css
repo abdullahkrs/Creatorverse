@@ -11,6 +11,19 @@
     gap: var(--cv-space-2);
   }
 
+  .chapter-creator {
+    inline-size: 100%;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .chapter-creator span {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
   .chapter-utilities {
     inline-size: 100%;
     justify-content: space-between;
