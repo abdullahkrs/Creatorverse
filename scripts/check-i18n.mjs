@@ -10,6 +10,7 @@ import { getRealmCollaborationCopy } from '../src/realm-collaboration-i18n.js';
 import { getSharedMissionCopy } from '../src/shared-mission-i18n.js';
 import { getLivingWorldCopy } from '../src/living-world-i18n.js';
 import { getLivingWorldChapterCopy } from '../src/living-world-chapter-i18n.js';
+import { getReturningThreadCopy } from '../src/living-world-returning-thread-i18n.js';
 
 function flatten(value, prefix = '') {
   return Object.entries(value).flatMap(([key, child]) => {
@@ -39,6 +40,7 @@ const realmCollaborationKeys = assertParity('Realm collaboration', getRealmColla
 const sharedMissionKeys = assertParity('Shared mission', getSharedMissionCopy);
 const livingWorldKeys = assertParity('Living world', getLivingWorldCopy);
 const livingWorldChapterKeys = assertParity('Living world chapter', getLivingWorldChapterCopy);
+const returningThreadKeys = assertParity('Returning thread', getReturningThreadCopy);
 
 const forbidden = [
   /textContent\s*=\s*['"`][A-Za-z][^'"`]*['"`]/,
@@ -63,6 +65,7 @@ for (const path of [
   '../src/shared-mission-enhancement.js',
   '../src/living-world-enhancement.js',
   '../src/living-world-chapter-enhancement.js',
+  '../src/living-world-returning-thread-enhancement.js',
 ]) {
   const viewSource = await readFile(new URL(path, import.meta.url), 'utf8');
   for (const pattern of forbidden) {
@@ -70,4 +73,4 @@ for (const path of [
   }
 }
 
-console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, ${realmCollaborationKeys} realm-collaboration keys, ${sharedMissionKeys} shared-mission keys, ${livingWorldKeys} living-world keys, and ${livingWorldChapterKeys} living-world-chapter keys.`);
+console.log(`i18n parity passed for ${missionResultKeys} mission-result keys, ${creatorRealmUpdateKeys} creator-update keys, ${realmQuarantineKeys} quarantine keys, ${realmContinuationKeys} realm-continuation keys, ${beaconDistrictGrowthKeys} Beacon District growth keys, ${realmChronicleKeys} realm-chronicle keys, ${realmCollaborationKeys} realm-collaboration keys, ${sharedMissionKeys} shared-mission keys, ${livingWorldKeys} living-world keys, ${livingWorldChapterKeys} living-world-chapter keys, and ${returningThreadKeys} returning-thread keys.`);
