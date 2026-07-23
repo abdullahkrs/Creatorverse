@@ -18,13 +18,14 @@ Completed entries through CV-PIVOT-003 are preserved in [`docs/archive/TASK_LOG-
 - Extended the existing deterministic `1080×1920` chapter media with only the validated structural thread pixels and optional exact lantern extension; share links and files contain no local thread record, raw identifier, storage key, thread label, text metadata, or personal continuity claim.
 - Added focused unit coverage for exact schema and binding, four equal kinds, contribution-gated creation, stable restoration, malformed and mismatched state, atomic write failure, fresh-context neutrality, chapter extension, media projection, copy budgets, and localization parity.
 - Added deterministic Playwright and axe coverage for actual predecessor contribution, same-context continuation, touch and keyboard chapter contribution, one-lantern extension, duplicate reload, locale persistence, fresh context, malformed and unavailable storage, partial and completed worlds, thread-aware sharing, required responsive sizes, Arabic/English, RTL/LTR, reduced motion, and `320×568` at 200% text zoom.
-- Repaired the deterministic browser harness without changing product behavior: widened only the injected test timing windows and verified exported PNG bytes through the real download path instead of refetching a transient Blob URL.
+- Repaired the deterministic browser harness without changing product behavior: widened only the injected test timing windows, narrowed the visible result assertion, aligned the authoritative media filename, and verified exported PNG bytes through the real download path instead of refetching a transient Blob URL.
 - Added no dependency, account, credential, paid service, external participant, manual evidence collection, upload, social OAuth, remote renderer, framework migration, human-only gate, or Production mutation.
 
 ### Validation
 
 - Pull Request #56 links Issue #55 and uses the dedicated `feature/cv-pivot-004-returning-thread` branch for one coherent vertical slice.
 - Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, responsive screenshots, portrait-media integrity, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- CI #518 completed build and exact Preview selection but the later browser identity gate observed a superseded Preview deployment; the gate correctly failed closed and requires a new unchanged final-head run after the deployment queue settles.
 - Automated scenarios and generated media are reproducible engineering and visual regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, return behavior, demand, retention, preference, creator adoption, audience growth, or market validation.
 - Rollback is limited to reverting Pull Request #56 and removing only the bounded returning-thread local and session keys; predecessor and chapter progress, existing media, dependencies, accounts, credentials, Railway configuration, and Production state remain unchanged.
 
