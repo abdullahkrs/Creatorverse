@@ -78,8 +78,7 @@ function validatePredecessor(value, { now = Date.now(), allowExpired = true } = 
   const predecessor = typeof value === 'string'
     ? decodeLivingWorldEvent(value, { now, allowExpired })
     : value;
-  const normalized = { ...predecessor, progress: predecessor?.target };
-  const encoded = encodeLivingWorldEvent(normalized, { now, allowExpired });
+  const encoded = encodeLivingWorldEvent(predecessor, { now, allowExpired });
   const validated = decodeLivingWorldEvent(encoded, { now, allowExpired });
   if (validated.motif !== MOTIF || validated.landmark !== 'loombridge' || validated.progress !== validated.target) {
     throw new Error('INVALID_CHAPTER_PREDECESSOR');
