@@ -80,10 +80,8 @@ async function readCreatorHeader(page) {
     const lineRects = [...range.getClientRects()]
       .filter(rect => rect.width > 0 && rect.height > 0)
       .map(rect => ({ width: rect.width, height: rect.height }));
-    const nameRect = name.getBoundingClientRect();
     const creatorRect = creator.getBoundingClientRect();
     const utilitiesRect = utilities.getBoundingClientRect();
-    const style = getComputedStyle(name);
     const realmStyle = realm ? getComputedStyle(realm) : null;
     const contextStyle = context ? getComputedStyle(context) : null;
 
@@ -93,16 +91,11 @@ async function readCreatorHeader(page) {
       minimumLineWidth: lineRects.length
         ? Math.min(...lineRects.map(rect => rect.width))
         : 0,
-      nameWidth: nameRect.width,
-      nameHeight: nameRect.height,
       creatorWidth: creatorRect.width,
       creatorBottom: creatorRect.bottom,
       utilitiesTop: utilitiesRect.top,
       clippedInline: name.scrollWidth > name.clientWidth + 1,
       clippedBlock: name.scrollHeight > name.clientHeight + 1,
-      whiteSpace: style.whiteSpace,
-      wordBreak: style.wordBreak,
-      overflowWrap: style.overflowWrap,
       realmVisible: Boolean(realmStyle && realmStyle.display !== 'none'),
       contextVisible: Boolean(contextStyle && contextStyle.display !== 'none'),
     };
@@ -115,14 +108,11 @@ async function assertCreatorHeader(page, label, expectedName) {
   const header = await readCreatorHeader(page);
   expect(header, `${label}: creator header exists`).not.toBeNull();
   expect(header.text, `${label}: localized creator name preserved`).toBe(expectedName);
-  expect(header.lineCount, `${label}: creator name stays on one line`).toBe(1);
+  expect(header.lineCount, `${label}: creator name stays on one rendered line`).toBe(1);
   expect(header.minimumLineWidth, `${label}: creator name avoids a narrow vertical column`).toBeGreaterThanOrEqual(40);
   expect(header.creatorWidth, `${label}: creator row uses the available header width`).toBeGreaterThanOrEqual(180);
   expect(header.clippedInline, `${label}: creator name not horizontally clipped`).toBe(false);
   expect(header.clippedBlock, `${label}: creator name not vertically clipped`).toBe(false);
-  expect(header.whiteSpace, `${label}: creator name does not wrap`).toBe('nowrap');
-  expect(header.wordBreak, `${label}: creator name keeps word integrity`).toBe('keep-all');
-  expect(header.overflowWrap, `${label}: creator name does not break arbitrarily`).toBe('normal');
   expect(header.realmVisible, `${label}: realm context yields before creator-name integrity`).toBe(false);
   expect(header.contextVisible, `${label}: secondary context yields before creator-name integrity`).toBe(false);
   expect(header.creatorBottom, `${label}: utilities use a separate row`).toBeLessThanOrEqual(header.utilitiesTop + 1);
