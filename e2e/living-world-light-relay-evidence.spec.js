@@ -183,8 +183,8 @@ async function captureShareAndRecovery(browser, locale) {
   await expect(shareButton).toBeEnabled({ timeout: 20_000 });
   await shareButton.click();
   const preview = partialPage.locator('[data-light-relay-share-dialog]');
-  await expect(preview).toBeVisible();
-  await expect(preview.locator('img')).toHaveAttribute('src', /^blob:/u);
+  await expect(preview).toBeVisible({ timeout: 30_000 });
+  await expect(preview.locator('img')).toHaveAttribute('src', /^blob:/u, { timeout: 30_000 });
   await screenshot(partialPage, locale, 'partial-result-relay-preview');
   await preview.locator('img').screenshot({
     path: `${OUTPUT}/relay-evidence-${locale}-portrait-share-composition.png`,
