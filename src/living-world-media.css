@@ -24,8 +24,9 @@
 }
 
 .living-world-media-dialog h2 {
+  inline-size: calc(100% - var(--cv-target-min) - var(--cv-space-3));
   margin: 0;
-  padding-inline-end: calc(var(--cv-target-min) + var(--cv-space-3));
+  margin-inline-end: calc(var(--cv-target-min) + var(--cv-space-3));
   font-size: var(--cv-text-xl);
   line-height: var(--cv-leading-tight);
   text-align: start;
@@ -125,9 +126,10 @@
   }
 
   .living-world-media-dialog h2 {
+    inline-size: calc(100% - 60px);
     min-block-size: 48px;
+    margin-inline-end: 60px;
     padding-block: 4px;
-    padding-inline-end: 56px;
     font-size: min(var(--cv-text-xl), 28px);
     line-height: 1.2;
   }
