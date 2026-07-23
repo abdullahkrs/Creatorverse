@@ -9,7 +9,7 @@ export const LIVING_WORLD_CHAPTER_MEDIA_TEXT_BOUNDS = Object.freeze({ x: 84, y: 
 
 const CHAPTER_KEYS = [
   'v', 'chapterId', 'predecessor', 'creatorName', 'motif', 'landmark', 'chapter',
-  'duration', 'target', 'progress', 'expiresAt', 'predecessorEventId',
+  'duration', 'target', 'progress', 'expiresAt',
 ];
 const CHAPTER_ID = /^chapter_[a-z0-9]{20,40}$/u;
 const SAFE_NAME = /^[\p{L}\p{N}][\p{L}\p{N} .'-]{0,27}$/u;
