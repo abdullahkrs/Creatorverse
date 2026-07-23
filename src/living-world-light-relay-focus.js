@@ -15,10 +15,6 @@ function finiteInteger(value, minimum, maximum, code) {
   return parsed;
 }
 
-function clamp(value, minimum, maximum) {
-  return Math.min(maximum, Math.max(minimum, value));
-}
-
 export function getRelayLanternPoint(index) {
   const bounded = finiteInteger(index, 0, LANTERN_COUNT - 1, 'INVALID_RELAY_FOCUS_TARGET');
   const x = 430 + bounded * 37;
@@ -51,8 +47,7 @@ export function createRelayWorldCamera(targetIndex, {
 
   const target = getRelayLanternPoint(targetIndex);
   const preset = CAMERA_PRESETS.find(item => width <= item.maxWidth) || CAMERA_PRESETS.at(-1);
-  const preferredX = target.x - preset.width * preset.anchorInline;
-  const x = clamp(preferredX, -24, WORLD_WIDTH - preset.width + 24);
+  const x = target.x - preset.width * preset.anchorInline;
 
   return Object.freeze({
     x: Math.round(x * 100) / 100,
