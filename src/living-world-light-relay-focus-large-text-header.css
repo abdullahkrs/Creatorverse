@@ -1,3 +1,20 @@
+.chapter-creator > .chapter-creator-label {
+  display: inline;
+  min-inline-size: 0;
+}
+
+.chapter-creator > .chapter-creator-label > .chapter-creator-name,
+.chapter-creator > .chapter-creator-label > .chapter-creator-realm {
+  display: inline;
+  grid-area: auto;
+  overflow: visible;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-overflow: clip;
+  white-space: inherit;
+}
+
 .living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator-strip {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
@@ -14,7 +31,7 @@
   align-items: center;
 }
 
-.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator span {
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator > .chapter-creator-label {
   max-block-size: none;
   overflow: visible;
   text-overflow: clip;
@@ -27,6 +44,14 @@
   letter-spacing: -0.01em;
 }
 
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator-name {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator-realm,
 .living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator small {
   display: none;
 }
