@@ -263,7 +263,7 @@ test('failed signal changes no lantern and exposes one concise retry', async ({ 
   await context.close();
 });
 
-test('portrait fallback renders a real 1080 by 1920 partial update without mutating progress', async ({ browser }) => {
+test('portrait fallback renders a real 1080 by 1920 partial relay update without mutating progress', async ({ browser }) => {
   const value = makeChapter({ progress: 4 });
   const context = await createContext(browser, { locale: 'ar', viewport: VIEWPORTS[0] });
   const page = await context.newPage();
@@ -272,7 +272,7 @@ test('portrait fallback renders a real 1080 by 1920 partial update without mutat
   await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'result', { timeout: 5000 });
   const before = await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_CHAPTER_STORAGE_KEY);
   await page.locator('[data-chapter-result="share"]').click();
-  const dialog = page.locator('[data-chapter-share-dialog]');
+  const dialog = page.locator('[data-light-relay-share-dialog]');
   await expect(dialog).toBeVisible();
   const image = dialog.locator('img');
   await expect(image).toBeVisible();
@@ -281,8 +281,8 @@ test('portrait fallback renders a real 1080 by 1920 partial update without mutat
     return { width: node.naturalWidth, height: node.naturalHeight };
   });
   expect(dimensions).toEqual({ width: 1080, height: 1920 });
-  await expect(dialog.locator('[data-chapter-save]')).toBeVisible();
-  await expect(dialog.locator('[data-chapter-copy]')).toBeVisible();
+  await expect(dialog.locator('[data-light-relay-save]')).toBeVisible();
+  await expect(dialog.locator('[data-light-relay-copy]')).toBeVisible();
   const after = await page.evaluate(key => localStorage.getItem(key), LIVING_WORLD_CHAPTER_STORAGE_KEY);
   expect(after).toBe(before);
   await page.screenshot({ path: 'test-results/living-world-chapter/ar-320x568-share.png', fullPage: true });
