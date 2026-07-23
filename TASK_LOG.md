@@ -4,6 +4,33 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-through-CV-PIVOT-004.md`](docs/archive/TASK_LOG-through-CV-PIVOT-004.md).
 
+## 2026-07-23 — CV-PIVOT-006 relay world focus
+
+**Outcome:** Give the existing one-step Signal Grove relay an authored responsive camera and structural state language so the completed Loombridge, unfinished route, exact next lantern, and one dominant contribution action are immediately visible without changing transport, progress, interaction, sharing, or recovery behavior.
+
+### Implemented
+
+- Added one deterministic camera projection for the existing `800×560` Signal Grove geography at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`; Arabic and English retain identical world coordinates and lantern order.
+- Kept the exact target inside a bounded central region while retaining visible Loombridge continuity, active lanterns, the unfinished structural strand, and later dormant context.
+- Added structural active, target, accepted, dormant, and stale projections using shutter position, filled or hollow core, inner ring, cradle, clamp, connected or segmented path, fill, and line treatment rather than hue alone.
+- Added exactly one compact energy bead constrained to the authored unfinished route during the existing active contribution; reduced-motion mode omits travel while preserving source, connected strand, and accepted-target state order.
+- Removed stale target and unfinished-strand cues after authoritative local progress has moved forward, without exposing indices, transport details, storage values, or diagnostics.
+- Preserved the strict relay codec, expiry, exact-next-lantern binding, exact-once mutation, failure and retry, Returning Thread, portrait media, creator launch, optional sound, and completed chapter behavior.
+- Added focused unit tests for camera bounds, unchanged world coordinates, completed-world framing, structural state projection, and invalid-target rejection.
+- Added deterministic bilingual Playwright and axe coverage for first-viewport geometry, target position, visible world structure, 44 px controls, overlay separation, touch and keyboard input, in-route energy, accepted impact, failure and retry, stale recovery, reduced motion, required responsive sizes, and `320×568` at 200% text.
+- Added no dependency, account, credential, paid service, external participant, manual evidence, backend, database, analytics, tracking, upload, remote asset, framework migration, camera controls, human-only gate, or Production mutation.
+
+### Validation
+
+- Issue #59 is the single active cycle, branch `feature/cv-pivot-006-relay-world-focus` is dedicated to it, and PR #60 is open without merge.
+- Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, bilingual responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated scenarios and screenshots are reproducible engineering and visual-regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, sharing behavior, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
+- Rollback is limited to reverting PR #60; existing event, chapter, relay, progress, media, Returning Thread, dependencies, Railway configuration, and Production remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, bilingual browser screenshots, and geometry assertions for independent QA; move Issue #59 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-23 — CV-PIVOT-005 one-step light relay
 
 **Outcome:** Turn one validated partial Signal Grove update into a strict world-first relay that shows one truthful unfinished structural path toward the exact next dormant lantern, lets a fresh browser complete the existing short contribution, activates that lantern exactly once, and creates the next bounded share update without identity, messaging, referral, score, or a second progress system.
