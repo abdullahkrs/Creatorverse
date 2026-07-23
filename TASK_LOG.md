@@ -18,12 +18,15 @@ Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-th
 - Added synchronized media localization, token-based mobile-first fallback styling, 44 px controls, visible focus, 200% text-zoom reflow, reduced-motion equivalence, and bounded idle, generating, sharing, cancelled, shared, preview, saved, copied, denied, unavailable, error, retry, and recovery states.
 - Added focused unit coverage for exact dimensions, strict projection, identifier and filename safety, partial/completed distinction, Arabic/English parity, copy budgets, strict event URL transport, capability branching, failure classification, and mutation neutrality.
 - Added deterministic Playwright and axe coverage for follower and owner partial/completed media, native file share, cancellation, denied fallback, PNG download, clipboard denial, generation failure/retry, Escape/focus, invalid recovery, all required responsive sizes, Arabic/English, RTL/LTR, reduced motion, and `320×568` at 200% text zoom; decoded artifacts are checked for PNG signature, exact size, non-empty pixels, dominant scene, material state difference, and absence of textual metadata.
+- Added a focused QA repair for the Arabic fallback at `320×568` and 200% text size: the title now reserves real inline layout space beside the close control, the preview is compact, Save image and Copy link remain fully visible without dialog scrolling, and every action preserves at least a 44 px target.
+- Rerouted the authored energy seam above the outcome and invitation copy safe zone and added decoded-pixel regression coverage that requires visible energy in the world scene while allowing zero energy-colored pixels inside the exported text bounds.
 - Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, upload, remote renderer, social OAuth, analytics, tracking, custom font, framework migration, or Production mutation.
 
 ### Validation
 
 - Pull Request #52 links Issue #51 and uses the dedicated `feature/cv-pivot-002-living-world-media` branch for one coherent vertical slice.
 - Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, PNG integrity, real responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- The focused fallback-layout and media-safe-zone repairs pass deterministic browser checks on the exact repair head, including the isolated Railway Preview, 200% text zoom, decoded PNG dimensions, and artifact integrity.
 - Automated scenarios and generated files are reproducible engineering and visual regression evidence only; they are not evidence of human comprehension, enjoyment, sharing intent, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
 - Rollback is limited to reverting Pull Request #52; event progress, local storage schemas, dependencies, accounts, credentials, external services, Railway configuration, and Production state remain unchanged.
 
@@ -125,7 +128,7 @@ Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview,
 ### Implemented
 
 - Added a versioned fragment-only proposal codec with exact keys, bounded opaque identifiers, allowlisted realm archetypes, strict names, size limits, duplicate/unknown-field rejection, hostile Unicode and bidi rejection, and immediate browser-history cleanup.
-- Added one strict local collaboration record containing only local/source realm IDs, proposal ID, source bounded name, and source archetype; no timestamp, identity, contact, free text, analytics, follower data, mission data, receipt, ledger entry, energy value, or second progress store was added.
+- Added one strict local collaboration record containing only local/source realm IDs, proposal ID, source bounded name, and source archetype; no timestamp, identity, contact, free text, analytics value, follower data, mission data, receipt, ledger entry, energy value, or second progress store was added.
 - Added explicit preview and acceptance, self-link rejection, one-link capacity, duplicate idempotency, verified write-or-no-write handling, safe recovery, concise removal confirmation, and removal isolation.
 - Integrated one secondary **Collaborate / تعاون** action after the dominant **Launch next mission / أطلق المهمة التالية** action, with a restrained custom signal-splice SVG and no dashboard, inbox, profile grid, repeated cards, gradients, glows, emoji, or decorative geometry.
 - Added capability-based Share/Copy with pending, copied/shared, cancelled, denied, failed, unsupported/manual-copy, and retry states without claiming delivery, viewing, external acceptance, identity, or ownership.
