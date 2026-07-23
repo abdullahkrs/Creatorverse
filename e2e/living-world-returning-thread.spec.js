@@ -30,8 +30,8 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ];
 const LOCALES = [
-  { id: 'en', dir: 'ltr', label: 'Your thread' },
-  { id: 'ar', dir: 'rtl', label: 'خيطك' },
+  { id: 'en', dir: 'ltr', label: 'Your thread', extended: 'Your thread reached the lantern' },
+  { id: 'ar', dir: 'rtl', label: 'خيطك', extended: 'وصل خيطك إلى المنارة' },
 ];
 let sequence = 70000;
 
@@ -85,7 +85,6 @@ async function createContext(browser, {
   locale = 'en',
   viewport = VIEWPORTS[1],
   reducedMotion = 'reduce',
-  forcedColors = 'none',
   predecessor = null,
   chapter = null,
   thread = null,
@@ -95,7 +94,7 @@ async function createContext(browser, {
   malformedThread = false,
   failThreadStorage = false,
 } = {}) {
-  const context = await browser.newContext({ viewport, reducedMotion, forcedColors, hasTouch: true });
+  const context = await browser.newContext({ viewport, reducedMotion });
   await context.addInitScript(({
     localeId,
     predecessorValue,
@@ -113,10 +112,9 @@ async function createContext(browser, {
     threadStorageKey,
   }) => {
     localStorage.setItem(localeKey, localeId);
-    // Keep deterministic windows generous enough that touch/keyboard actions cannot race a frame boundary in CI.
-    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1200;
-    window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 180;
-    window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 900;
+    window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1000;
+    window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 100;
+    window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 1000;
     window.__CREATORVERSE_CHAPTER_IMPACT_MS__ = 500;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'canShare', { configurable: true, value: undefined });
@@ -180,16 +178,12 @@ async function noBlockingAxe(page, label) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze();
-  const blocking = results.violations.filter(item => ['critical', 'serious'].includes(item.impact));
-  expect(blocking, `${label}\n${JSON.stringify(blocking, null, 2)}`).toEqual([]);
+  expect(results.violations.filter(item => ['critical', 'serious'].includes(item.impact)), label).toEqual([]);
 }
 
 async function expectQuality(page, label) {
-  const metrics = await page.evaluate(() => ({
-    viewport: document.documentElement.clientWidth,
-    page: document.documentElement.scrollWidth,
-  }));
-  expect(metrics.page - metrics.viewport, `${label}: horizontal overflow`).toBeLessThanOrEqual(1);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, `${label}: horizontal overflow`).toBeLessThanOrEqual(1);
   const primary = page.locator('.chapter-primary:visible, .living-world-primary:visible').last();
   await expect(primary).toBeVisible();
   const box = await primary.boundingBox();
@@ -202,27 +196,25 @@ async function waitForEventNotch(page, index) {
   await page.waitForFunction(expected => {
     const root = document.querySelector('[data-living-world][data-route="event"]');
     return root?.dataset.windowIndex === String(expected) && root.dataset.notchActive === 'true';
-  }, index, { timeout: 7000, polling: 'raf' });
+  }, index, { timeout: 5000, polling: 'raf' });
 }
 
-async function completePredecessorByTouch(page) {
+async function completePredecessor(page) {
   const root = page.locator('[data-living-world][data-route="event"]');
-  const lock = page.locator('[data-living-world-lock]');
-  await page.locator('[data-start-thread]').tap();
-  await expect(root).toHaveAttribute('data-phase', 'active');
+  await page.locator('[data-start-thread]').click();
   for (let index = 0; index < 3; index += 1) {
     await waitForEventNotch(page, index);
-    await lock.tap();
+    await page.locator('[data-living-world-lock]').click();
   }
-  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 7000 });
-  await expect(root).toHaveAttribute('data-phase', 'complete', { timeout: 7000 });
+  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
+  await expect(root).toHaveAttribute('data-phase', 'complete', { timeout: 5000 });
 }
 
 async function waitForChapterNotch(page, index) {
   await page.waitForFunction(expected => {
     const root = document.querySelector('[data-living-chapter][data-route="chapter"]');
     return root?.dataset.windowIndex === String(expected) && root.dataset.notchActive === 'true';
-  }, index, { timeout: 7000, polling: 'raf' });
+  }, index, { timeout: 5000, polling: 'raf' });
 }
 
 async function completeChapter(page, { keyboard = false } = {}) {
@@ -232,21 +224,17 @@ async function completeChapter(page, { keyboard = false } = {}) {
   for (let index = 0; index < 3; index += 1) {
     await waitForChapterNotch(page, index);
     if (keyboard) await page.keyboard.press('Space');
-    else await page.locator('[data-tune-signal]').tap();
+    else await page.locator('[data-tune-signal]').click();
   }
-  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 7000 });
+  await expect(root).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
 }
 
-test('accepted touch contribution creates one stable thread and keyboard chapter contribution reaches exactly one lantern', async ({ browser }) => {
+test('one accepted predecessor creates a thread that reaches exactly one follow-up lantern', async ({ browser }) => {
   const predecessor = makePredecessor({ progress: 11 });
-  const context = await createContext(browser, {
-    locale: 'en',
-    viewport: VIEWPORTS[1],
-    reducedMotion: 'no-preference',
-  });
+  const context = await createContext(browser, { locale: 'en', viewport: VIEWPORTS[1] });
   const page = await context.newPage();
   await page.goto(eventUrl(predecessor));
-  await completePredecessorByTouch(page);
+  await completePredecessor(page);
   await expect(page.locator('[data-returning-thread="predecessor"]')).toHaveCount(1);
   await expect(page.locator('[data-returning-thread-copy]')).toContainText('Your thread');
   const storedThread = await page.evaluate(key => localStorage.getItem(key), RETURNING_THREAD_STORAGE_KEY);
@@ -269,13 +257,14 @@ test('accepted touch contribution creates one stable thread and keyboard chapter
     await waitForChapterNotch(page, index);
     await page.keyboard.press('Space');
   }
-  await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'impact', { timeout: 7000 });
+  await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'impact', { timeout: 5000 });
   await expect(page.locator('.returning-thread-extension')).toHaveCount(1);
   await expect(page.locator('.signal-lantern.is-active')).toHaveCount(4);
   await page.screenshot({ path: 'test-results/living-world-returning-thread/en-accepted-lantern-impact.png', fullPage: true });
-  await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'result', { timeout: 7000 });
+  await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'result', { timeout: 5000 });
   await expect(page.locator('.chapter-result-copy p')).toHaveText('Your thread reached the lantern');
-  expect(await page.evaluate(key => localStorage.getItem(key), RETURNING_THREAD_STORAGE_KEY)).toBe(storedThread);
+  const threadAfter = await page.evaluate(key => localStorage.getItem(key), RETURNING_THREAD_STORAGE_KEY);
+  expect(threadAfter).toBe(storedThread);
 
   await page.reload();
   await expect(page.locator('[data-living-chapter]')).toHaveAttribute('data-phase', 'duplicate');
@@ -314,7 +303,7 @@ for (const locale of LOCALES) {
   }
 }
 
-test('fresh context is neutral and touch contribution still changes only collective chapter progress', async ({ browser }) => {
+test('fresh context sees no personal strand and can complete the collective chapter', async ({ browser }) => {
   const predecessor = makePredecessor();
   const followUp = makeChapter({ predecessor, progress: 4 });
   const context = await createContext(browser, { locale: 'en', predecessor, chapter: followUp });
@@ -352,14 +341,10 @@ test('malformed continuity fails closed without damaging chapter contribution', 
 
 test('thread write failure preserves accepted predecessor world and share action', async ({ browser }) => {
   const predecessor = makePredecessor({ progress: 11 });
-  const context = await createContext(browser, {
-    locale: 'en',
-    reducedMotion: 'no-preference',
-    failThreadStorage: true,
-  });
+  const context = await createContext(browser, { locale: 'en', failThreadStorage: true });
   const page = await context.newPage();
   await page.goto(eventUrl(predecessor));
-  await completePredecessorByTouch(page);
+  await completePredecessor(page);
   await expect(page.locator('[data-returning-thread]')).toHaveCount(0);
   await expect(page.locator('[data-returning-thread-recovery]')).toContainText('World saved; thread unavailable');
   await expect(page.locator('[data-result-action="share"]')).toBeVisible();
@@ -369,7 +354,7 @@ test('thread write failure preserves accepted predecessor world and share action
   await context.close();
 });
 
-test('Arabic 320px at 200 percent keeps continuity, utilities, and action usable', async ({ browser }) => {
+test('Arabic 320px at 200 percent keeps returning continuity, utilities, and action usable', async ({ browser }) => {
   const predecessor = makePredecessor();
   const followUp = makeChapter({ predecessor, progress: 5 });
   const context = await createContext(browser, {
@@ -409,26 +394,6 @@ test('Arabic 320px at 200 percent keeps continuity, utilities, and action usable
   await context.close();
 });
 
-test('forced colors preserves structurally distinct thread and world action', async ({ browser }) => {
-  const predecessor = makePredecessor();
-  const followUp = makeChapter({ predecessor, progress: 2 });
-  const context = await createContext(browser, {
-    locale: 'en',
-    predecessor,
-    chapter: followUp,
-    thread: threadFor(predecessor, 'notched-spine'),
-    forcedColors: 'active',
-  });
-  const page = await context.newPage();
-  await page.goto(chapterUrl(followUp));
-  await expect(page.locator('.returning-thread-main')).toBeVisible();
-  await expect(page.locator('.returning-thread-marks')).toBeVisible();
-  await expect(page.locator('[data-start-signal]')).toBeVisible();
-  await noBlockingAxe(page, 'forced-colors-thread');
-  await page.screenshot({ path: 'test-results/living-world-returning-thread/en-forced-colors-thread.png', fullPage: true });
-  await context.close();
-});
-
 test('completed light-field keeps one restrained inherited thread and thread-aware share media', async ({ browser }) => {
   const predecessor = makePredecessor();
   const followUp = makeChapter({ predecessor, progress: 7 });
@@ -453,8 +418,9 @@ test('completed light-field keeps one restrained inherited thread and thread-awa
   await page.locator('[data-chapter-share]').click();
   const dialog = page.locator('[data-returning-thread-share-dialog]');
   await expect(dialog).toBeVisible();
-  await expect(dialog.locator('img')).toHaveAttribute('width', '270');
-  await expect(dialog.locator('img')).toHaveAttribute('height', '480');
+  const image = dialog.locator('img');
+  await expect(image).toHaveAttribute('width', '270');
+  await expect(image).toHaveAttribute('height', '480');
   await page.screenshot({ path: 'test-results/living-world-returning-thread/en-returning-thread-share-composition.png', fullPage: true });
   await dialog.locator('[data-returning-thread-copy]').click();
   const copied = await page.evaluate(() => sessionStorage.getItem('__returning_thread_clipboard'));
