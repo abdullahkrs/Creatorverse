@@ -89,9 +89,28 @@ function cameraTarget(root) {
   return active.length > 0 ? Number(active.at(-1).dataset.lanternIndex) : 0;
 }
 
+function explicitRootTextScale() {
+  const value = document.documentElement.style.fontSize.trim();
+  if (!value) return 1;
+  if (value.endsWith('%')) {
+    const percent = Number.parseFloat(value);
+    return Number.isFinite(percent) ? percent / 100 : 1;
+  }
+  if (value.endsWith('px')) {
+    const pixels = Number.parseFloat(value);
+    return Number.isFinite(pixels) ? pixels / 16 : 1;
+  }
+  if (value.endsWith('rem') || value.endsWith('em')) {
+    const relative = Number.parseFloat(value);
+    return Number.isFinite(relative) ? relative : 1;
+  }
+  return 1;
+}
+
 function applyTextScaleProjection(root, { viewportWidth, viewportHeight }) {
   const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  const largePhoneText = viewportWidth <= 390 && rootFontSize >= 24;
+  const textScale = Math.max(rootFontSize / 16, explicitRootTextScale());
+  const largePhoneText = viewportWidth <= 390 && textScale >= 1.5;
   root.dataset.relayTextScale = largePhoneText ? 'large-phone' : 'default';
 
   if (largePhoneText) {
