@@ -18,6 +18,7 @@ Completed entries through CV-PIVOT-003 are preserved in [`docs/archive/TASK_LOG-
 - Extended the existing deterministic `1080×1920` chapter media with only the validated structural thread pixels and optional exact lantern extension; share links and files contain no local thread record, raw identifier, storage key, thread label, text metadata, or personal continuity claim.
 - Added focused unit coverage for exact schema and binding, four equal kinds, contribution-gated creation, stable restoration, malformed and mismatched state, atomic write failure, fresh-context neutrality, chapter extension, media projection, copy budgets, and localization parity.
 - Added deterministic Playwright and axe coverage for actual predecessor contribution, same-context continuation, touch and keyboard chapter contribution, one-lantern extension, duplicate reload, locale persistence, fresh context, malformed and unavailable storage, partial and completed worlds, thread-aware sharing, required responsive sizes, Arabic/English, RTL/LTR, reduced motion, and `320×568` at 200% text zoom.
+- Repaired the deterministic browser harness without changing product behavior: widened only the injected test timing windows and verified exported PNG bytes through the real download path instead of refetching a transient Blob URL.
 - Added no dependency, account, credential, paid service, external participant, manual evidence collection, upload, social OAuth, remote renderer, framework migration, human-only gate, or Production mutation.
 
 ### Validation
