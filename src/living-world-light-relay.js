@@ -1,8 +1,10 @@
+import { decodeLivingWorldEvent } from './living-world-event.js';
 import {
   commitLivingWorldChapterContribution,
   decodeLivingWorldChapter,
   encodeLivingWorldChapter,
   evaluateSignalLocks,
+  LIVING_WORLD_CHAPTER_STORAGE_KEY,
   readLivingWorldChapterState,
 } from './living-world-chapter.js';
 
@@ -10,6 +12,8 @@ const TOKEN_LIMIT = 4200;
 const RELAY_KIND = 'carry-light';
 const TARGET = 8;
 const FIELDS = Object.freeze(['v', 'kind', 'chapter', 'progress', 'targetIndex']);
+const CHAPTER_ID = /^chapter_[a-z0-9]{20,40}$/u;
+const EVENT_ID = /^event_[a-z0-9]{20,40}$/u;
 
 export const LIVING_WORLD_LIGHT_RELAY_FRAGMENT = 'world-relay';
 export const LIVING_WORLD_LIGHT_RELAY_KIND = RELAY_KIND;
@@ -160,6 +164,33 @@ export function deriveLightRelayLanterns(relay, { progress = relay?.progress, ph
   })));
 }
 
+function hasOlderValidContribution(storage, chapter, relayProgress, now) {
+  try {
+    const serialized = storage?.getItem?.(LIVING_WORLD_CHAPTER_STORAGE_KEY);
+    if (!serialized) return false;
+    const parsed = JSON.parse(serialized);
+    exactKeys(parsed, ['version', 'chapters'], 'INVALID_LIGHT_RELAY_LOCAL_STATE');
+    if (parsed.version !== 1 || !Array.isArray(parsed.chapters) || parsed.chapters.length > 8) return false;
+    const identifiers = new Set();
+    let match = null;
+    for (const record of parsed.chapters) {
+      exactKeys(record, ['chapterId', 'predecessorEventId', 'target', 'progress', 'contributed'], 'INVALID_LIGHT_RELAY_LOCAL_STATE');
+      if (!CHAPTER_ID.test(record.chapterId) || !EVENT_ID.test(record.predecessorEventId)) return false;
+      if (identifiers.has(record.chapterId)) return false;
+      identifiers.add(record.chapterId);
+      if (!Number.isSafeInteger(record.target) || record.target !== TARGET
+        || !Number.isSafeInteger(record.progress) || record.progress < 0 || record.progress > TARGET
+        || typeof record.contributed !== 'boolean') return false;
+      if (record.chapterId === chapter.chapterId) match = record;
+    }
+    if (!match || match.progress >= relayProgress || match.contributed !== true) return false;
+    const predecessor = decodeLivingWorldEvent(chapter.predecessor, { now, allowExpired: true });
+    return match.predecessorEventId === predecessor.eventId;
+  } catch {
+    return false;
+  }
+}
+
 export function resolveLivingWorldLightRelay(storage, relay, options = {}) {
   let validated;
   let chapter;
@@ -171,6 +202,9 @@ export function resolveLivingWorldLightRelay(storage, relay, options = {}) {
   }
   const state = readLivingWorldChapterState(storage, chapter, options);
   if (state.status === 'storage-error') {
+    if (hasOlderValidContribution(storage, chapter, validated.progress, options.now ?? Date.now())) {
+      return Object.freeze({ status: 'stale', relay: validated, chapter, progress: validated.progress, completed: false });
+    }
     return Object.freeze({ status: 'storage-error', relay: validated, chapter, progress: validated.progress });
   }
   if (state.progress > validated.progress || state.contributed || state.status === 'duplicate') {
