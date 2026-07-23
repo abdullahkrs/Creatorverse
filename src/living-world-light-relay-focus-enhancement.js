@@ -89,6 +89,19 @@ function cameraTarget(root) {
   return active.length > 0 ? Number(active.at(-1).dataset.lanternIndex) : 0;
 }
 
+function projectCurrentRelay() {
+  const root = document.querySelector('[data-living-light-relay][data-route="relay"]');
+  if (root) applyRelayWorldFocus(root);
+}
+
+function bindImmediatePhaseProjection(root) {
+  root.querySelectorAll('[data-start-relay], [data-relay-retry]').forEach(trigger => {
+    if (trigger.dataset.relayFocusBound === 'true') return;
+    trigger.dataset.relayFocusBound = 'true';
+    trigger.addEventListener('click', projectCurrentRelay, { once: true });
+  });
+}
+
 export function applyRelayWorldFocus(root, {
   viewportWidth = globalThis.innerWidth,
   viewportHeight = globalThis.innerHeight,
@@ -111,6 +124,7 @@ export function applyRelayWorldFocus(root, {
   world.dataset.cameraViewBox = `${camera.x},${camera.y},${camera.width},${camera.height}`;
 
   ensureEnergyBead(root);
+  bindImmediatePhaseProjection(root);
   root.dataset.relayFocus = 'authored';
   return camera;
 }
@@ -119,17 +133,13 @@ function scheduleApply() {
   cancelAnimationFrame(frame);
   frame = requestAnimationFrame(() => {
     frame = 0;
-    const root = document.querySelector('[data-living-light-relay][data-route="relay"]');
-    if (root) applyRelayWorldFocus(root);
+    projectCurrentRelay();
   });
 }
 
 if (app) {
   const observer = new MutationObserver(scheduleApply);
   observer.observe(app, { childList: true, subtree: true });
-  app.addEventListener('click', event => {
-    if (event.target.closest('[data-start-relay], [data-relay-retry]')) scheduleApply();
-  });
   addEventListener('resize', scheduleApply, { passive: true });
   addEventListener('popstate', scheduleApply, { passive: true });
   scheduleApply();
