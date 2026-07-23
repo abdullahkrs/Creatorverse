@@ -6,7 +6,7 @@ const CAMERA_PRESETS = Object.freeze([
   Object.freeze({ maxWidth: 479, width: 420, height: 560, y: -50, anchorInline: 0.69 }),
   Object.freeze({ maxWidth: 899, width: 620, height: 560, y: -50, anchorInline: 0.64 }),
   Object.freeze({ maxWidth: 1279, width: 720, height: 540, y: -40, anchorInline: 0.64 }),
-  Object.freeze({ maxWidth: Number.POSITIVE_INFINITY, width: 800, height: 500, y: -25, anchorInline: 0.64 }),
+  Object.freeze({ maxWidth: Number.POSITIVE_INFINITY, width: 800, height: 500, y: -20, anchorInline: 0.64 }),
 ]);
 
 function finiteInteger(value, minimum, maximum, code) {
