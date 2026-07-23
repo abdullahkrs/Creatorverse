@@ -17,10 +17,11 @@
   max-inline-size: min(15rem, 48vw);
 }
 
-.light-relay-actions,
-.light-relay-active,
-.light-relay-result {
-  position: absolute;
+.living-world-light-relay .light-relay-actions,
+.living-world-light-relay .light-relay-active,
+.living-world-light-relay .light-relay-result {
+  position: fixed;
+  z-index: 8;
   inset-inline: 0;
   inset-block-end: 0;
   grid-area: auto;
@@ -123,9 +124,9 @@
     font-size: clamp(1.25rem, 5.5vw, 1.7rem);
   }
 
-  .light-relay-actions,
-  .light-relay-active,
-  .light-relay-result {
+  .living-world-light-relay .light-relay-actions,
+  .living-world-light-relay .light-relay-active,
+  .living-world-light-relay .light-relay-result {
     padding-inline: var(--cv-space-3);
     padding-block-start: var(--cv-space-3);
   }
