@@ -20,6 +20,7 @@ Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-
 - Added focused unit tests for camera bounds, unchanged world coordinates, completed-world framing, structural state projection, and invalid-target rejection.
 - Added deterministic bilingual Playwright and axe coverage for first-viewport geometry, target position, visible world structure, 44 px controls, overlay separation, touch and keyboard input, in-route energy, accepted impact, failure and retry, stale recovery, reduced motion, required responsive sizes, and `320×568` at 200% text.
 - Added exact Arabic and English large-text geometry gates and viewport screenshots for ready and accepted states, including creator/utilities/title/progress/action/target/path non-intersection.
+- Increased only the browser-quality job budget from 25 to 30 minutes so the unchanged full Playwright, axe, responsive, localization, report-integrity, and artifact gates can finish after adding the bilingual large-text scenarios; no check, assertion, or evidence requirement was removed or relaxed.
 - Added no dependency, account, credential, paid service, external participant, manual evidence, backend, database, analytics, tracking, upload, remote asset, framework migration, camera controls, human-only gate, or Production mutation.
 
 ### Validation
