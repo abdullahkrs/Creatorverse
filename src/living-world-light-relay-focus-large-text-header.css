@@ -22,6 +22,9 @@
   overflow-wrap: normal;
   word-break: keep-all;
   hyphens: none;
+  font-size: 0.58rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 .living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator small {
