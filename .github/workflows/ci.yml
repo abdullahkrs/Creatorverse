@@ -57,6 +57,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      preview_url: ${{ steps.preview.outputs.preview_url }}
     env:
       EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
       EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
@@ -107,15 +109,41 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Resolve exact Preview URL again by identity
+      - name: Reverify the selected exact Preview candidate
         id: preview
         env:
+          PREVIEW_URL: ${{ needs.railway-preview.outputs.preview_url }}
           EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
           EXPECTED_REF: ${{ github.event.pull_request.head.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          GITHUB_TOKEN: ${{ github.token }}
           PRODUCTION_URL: https://creatorverse-app-production.up.railway.app
-        run: node scripts/verify-railway-preview.mjs
+        run: |
+          node --input-type=module - <<'NODE'
+          import { appendFile } from 'node:fs/promises';
+          import { verifyCandidate } from './scripts/verify-railway-preview.mjs';
+
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          const context = {
+            expectedSha: process.env.EXPECTED_SHA,
+            expectedRef: process.env.EXPECTED_REF,
+            productionUrl: process.env.PRODUCTION_URL,
+            prNumber: process.env.PR_NUMBER,
+          };
+          let lastError;
+          for (let attempt = 1; attempt <= 12; attempt += 1) {
+            try {
+              const result = await verifyCandidate(process.env.PREVIEW_URL, context);
+              await appendFile(process.env.GITHUB_OUTPUT, `preview_url=${result.base}\n`);
+              console.log(`Browser candidate verified for ${result.version.branch}@${result.version.commitSha}`);
+              process.exit(0);
+            } catch (error) {
+              lastError = error;
+              console.log(`Exact Preview reverify attempt ${attempt}/12: ${error.message}`);
+              if (attempt < 12) await sleep(5000);
+            }
+          }
+          throw lastError;
+          NODE
       - name: Playwright responsive, accessibility, and usability proxy gates
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.preview_url }}
