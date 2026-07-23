@@ -1,0 +1,48 @@
+.chapter-actions,
+.chapter-active,
+.chapter-result-copy {
+  background: var(--cv-world-overlay);
+}
+
+@media (max-width: 22rem), (max-height: 40rem) {
+  .chapter-creator-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cv-space-2);
+  }
+
+  .chapter-utilities {
+    inline-size: 100%;
+    justify-content: space-between;
+  }
+
+  .chapter-language {
+    flex: 1 1 auto;
+  }
+
+  .chapter-language button {
+    flex: 1 1 0;
+  }
+
+  .chapter-share-panel img {
+    inline-size: auto;
+    max-inline-size: 100%;
+    max-block-size: 30svh;
+  }
+
+  .chapter-launch-preview {
+    block-size: min(22svh, 10rem);
+  }
+}
+
+@media (max-width: 22rem) and (min-resolution: 1dppx) {
+  .chapter-title-block {
+    max-inline-size: calc(100% - 2 * var(--cv-space-4));
+  }
+
+  .chapter-progress {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--cv-space-1);
+  }
+}
