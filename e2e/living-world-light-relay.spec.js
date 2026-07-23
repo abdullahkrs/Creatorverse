@@ -89,7 +89,7 @@ async function createContext(browser, {
   }) => {
     localStorage.setItem(localeKey, localeId);
     window.__CREATORVERSE_RELAY_WINDOW_MS__ = 900;
-    window.__CREATORVERSE_RELAY_IMPACT_MS__ = 180;
+    window.__CREATORVERSE_RELAY_IMPACT_MS__ = 900;
     window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 900;
     window.__CREATORVERSE_CHAPTER_IMPACT_MS__ = 180;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
