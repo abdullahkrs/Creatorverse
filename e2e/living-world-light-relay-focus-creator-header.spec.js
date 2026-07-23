@@ -67,12 +67,13 @@ async function createContext(browser, locale) {
 
 async function readCreatorHeader(page) {
   return page.evaluate(() => {
-    const creator = document.querySelector('.chapter-creator');
+    const root = document.querySelector('[data-living-light-relay][data-route="relay"]');
+    const creator = root?.querySelector('.chapter-creator');
     const name = creator?.querySelector('.chapter-creator-name');
     const realm = creator?.querySelector('.chapter-creator-realm');
     const context = creator?.querySelector('small');
-    const utilities = document.querySelector('.chapter-utilities');
-    if (!creator || !name || !utilities) return null;
+    const utilities = root?.querySelector('.chapter-utilities');
+    if (!root || !creator || !name || !utilities) return null;
 
     const range = document.createRange();
     range.selectNodeContents(name);
@@ -109,7 +110,8 @@ async function readCreatorHeader(page) {
 }
 
 async function assertCreatorHeader(page, label, expectedName) {
-  await expect(page.locator('.chapter-creator-name')).toHaveText(expectedName);
+  const root = page.locator('[data-living-light-relay][data-route="relay"]');
+  await expect(root.locator('.chapter-creator-name')).toHaveText(expectedName);
   const header = await readCreatorHeader(page);
   expect(header, `${label}: creator header exists`).not.toBeNull();
   expect(header.text, `${label}: localized creator name preserved`).toBe(expectedName);
