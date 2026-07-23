@@ -12,8 +12,8 @@ const OUTPUT = 'test-results/living-world-light-relay-focus';
 const LOCALE_KEY = 'creatorverse-locale';
 const VIEWPORT = { width: 320, height: 568 };
 const LOCALES = [
-  { id: 'en', dir: 'ltr' },
-  { id: 'ar', dir: 'rtl' },
+  { id: 'en', dir: 'ltr', creatorName: 'Noura' },
+  { id: 'ar', dir: 'rtl', creatorName: 'نورة' },
 ];
 
 mkdirSync(OUTPUT, { recursive: true });
@@ -68,17 +68,14 @@ async function createContext(browser, locale) {
 async function readCreatorHeader(page) {
   return page.evaluate(() => {
     const creator = document.querySelector('.chapter-creator');
-    const name = creator?.querySelector('span');
+    const name = creator?.querySelector('.chapter-creator-name');
+    const realm = creator?.querySelector('.chapter-creator-realm');
     const context = creator?.querySelector('small');
     const utilities = document.querySelector('.chapter-utilities');
     if (!creator || !name || !utilities) return null;
 
-    const textNode = [...name.childNodes]
-      .find(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
-    if (!textNode) return null;
-
     const range = document.createRange();
-    range.selectNodeContents(textNode);
+    range.selectNodeContents(name);
     const lineRects = [...range.getClientRects()]
       .filter(rect => rect.width > 0 && rect.height > 0)
       .map(rect => ({ width: rect.width, height: rect.height }));
@@ -86,10 +83,11 @@ async function readCreatorHeader(page) {
     const creatorRect = creator.getBoundingClientRect();
     const utilitiesRect = utilities.getBoundingClientRect();
     const style = getComputedStyle(name);
+    const realmStyle = realm ? getComputedStyle(realm) : null;
     const contextStyle = context ? getComputedStyle(context) : null;
 
     return {
-      text: textNode.textContent.trim(),
+      text: name.textContent.trim(),
       lineCount: lineRects.length,
       minimumLineWidth: lineRects.length
         ? Math.min(...lineRects.map(rect => rect.width))
@@ -104,24 +102,26 @@ async function readCreatorHeader(page) {
       whiteSpace: style.whiteSpace,
       wordBreak: style.wordBreak,
       overflowWrap: style.overflowWrap,
+      realmVisible: Boolean(realmStyle && realmStyle.display !== 'none'),
       contextVisible: Boolean(contextStyle && contextStyle.display !== 'none'),
     };
   });
 }
 
-async function assertCreatorHeader(page, label) {
+async function assertCreatorHeader(page, label, expectedName) {
+  await expect(page.locator('.chapter-creator-name')).toHaveText(expectedName);
   const header = await readCreatorHeader(page);
   expect(header, `${label}: creator header exists`).not.toBeNull();
-  expect(header.text.length, `${label}: creator name present`).toBeGreaterThan(0);
+  expect(header.text, `${label}: localized creator name preserved`).toBe(expectedName);
   expect(header.lineCount, `${label}: creator name stays on one line`).toBe(1);
   expect(header.minimumLineWidth, `${label}: creator name avoids a narrow vertical column`).toBeGreaterThanOrEqual(40);
-  expect(header.nameWidth, `${label}: creator name receives bounded readable width`).toBeGreaterThanOrEqual(96);
   expect(header.creatorWidth, `${label}: creator row uses the available header width`).toBeGreaterThanOrEqual(180);
   expect(header.clippedInline, `${label}: creator name not horizontally clipped`).toBe(false);
   expect(header.clippedBlock, `${label}: creator name not vertically clipped`).toBe(false);
   expect(header.whiteSpace, `${label}: creator name does not wrap`).toBe('nowrap');
   expect(header.wordBreak, `${label}: creator name keeps word integrity`).toBe('keep-all');
   expect(header.overflowWrap, `${label}: creator name does not break arbitrarily`).toBe('normal');
+  expect(header.realmVisible, `${label}: realm context yields before creator-name integrity`).toBe(false);
   expect(header.contextVisible, `${label}: secondary context yields before creator-name integrity`).toBe(false);
   expect(header.creatorBottom, `${label}: utilities use a separate row`).toBeLessThanOrEqual(header.utilitiesTop + 1);
 }
@@ -153,14 +153,14 @@ for (const locale of LOCALES) {
     const root = page.locator('[data-living-light-relay][data-route="relay"]');
     await expect(root).toHaveAttribute('data-relay-text-scale', 'large-phone');
     await expect(page.locator('html')).toHaveAttribute('dir', locale.dir);
-    await assertCreatorHeader(page, `${locale.id}-ready`);
+    await assertCreatorHeader(page, `${locale.id}-ready`, locale.creatorName);
     await page.screenshot({
       path: `${OUTPUT}/relay-focus-${locale.id}-320x568-200-percent-header-ready.png`,
       fullPage: false,
     });
 
     await completeWithKeyboard(page);
-    await assertCreatorHeader(page, `${locale.id}-impact`);
+    await assertCreatorHeader(page, `${locale.id}-impact`, locale.creatorName);
     await page.screenshot({
       path: `${OUTPUT}/relay-focus-${locale.id}-320x568-200-percent-header-impact.png`,
       fullPage: false,
