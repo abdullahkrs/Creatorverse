@@ -5,6 +5,7 @@ export const LIVING_WORLD_MEDIA_HEIGHT = 1920;
 export const LIVING_WORLD_MEDIA_TYPE = 'image/png';
 export const LIVING_WORLD_MEDIA_FILENAME = 'creatorverse-folded-horizon.png';
 export const LIVING_WORLD_MEDIA_SCENE_BOUNDS = Object.freeze({ x: 0, y: 250, width: 1080, height: 1440 });
+export const LIVING_WORLD_MEDIA_OUTCOME_SAFE_BOUNDS = Object.freeze({ x: 84, y: 1560, width: 912, height: 195 });
 
 const EVENT_KEYS = ['v', 'eventId', 'creatorName', 'motif', 'landmark', 'duration', 'target', 'progress', 'expiresAt'];
 const EVENT_ID = /^event_[a-z0-9]{20,40}$/u;
@@ -236,8 +237,8 @@ function drawWorld(context, model, palette) {
   context.lineCap = 'round';
   context.setLineDash([30, 22]);
   context.beginPath();
-  context.moveTo(540, 1740);
-  context.bezierCurveTo(530, 1510, 430, 1390, 510, 1240);
+  context.moveTo(540, 1490);
+  context.bezierCurveTo(530, 1420, 450, 1360, 510, 1240);
   context.bezierCurveTo(550, 1160, endX - 50, endY + 100, endX, endY + 18);
   context.stroke();
   context.setLineDash([]);
