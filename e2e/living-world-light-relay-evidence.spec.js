@@ -179,7 +179,9 @@ async function captureShareAndRecovery(browser, locale) {
   });
   const partialPage = await partialContext.newPage();
   await partialPage.goto(chapterUrl(partial, 4));
-  await partialPage.locator('[data-chapter-share]').click();
+  const shareButton = partialPage.locator('[data-chapter-share]');
+  await expect(shareButton).toBeEnabled({ timeout: 20_000 });
+  await shareButton.click();
   const preview = partialPage.locator('[data-light-relay-share-dialog]');
   await expect(preview).toBeVisible();
   await expect(preview.locator('img')).toHaveAttribute('src', /^blob:/u);
