@@ -122,11 +122,7 @@ function applyTextScaleProjection(root, { viewportWidth, viewportHeight }) {
   root.dataset.relayTextScale = largePhoneText ? 'large-phone' : 'default';
 
   if (largePhoneText) {
-    const headerBottom = Math.max(
-      blockBottomWithinRoot(root, '.chapter-creator'),
-      blockBottomWithinRoot(root, '.chapter-utilities'),
-    );
-    const titleStart = Math.max(88, Math.ceil(headerBottom + 8));
+    const titleStart = 144;
     titleBlock?.style.setProperty('inset-block-start', `${titleStart}px`);
 
     const titleBottom = blockBottomWithinRoot(root, '.light-relay-title-block');
