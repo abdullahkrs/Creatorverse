@@ -115,7 +115,7 @@ async function createContext(browser, {
     localStorage.setItem(localeKey, localeId);
     // Keep deterministic windows generous enough that touch/keyboard actions cannot race a frame boundary in CI.
     window.__CREATORVERSE_LIVING_WORLD_WINDOW_MS__ = 1200;
-    window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 180;
+    window.__CREATORVERSE_LIVING_WORLD_IMPACT_MS__ = 1000;
     window.__CREATORVERSE_CHAPTER_WINDOW_MS__ = 900;
     window.__CREATORVERSE_CHAPTER_IMPACT_MS__ = 500;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
