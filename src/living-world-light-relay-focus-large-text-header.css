@@ -1,0 +1,39 @@
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator-strip {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "creator"
+    "utilities";
+  align-items: center;
+  row-gap: 4px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator {
+  grid-area: creator;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  align-items: center;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator span {
+  max-block-size: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator small {
+  display: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-utilities {
+  grid-area: utilities;
+  justify-self: end;
+  min-inline-size: 0;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-title-block {
+  inset-block-start: 96px;
+}
