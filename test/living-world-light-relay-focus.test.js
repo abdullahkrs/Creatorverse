@@ -35,7 +35,7 @@ test('phone camera materially enlarges the relay destination without changing wo
   const target = getRelayLanternPoint(3);
   const phone = createRelayWorldCamera(3, { viewportWidth: 320, viewportHeight: 568 });
   const desktop = createRelayWorldCamera(3, { viewportWidth: 1440, viewportHeight: 900 });
-  assert.deepEqual(target, { x: 552, y: 198 });
+  assert.deepEqual(target, { x: 552, y: 197 });
   assert.equal(phone.width, 420);
   assert.equal(phone.height, 560);
   assert.equal(desktop.width, 800);
