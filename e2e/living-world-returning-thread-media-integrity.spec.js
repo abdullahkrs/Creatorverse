@@ -91,7 +91,7 @@ test('returning-thread share exports one exact metadata-free 1080x1920 PNG', asy
   const downloadPromise = page.waitForEvent('download');
   await dialog.locator('[data-returning-thread-save]').click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe('creatorverse-signal-grove.png');
+  expect(download.suggestedFilename()).toBe('creatorverse-light-far-shore.png');
   const downloadedPath = await download.path();
   expect(downloadedPath).toBeTruthy();
   const bytes = new Uint8Array(await readFile(downloadedPath));
