@@ -4,6 +4,36 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-MVP-012 are preserved in [`docs/archive/TASK_LOG-through-CV-MVP-012.md`](docs/archive/TASK_LOG-through-CV-MVP-012.md).
 
+## 2026-07-23 — CV-PIVOT-003 living-world continuity
+
+**Outcome:** Let the creator continue one completed Folded Horizon into a bounded far-shore chapter where followers enter the evolved world directly, tune one signal, activate exactly one structural lantern, and share the truthful partial or completed world update.
+
+### Implemented
+
+- Kept the completed 12-slat Loombridge permanently visible and extended the same authored Folded Horizon scene into one **Signal Grove** containing exactly eight structural lanterns, a far ridge, bridge-connected signal paths, and one bounded inhabited-field reveal after completion.
+- Added one compact **Next chapter / الفصل التالي** action only for the creator context that owns a locally completed predecessor; partial, foreign, malformed, expired, or follower predecessor contexts cannot launch the chapter.
+- Added one bounded creator launch sheet with a fixed chapter identity, fixed eight-lantern target, allowlisted 6-hour or 24-hour duration, one preview, one launch action, and one share action without dashboards, catalogs, tables, analytics, participant lists, or technical terminology.
+- Added an exact versioned fragment-only `world-chapter` codec bound to the strict completed predecessor event, creator name, Folded Horizon motif, Signal Grove landmark, duration, target, progress, and expiry; duplicate or unknown fields, partial predecessors, altered names, controls, bidi overrides, malformed tokens, oversized input, unsafe expiry, and query transport fail closed.
+- Added strict capped local launch and chapter-progress stores with exact fields, predecessor binding, verified writes, rollback on storage failure, stale-progress rejection, deterministic resume, and one accepted lantern mutation per chapter/browser context.
+- Added the 12-second **Tune the Signal / اضبط الإشارة** interaction with three deterministic resonator windows, touch, scene, and keyboard input, two-of-three acceptance, one fixed lantern only, failure and retry, duplicate neutrality, and no scores, ranks, streaks, bonuses, currency, random rewards, or competitive framing.
+- Added direct full-screen chapter entry, quiet evolved-world state, active resonators, visible energy travel from the completed bridge into the far shore, impact-before-copy, partial lantern progress, eight-lantern completion, concise recovery, optional muted sound after explicit interaction, restrained haptics, and reduced-motion equivalents.
+- Added deterministic `1080×1920` portrait media for partial and completed far-shore states, one-file native sharing when supported, and a bounded save-image and copy-link fallback with strict chapter links, fixed filename, focus restoration, Blob cleanup, and no progress mutation.
+- Added synchronized Arabic and English copy, intentional RTL/LTR composition, localized numeric progress, semantic SVG and dialog structure, visible focus, 44 px targets, short-viewport and 200% text-zoom reflow, logical CSS properties, existing design tokens, and no generic gradient, glow, decorative orbit, emoji, placeholder art, or SaaS shell.
+- Added focused unit coverage for completed-predecessor binding, strict codecs, expiry, hostile and duplicate fields, deterministic launch resume, exact-once contribution, eighth-lantern completion, malformed and failed storage, lantern projection, resonator evaluation, copy budgets, localization parity, media dimensions, and safe share transport.
+- Added deterministic Playwright and axe scenarios for creator continuation launch, direct evolved-world entry, partial predecessor exclusion, touch and keyboard contribution, energy impact, exact-once lantern progress, duplicate reload, failed retry, completed inhabited-field reveal, portrait fallback, invalid recovery, all required responsive sizes, Arabic/English, RTL/LTR, reduced motion, and `320×568` at 200% text zoom.
+- Added no dependency, account, credential, paid service, external participant, manual evidence collection, backend, database, analytics, contact, chat, upload, social OAuth, remote renderer, framework migration, human-only gate, or Production mutation.
+
+### Validation
+
+- Pull Request #54 links Issue #53 and uses the dedicated `feature/cv-pivot-003-living-world-continuity` branch for one coherent vertical slice.
+- Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, real responsive screenshots, portrait-media integrity, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- Automated scenarios and generated media are reproducible engineering and visual regression evidence only; they are not evidence of human comprehension, enjoyment, community attachment, return behavior, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
+- Rollback is limited to reverting Pull Request #54 and removing the bounded chapter local and session keys; the completed predecessor event, existing Folded Horizon sharing, dependencies, accounts, credentials, environments, and Production configuration remain unchanged.
+
+### Next best task
+
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, and bilingual browser and portrait artifacts for independent QA; move Issue #53 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+
 ## 2026-07-22 — CV-PIVOT-002 living-world share media
 
 **Outcome:** Let a follower or creator turn one validated partial or completed Folded Horizon result into one real portrait PNG and share it with the strict event link, with a bounded save-image and copy-link fallback and no event-progress mutation.
