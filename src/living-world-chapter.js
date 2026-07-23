@@ -86,8 +86,8 @@ function validatePredecessor(value, { now = Date.now(), allowExpired = true } = 
   return { event: validated, token: encoded };
 }
 
-function predecessorEventId(chapter) {
-  return validatePredecessor(chapter.predecessor, { allowExpired: true }).event.eventId;
+function predecessorEventId(chapter, now = Date.now()) {
+  return validatePredecessor(chapter.predecessor, { allowExpired: true, now }).event.eventId;
 }
 
 function validateChapterShape(value, { now = Date.now(), allowExpired = false } = {}) {
@@ -197,7 +197,7 @@ function readStateStore(storage) {
   try { parsed = JSON.parse(serialized); } catch { throw new Error('INVALID_CHAPTER_STORAGE'); }
   exactKeys(parsed, ['version', 'chapters'], 'INVALID_CHAPTER_STORAGE');
   if (parsed.version !== 1 || !Array.isArray(parsed.chapters) || parsed.chapters.length > 8) throw new Error('INVALID_CHAPTER_STORAGE');
-  const chapters = parsed.chapters.map(validateChapterRecord);
+  const chapters = parsed.events ? [] : parsed.chapters.map(validateChapterRecord);
   if (new Set(chapters.map(record => record.chapterId)).size !== chapters.length) throw new Error('INVALID_CHAPTER_STORAGE');
   return { serialized, data: { version: 1, chapters } };
 }
@@ -217,8 +217,9 @@ function writeVerified(storage, key, serialized, previous) {
 }
 
 export function readLivingWorldChapterState(storage, chapter, options = {}) {
-  const validated = validateChapterShape(chapter, { now: options.now ?? Date.now(), allowExpired: true });
-  const boundPredecessorId = predecessorEventId(validated);
+  const now = options.now ?? Date.now();
+  const validated = validateChapterShape(chapter, { now, allowExpired: true });
+  const boundPredecessorId = predecessorEventId(validated, now);
   try {
     const { data } = readStateStore(storage);
     const record = data.chapters.find(item => item.chapterId === validated.chapterId);
@@ -233,13 +234,14 @@ export function readLivingWorldChapterState(storage, chapter, options = {}) {
 }
 
 export function commitLivingWorldChapterContribution(storage, chapter, options = {}) {
+  const now = options.now ?? Date.now();
   let validated;
   try {
-    validated = validateChapterShape(chapter, { now: options.now ?? Date.now() });
+    validated = validateChapterShape(chapter, { now });
   } catch {
     return { status: 'storage-error', progress: Number.isSafeInteger(chapter?.progress) ? chapter.progress : 0 };
   }
-  const boundPredecessorId = predecessorEventId(validated);
+  const boundPredecessorId = predecessorEventId(validated, now);
   let store;
   try { store = readStateStore(storage); } catch { return { status: 'storage-error', progress: validated.progress }; }
   const existing = store.data.chapters.find(record => record.chapterId === validated.chapterId);
@@ -263,7 +265,7 @@ export function commitLivingWorldChapterContribution(storage, chapter, options =
   return { status: 'accepted', progress, completed: progress === TARGET };
 }
 
-function readLaunchStore(storage) {
+function readLaunchStore(storage, now = Date.now()) {
   const serialized = storage?.getItem?.(LIVING_WORLD_CHAPTER_LAUNCH_KEY);
   if (!serialized) return { serialized: null, data: { version: 1, launches: [] } };
   let parsed;
@@ -273,8 +275,8 @@ function readLaunchStore(storage) {
   for (const launch of parsed.launches) {
     exactKeys(launch, ['predecessorEventId', 'chapter'], 'INVALID_CHAPTER_LAUNCH_STORAGE');
     if (!EVENT_ID.test(launch.predecessorEventId)) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
-    const chapter = validateChapterShape(launch.chapter, { allowExpired: true });
-    if (predecessorEventId(chapter) !== launch.predecessorEventId) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
+    const chapter = validateChapterShape(launch.chapter, { allowExpired: true, now });
+    if (predecessorEventId(chapter, now) !== launch.predecessorEventId) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
   }
   return { serialized, data: parsed };
 }
@@ -283,7 +285,7 @@ export function createOrResumeLivingWorldChapter(storage, predecessor, config = 
   const now = options.now ?? Date.now();
   const validatedPredecessor = validatePredecessor(predecessor, { now, allowExpired: false }).event;
   let store;
-  try { store = readLaunchStore(storage); } catch { return { status: 'storage-error' }; }
+  try { store = readLaunchStore(storage, now); } catch { return { status: 'storage-error' }; }
   const existing = store.data.launches.find(item => item.predecessorEventId === validatedPredecessor.eventId);
   if (existing) {
     try {
