@@ -107,16 +107,37 @@ function explicitRootTextScale() {
   return 1;
 }
 
+function blockBottomWithinRoot(root, selector) {
+  const element = root.querySelector(selector);
+  if (!element) return 0;
+  const rootTop = root.getBoundingClientRect().top;
+  return Math.max(0, element.getBoundingClientRect().bottom - rootTop);
+}
+
 function applyTextScaleProjection(root, { viewportWidth, viewportHeight }) {
   const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   const textScale = Math.max(rootFontSize / 16, explicitRootTextScale());
   const largePhoneText = viewportWidth <= 390 && textScale >= 1.5;
+  const titleBlock = root.querySelector('.light-relay-title-block');
   root.dataset.relayTextScale = largePhoneText ? 'large-phone' : 'default';
 
   if (largePhoneText) {
-    const worldStart = Math.min(216, Math.max(196, Math.round(viewportHeight * 0.35)));
+    const headerBottom = Math.max(
+      blockBottomWithinRoot(root, '.chapter-creator'),
+      blockBottomWithinRoot(root, '.chapter-utilities'),
+    );
+    const titleStart = Math.max(88, Math.ceil(headerBottom + 8));
+    titleBlock?.style.setProperty('inset-block-start', `${titleStart}px`);
+
+    const titleBottom = blockBottomWithinRoot(root, '.light-relay-title-block');
+    const worldStart = Math.min(216, Math.max(
+      196,
+      Math.round(viewportHeight * 0.35),
+      Math.ceil(titleBottom + 8),
+    ));
     root.style.setProperty('--relay-large-text-world-start', `${worldStart}px`);
   } else {
+    titleBlock?.style.removeProperty('inset-block-start');
     root.style.removeProperty('--relay-large-text-world-start');
   }
 }
