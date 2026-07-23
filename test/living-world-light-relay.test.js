@@ -124,7 +124,7 @@ test('fresh relay activates exactly its bound lantern once and duplicates become
   assert.equal(stored.chapters[0].progress, 4);
 });
 
-test('stale and malformed local state never roll progress backward or activate another lantern', () => {
+test('stale, older valid, and malformed local state never roll progress backward or activate another lantern', () => {
   const chapterValue = chapter(3);
   const value = createLivingWorldLightRelay(chapterValue, 3, { now: NOW });
   const predecessorEventId = new URLSearchParams(decodeToken(chapterValue.predecessor)).get('eventId');
@@ -150,6 +150,24 @@ test('stale and malformed local state never roll progress backward or activate a
   assert.equal(resolveLivingWorldLightRelay(malformed, value, { now: NOW }).status, 'storage-error');
   assert.equal(commitLivingWorldLightRelayContribution(malformed, value, { now: NOW }).status, 'storage-error');
   assert.equal(malformed.getItem(LIVING_WORLD_CHAPTER_STORAGE_KEY), '{not-json');
+
+  const olderStorage = new MemoryStorage({
+    [LIVING_WORLD_CHAPTER_STORAGE_KEY]: JSON.stringify({
+      version: 1,
+      chapters: [{
+        chapterId: chapterValue.chapterId,
+        predecessorEventId,
+        target: 8,
+        progress: 2,
+        contributed: true,
+      }],
+    }),
+  });
+  const older = resolveLivingWorldLightRelay(olderStorage, value, { now: NOW });
+  assert.equal(older.status, 'stale');
+  assert.equal(older.progress, 3);
+  assert.equal(commitLivingWorldLightRelayContribution(olderStorage, value, { now: NOW }).status, 'stale');
+  assert.equal(JSON.parse(olderStorage.getItem(LIVING_WORLD_CHAPTER_STORAGE_KEY)).chapters[0].progress, 2);
 });
 
 test('seventh relay completes the chapter and no onward target is fabricated', () => {
