@@ -162,6 +162,8 @@ test('share update opens the same bounded event snapshot in a fresh context', as
   await page.goto(eventUrl(makeEvent({ progress: 5, target: 12 })));
   await completeContribution(page);
   await page.locator('[data-result-action="share"]').click();
+  await expect(page.locator('[data-living-media-dialog]')).toBeVisible();
+  await page.locator('[data-living-media-copy]').click();
   await expect(page.locator('[data-living-status]')).toHaveText(getLivingWorldCopy('en').share.copied);
   const copied = await page.evaluate(() => sessionStorage.getItem('__living_world_clipboard'));
   expect(copied).toContain('#world-event=');
