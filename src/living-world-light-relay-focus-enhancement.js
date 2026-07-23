@@ -127,6 +127,9 @@ function scheduleApply() {
 if (app) {
   const observer = new MutationObserver(scheduleApply);
   observer.observe(app, { childList: true, subtree: true });
+  app.addEventListener('click', event => {
+    if (event.target.closest('[data-start-relay], [data-relay-retry]')) scheduleApply();
+  });
   addEventListener('resize', scheduleApply, { passive: true });
   addEventListener('popstate', scheduleApply, { passive: true });
   scheduleApply();
