@@ -53,8 +53,15 @@ function applyLanternStates(root) {
 }
 
 function ensureEnergyBead(root) {
-  root.querySelectorAll('.light-relay-energy-bead').forEach(bead => bead.remove());
-  if (root.dataset.phase !== 'active' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const existing = root.querySelector('.light-relay-energy-bead');
+  const shouldShow = root.dataset.phase === 'active'
+    && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!shouldShow) {
+    existing?.remove();
+    return;
+  }
+  if (existing) return;
 
   const structure = root.querySelector('.light-relay-structure.is-unfinished');
   const path = structure?.querySelector('.light-relay-strand')?.getAttribute('d');
