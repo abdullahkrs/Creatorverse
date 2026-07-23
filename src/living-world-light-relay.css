@@ -1,0 +1,324 @@
+.living-world-light-relay {
+  min-block-size: 100svh;
+  overflow-x: clip;
+  background: var(--cv-world-sky);
+  color: var(--cv-color-text);
+  font-family: var(--cv-font-sans);
+}
+
+.light-relay-stage {
+  position: relative;
+  display: grid;
+  min-block-size: 100svh;
+  grid-template-rows: minmax(24rem, 1fr) auto;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.light-relay-world {
+  grid-area: 1 / 1 / -1 / -1;
+  align-self: stretch;
+  inline-size: 100%;
+  min-block-size: 34rem;
+  block-size: 100%;
+  background: var(--cv-world-sky);
+  fill: var(--cv-world-far-stone);
+}
+
+.lantern-cradle {
+  fill: none;
+  stroke: var(--cv-world-stone-line);
+  stroke-width: 1.6;
+  opacity: 0;
+}
+
+.signal-lantern.is-relay-target .lantern-cradle {
+  opacity: 1;
+}
+
+.signal-lantern.is-relay-target .lantern-stem {
+  stroke-width: 2.4;
+  stroke: var(--cv-world-thread-muted);
+}
+
+.signal-lantern.is-relay-target .lantern-core {
+  fill: var(--cv-world-tower-cut);
+  stroke: var(--cv-world-thread-muted);
+  stroke-width: 2;
+}
+
+.signal-lantern.is-relay-target .lantern-shutter {
+  stroke: var(--cv-world-thread-muted);
+  stroke-width: 1.8;
+}
+
+.light-relay-structure {
+  fill: none;
+  pointer-events: none;
+}
+
+.light-relay-underlay {
+  stroke: var(--cv-world-thread-deep);
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.light-relay-strand {
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.light-relay-structure.is-unfinished .light-relay-underlay,
+.light-relay-structure.is-unfinished .light-relay-strand {
+  stroke-dasharray: 14 10;
+  stroke-dashoffset: 7;
+}
+
+.light-relay-structure.is-connected .light-relay-strand {
+  stroke-dasharray: none;
+  animation: light-relay-connect var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.light-relay-clamp {
+  fill: var(--cv-world-tower-cut);
+  stroke: var(--cv-world-thread-muted);
+  stroke-width: 2;
+}
+
+.light-relay-title-block {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: clamp(5.75rem, 15svh, 8.5rem);
+  inset-inline: var(--cv-space-4);
+  display: grid;
+  gap: var(--cv-space-2);
+  max-inline-size: min(31rem, calc(100% - 2 * var(--cv-space-4)));
+  transition: opacity var(--cv-duration-normal) var(--cv-ease-standard);
+}
+
+.light-relay-title-block.is-receded {
+  opacity: 0.42;
+}
+
+.light-relay-title-block h1 {
+  margin: 0;
+  max-inline-size: 16ch;
+  font-size: clamp(1.45rem, 1.2rem + 1.8vw, 2.6rem);
+  line-height: var(--cv-leading-tight);
+}
+
+.light-relay-progress {
+  display: grid;
+  gap: var(--cv-space-1);
+  max-inline-size: 27rem;
+}
+
+.light-relay-progress strong {
+  color: var(--cv-world-thread-bright);
+  font-size: var(--cv-text-lg);
+}
+
+.light-relay-progress span {
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.light-relay-actions,
+.light-relay-active,
+.light-relay-result {
+  position: relative;
+  z-index: 6;
+  grid-area: 2 / 1;
+  align-self: end;
+  display: grid;
+  gap: var(--cv-space-2);
+  padding: var(--cv-space-4);
+  padding-block-end: max(var(--cv-space-4), env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--cv-world-near-stone) 92%, transparent);
+}
+
+.light-relay-actions .chapter-primary,
+.light-relay-active .chapter-primary,
+.light-relay-result .chapter-primary {
+  inline-size: min(100%, 32rem);
+  justify-self: start;
+}
+
+.light-relay-hint,
+.light-relay-result p,
+.light-relay-actions .chapter-status,
+.light-relay-result .chapter-status {
+  margin: 0;
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-sm);
+}
+
+.light-relay-active {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.light-relay-active .chapter-primary {
+  grid-column: 1 / -1;
+}
+
+.light-relay-active span {
+  color: var(--cv-world-thread-bright);
+}
+
+.light-relay-result h1,
+.light-relay-result h2 {
+  margin: 0;
+  max-inline-size: 22ch;
+  font-size: var(--cv-text-2xl);
+  line-height: var(--cv-leading-tight);
+}
+
+.light-relay-impact {
+  position: absolute;
+  z-index: 7;
+  inset-inline: var(--cv-space-4);
+  inset-block-end: max(6.5rem, calc(env(safe-area-inset-bottom) + 5.5rem));
+  color: var(--cv-world-thread-bright);
+  font-weight: 760;
+  text-align: center;
+}
+
+.light-relay-live,
+.light-relay-sr-only {
+  position: fixed;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.living-world-light-relay[data-notch-active="true"] .resonator-pulse {
+  fill: var(--cv-color-success);
+}
+
+.living-world-light-relay[data-phase="active"] .light-relay-structure.is-unfinished .light-relay-strand {
+  animation: light-relay-current 1100ms linear infinite;
+}
+
+@keyframes light-relay-current {
+  to { stroke-dashoffset: -41; }
+}
+
+@keyframes light-relay-connect {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: 100 0; }
+}
+
+@media (min-width: 40rem) {
+  .light-relay-title-block {
+    inset-inline: var(--cv-space-6);
+  }
+
+  .light-relay-actions,
+  .light-relay-active,
+  .light-relay-result {
+    padding-inline: var(--cv-space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .light-relay-world {
+    object-position: center;
+  }
+
+  .light-relay-title-block {
+    inset-inline-start: clamp(3rem, 8vw, 8rem);
+    max-inline-size: 34rem;
+  }
+
+  .light-relay-actions,
+  .light-relay-active,
+  .light-relay-result {
+    padding-inline-start: clamp(3rem, 8vw, 8rem);
+  }
+}
+
+@media (max-width: 24.4rem) {
+  .living-world-light-relay .chapter-creator-strip {
+    inset-inline: var(--cv-space-3);
+    gap: var(--cv-space-1);
+  }
+
+  .living-world-light-relay .chapter-creator {
+    grid-template-columns: 1.65rem minmax(0, 1fr);
+    column-gap: var(--cv-space-1);
+  }
+
+  .living-world-light-relay .chapter-emblem {
+    inline-size: 1.65rem;
+    block-size: 1.65rem;
+  }
+
+  .living-world-light-relay .chapter-utilities {
+    gap: 0;
+  }
+
+  .living-world-light-relay .chapter-utilities button,
+  .living-world-light-relay .chapter-language button {
+    min-inline-size: var(--cv-target-min);
+    padding: 0;
+  }
+
+  .light-relay-title-block {
+    inset-block-start: 5.35rem;
+    inset-inline: var(--cv-space-3);
+  }
+
+  .light-relay-actions,
+  .light-relay-active,
+  .light-relay-result {
+    padding-inline: var(--cv-space-3);
+  }
+}
+
+@media (max-height: 38rem) {
+  .light-relay-stage {
+    grid-template-rows: minmax(20rem, 1fr) auto;
+  }
+
+  .light-relay-world {
+    min-block-size: 28rem;
+  }
+
+  .light-relay-hint {
+    display: none;
+  }
+
+  .light-relay-title-block {
+    inset-block-start: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-relay-structure.is-connected .light-relay-strand,
+  .living-world-light-relay[data-phase="active"] .light-relay-structure.is-unfinished .light-relay-strand {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .light-relay-strand,
+  .light-relay-underlay,
+  .light-relay-clamp,
+  .signal-lantern.is-relay-target .lantern-stem,
+  .signal-lantern.is-relay-target .lantern-shutter,
+  .signal-lantern.is-relay-target .lantern-core {
+    stroke: CanvasText;
+  }
+
+  .signal-lantern.is-active .lantern-core {
+    fill: Highlight;
+  }
+
+  .signal-lantern.is-relay-target .lantern-core {
+    fill: Canvas;
+  }
+}
