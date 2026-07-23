@@ -87,6 +87,10 @@ function validatePredecessor(value, { now = Date.now(), allowExpired = true } = 
   return { event: validated, token: encoded };
 }
 
+function predecessorEventId(chapter) {
+  return validatePredecessor(chapter.predecessor, { allowExpired: true }).event.eventId;
+}
+
 function validateChapterShape(value, { now = Date.now(), allowExpired = false } = {}) {
   exactKeys(value, FIELDS, 'INVALID_CHAPTER_SHAPE');
   if (value.v !== 1 || !CHAPTER_ID.test(value.chapterId)) throw new Error('INVALID_CHAPTER_ID');
@@ -104,7 +108,7 @@ function validateChapterShape(value, { now = Date.now(), allowExpired = false } 
   const lifetime = value.duration === '6h' ? 6 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
   if (!allowExpired && expiresAt <= now) throw new Error('CHAPTER_EXPIRED');
   if (expiresAt > now + lifetime + 5 * 60 * 1000) throw new Error('INVALID_CHAPTER_EXPIRY');
-  return Object.freeze({ ...value, creatorName, target, progress, expiresAt, predecessorEventId: predecessor.eventId });
+  return Object.freeze({ ...value, creatorName, target, progress, expiresAt });
 }
 
 export function createLivingWorldChapter(predecessor, { duration = '6h' } = {}, options = {}) {
@@ -215,11 +219,12 @@ function writeVerified(storage, key, serialized, previous) {
 
 export function readLivingWorldChapterState(storage, chapter, options = {}) {
   const validated = validateChapterShape(chapter, { now: options.now ?? Date.now(), allowExpired: true });
+  const boundPredecessorId = predecessorEventId(validated);
   try {
     const { data } = readStateStore(storage);
     const record = data.chapters.find(item => item.chapterId === validated.chapterId);
     if (!record) return { status: 'ready', progress: validated.progress, contributed: false };
-    if (record.predecessorEventId !== validated.predecessorEventId || record.target !== TARGET || record.progress < validated.progress) {
+    if (record.predecessorEventId !== boundPredecessorId || record.target !== TARGET || record.progress < validated.progress) {
       return { status: 'storage-error', progress: validated.progress, contributed: false };
     }
     return { status: record.contributed ? 'duplicate' : 'ready', progress: record.progress, contributed: record.contributed };
@@ -235,17 +240,18 @@ export function commitLivingWorldChapterContribution(storage, chapter, options =
   } catch {
     return { status: 'storage-error', progress: Number.isSafeInteger(chapter?.progress) ? chapter.progress : 0 };
   }
+  const boundPredecessorId = predecessorEventId(validated);
   let store;
   try { store = readStateStore(storage); } catch { return { status: 'storage-error', progress: validated.progress }; }
   const existing = store.data.chapters.find(record => record.chapterId === validated.chapterId);
-  if (existing && (existing.predecessorEventId !== validated.predecessorEventId || existing.progress < validated.progress)) {
+  if (existing && (existing.predecessorEventId !== boundPredecessorId || existing.progress < validated.progress)) {
     return { status: 'storage-error', progress: validated.progress };
   }
   if (existing?.contributed) return { status: 'duplicate', progress: existing.progress, completed: existing.progress === TARGET };
   const progress = Math.min(TARGET, Math.max(validated.progress, existing?.progress || 0) + 1);
   const record = {
     chapterId: validated.chapterId,
-    predecessorEventId: validated.predecessorEventId,
+    predecessorEventId: boundPredecessorId,
     target: TARGET,
     progress,
     contributed: true,
@@ -269,7 +275,7 @@ function readLaunchStore(storage) {
     exactKeys(launch, ['predecessorEventId', 'chapter'], 'INVALID_CHAPTER_LAUNCH_STORAGE');
     if (!EVENT_ID.test(launch.predecessorEventId)) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
     const chapter = validateChapterShape(launch.chapter, { allowExpired: true });
-    if (chapter.predecessorEventId !== launch.predecessorEventId) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
+    if (predecessorEventId(chapter) !== launch.predecessorEventId) throw new Error('INVALID_CHAPTER_LAUNCH_STORAGE');
   }
   return { serialized, data: parsed };
 }
