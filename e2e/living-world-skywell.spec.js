@@ -120,7 +120,7 @@ async function assertGeometry(page, label, { expectAction = true } = {}) {
     };
     return {
       viewport: { left: 0, top: 0, right: innerWidth, bottom: innerHeight },
-      creator: rect('.chapter-creator-strip'),
+      creator: rect('.chapter-creator'),
       utilities: rect('.chapter-utilities'),
       title: rect('.skywell-title-block'),
       world: rect('[data-skywell-world]'),
