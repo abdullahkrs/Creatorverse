@@ -1,0 +1,19 @@
+.skywell-light-column {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(0.5deg);
+}
+
+@media (max-width: 32rem) {
+  html[style*="font-size: 200%"] .skywell-stage,
+  body[data-text-zoom="200"] .skywell-stage {
+    block-size: calc(100svh - 120px);
+    min-block-size: 0;
+    grid-template-rows: minmax(250px, 1fr) auto;
+  }
+
+  html[style*="font-size: 200%"] .skywell-world,
+  body[data-text-zoom="200"] .skywell-world {
+    min-block-size: 250px;
+  }
+}
