@@ -26,14 +26,14 @@ Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-
 ### Validation
 
 - Issue #59 is the single active cycle, branch `feature/cv-pivot-006-relay-world-focus` is dedicated to it, and PR #60 is open without merge.
-- The QA blocker on Arabic `320×568` at 200% text is addressed on the existing branch with authored layout and deterministic non-intersection gates; exact-head CI and browser artifacts remain authoritative before release handoff.
-- Locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, bilingual responsive screenshots, browser-report integrity, and exact-head artifacts remain authoritative before release handoff.
+- The QA blocker on Arabic `320×568` at 200% text is addressed on the existing branch with authored layout and deterministic non-intersection gates.
+- Final unchanged head `0c326f50e83e497d7e6011b8122d36ece67c354b` passed CI run **#557**: locked `npm ci`, complete unit/localization/build gates, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, Playwright, axe, bilingual responsive screenshots, 200% text geometry, browser-report integrity, and exact-head artifact `browser-quality-0c326f50e83e497d7e6011b8122d36ece67c354b`.
 - Automated scenarios and screenshots are reproducible engineering and visual-regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, sharing behavior, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
 - Rollback is limited to reverting PR #60; existing event, chapter, relay, progress, media, Returning Thread, dependencies, Railway configuration, and Production remain unchanged.
 
 ### Next best task
 
-Use the final unchanged PR head, exact-head GitHub CI, isolated Railway Preview, bilingual browser screenshots, and geometry assertions for independent QA; move Issue #59 to `stage:release` only after every required check passes, and do not merge from the Engineer role.
+Use the unchanged final PR head, exact-head GitHub CI, isolated Railway Preview, bilingual browser screenshots, and geometry assertions for independent QA; Issue #59 is ready for `stage:release`, and the Engineer must not merge.
 
 ## 2026-07-23 — CV-PIVOT-005 one-step light relay
 
