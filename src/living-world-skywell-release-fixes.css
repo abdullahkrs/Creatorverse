@@ -1,0 +1,52 @@
+/* Focused release fixes for the Skywell continuation event. */
+
+[data-living-chapter] [hidden],
+[data-living-skywell] [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 39.99rem) {
+  .skywell-stage {
+    block-size: 100svh;
+    min-block-size: 100svh;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .skywell-world {
+    block-size: 100svh;
+    min-block-size: 0;
+  }
+
+  .skywell-actions,
+  .skywell-active,
+  .skywell-result {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    max-block-size: min(48svh, 22rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .skywell-impact {
+    inset-block-end: max(7rem, calc(env(safe-area-inset-bottom) + 6rem));
+  }
+}
+
+@media (max-width: 24.99rem) {
+  .skywell-world {
+    transform: scale(1.02);
+  }
+}
+
+@media (max-width: 24.99rem) {
+  html[style*="200%"] .skywell-world {
+    transform: translateY(0.5rem) scale(1.01);
+  }
+
+  html[style*="200%"] .skywell-actions,
+  html[style*="200%"] .skywell-active,
+  html[style*="200%"] .skywell-result {
+    max-block-size: 52svh;
+  }
+}
