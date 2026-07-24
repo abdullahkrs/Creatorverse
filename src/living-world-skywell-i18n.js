@@ -1,0 +1,201 @@
+const copy = {
+  en: {
+    creator: { realm: 'Noura · Folded Horizon', live: 'Event live' },
+    launch: {
+      context: 'Next event',
+      title: 'Open the Skywell',
+      preview: 'Six ribs closed',
+      action: 'Launch event',
+      launching: 'Launching',
+      share: 'Share event',
+      view: 'View event',
+      shared: 'Event link ready',
+      failed: 'Event could not launch',
+    },
+    world: {
+      loading: 'Opening the world…',
+      title: 'Open the Skywell',
+      goal: '{count} ribs remain',
+      send: 'Carry light',
+      hint: 'Carry light upward',
+      soundOn: 'Sound on',
+      soundOff: 'Sound off',
+      soundUnavailable: 'Sound unavailable',
+      language: 'Language',
+      english: 'English',
+      arabic: 'Arabic',
+    },
+    active: {
+      status: 'Align',
+      tune: 'Align',
+      counter: '{current} of 3',
+      started: 'Light is rising',
+      locked: 'Pass aligned {count} of 3',
+      missed: 'Pass missed {count} of 3',
+    },
+    result: {
+      opened: 'One rib opened',
+      impact: 'The sky opens further',
+      share: 'Share update',
+      failed: 'The signal did not settle',
+      retry: 'Try again',
+      duplicate: 'Your light is already here',
+      view: 'View world',
+      storageError: 'Progress could not be saved',
+      stale: 'The world has moved ahead',
+      openCurrent: 'Open current',
+      complete: 'The Skywell is open',
+      completeImpact: 'Bridge, grove, and sky connected',
+      shareWorld: 'Share world',
+      progressChanged: 'One rib opened',
+    },
+    share: {
+      partialTitle: 'The Skywell is opening',
+      partialDetail: '{count} ribs remain',
+      partialCall: 'Help open the next rib',
+      completeTitle: 'The Skywell is open',
+      completeCall: 'Enter the opened sky',
+      copied: 'Event link copied',
+      saved: 'Image saved',
+      failed: 'Sharing failed. Try again.',
+      preview: 'Share preview',
+      save: 'Save image',
+      copy: 'Copy link',
+      close: 'Close share preview',
+    },
+    recovery: {
+      unavailable: 'This event link is unavailable',
+      return: 'Return to world',
+    },
+    aria: {
+      world: 'The Folded Horizon Skywell event',
+      bridge: 'Completed Loombridge',
+      grove: 'Completed Signal Grove',
+      skywell: 'Skywell rib progress',
+      progress: 'Skywell rib progress',
+      utility: 'World controls',
+      contribution: 'Carry light contribution',
+      emblem: 'Folded Horizon realm emblem',
+    },
+    media: {
+      world: 'Folded Horizon',
+      title: 'Open the Skywell',
+      partial: '{current} of 6 ribs open',
+      partialCall: 'Help open the next rib',
+      complete: 'All six ribs are open',
+      completeCall: 'Enter the opened sky',
+      altPartial: 'The completed Loombridge and Signal Grove stand below a Skywell with {current} of six ribs open.',
+      altComplete: 'The completed Loombridge and Signal Grove connect to a fully opened Skywell.',
+    },
+  },
+  ar: {
+    creator: { realm: 'نورة · الأفق المطوي', live: 'حدث مباشر' },
+    launch: {
+      context: 'الحدث التالي',
+      title: 'افتحوا نافذة السماء',
+      preview: 'ستة أضلاع مغلقة',
+      action: 'أطلق الحدث',
+      launching: 'جارٍ الإطلاق',
+      share: 'شارك الحدث',
+      view: 'شاهد الحدث',
+      shared: 'رابط الحدث جاهز',
+      failed: 'تعذر إطلاق الحدث',
+    },
+    world: {
+      loading: 'نفتح العالم…',
+      title: 'افتحوا نافذة السماء',
+      goal: 'بقيت {count} أضلاع',
+      send: 'احمل النور',
+      hint: 'ارفع النور',
+      soundOn: 'الصوت مفعل',
+      soundOff: 'الصوت مكتوم',
+      soundUnavailable: 'الصوت غير مدعوم',
+      language: 'اللغة',
+      english: 'English',
+      arabic: 'العربية',
+    },
+    active: {
+      status: 'اضبط',
+      tune: 'اضبط',
+      counter: '{current} من ٣',
+      started: 'يرتفع النور',
+      locked: 'ضُبط المسار {count} من ٣',
+      missed: 'فات المسار {count} من ٣',
+    },
+    result: {
+      opened: 'فُتح ضلع واحد',
+      impact: 'تنفتح السماء أكثر',
+      share: 'شارك التحديث',
+      failed: 'لم تستقر الإشارة',
+      retry: 'حاول مجددًا',
+      duplicate: 'نورك موجود بالفعل',
+      view: 'شاهد العالم',
+      storageError: 'تعذر حفظ التقدم',
+      stale: 'تقدّم العالم',
+      openCurrent: 'افتح الحالي',
+      complete: 'انفتحت نافذة السماء',
+      completeImpact: 'اتصل الجسر والبستان والسماء',
+      shareWorld: 'شارك العالم',
+      progressChanged: 'فُتح ضلع واحد',
+    },
+    share: {
+      partialTitle: 'نافذة السماء تنفتح',
+      partialDetail: 'بقيت {count} أضلاع',
+      partialCall: 'ساعد في فتح الضلع التالي',
+      completeTitle: 'انفتحت نافذة السماء',
+      completeCall: 'ادخلوا السماء المفتوحة',
+      copied: 'تم نسخ رابط الحدث',
+      saved: 'تم حفظ الصورة',
+      failed: 'تعذرت المشاركة. حاول مجددًا.',
+      preview: 'معاينة المشاركة',
+      save: 'احفظ الصورة',
+      copy: 'انسخ الرابط',
+      close: 'إغلاق معاينة المشاركة',
+    },
+    recovery: {
+      unavailable: 'رابط هذا الحدث غير متاح',
+      return: 'العودة للعالم',
+    },
+    aria: {
+      world: 'حدث نافذة السماء في عالم الأفق المطوي',
+      bridge: 'جسر النور المكتمل',
+      grove: 'بستان الإشارة المكتمل',
+      skywell: 'تقدم أضلاع نافذة السماء',
+      progress: 'تقدم أضلاع نافذة السماء',
+      utility: 'أدوات العالم',
+      contribution: 'مساهمة احمل النور',
+      emblem: 'شعار عالم الأفق المطوي',
+    },
+    media: {
+      world: 'الأفق المطوي',
+      title: 'افتحوا نافذة السماء',
+      partial: 'فُتح {current} من ٦ أضلاع',
+      partialCall: 'ساعد في فتح الضلع التالي',
+      complete: 'فُتحت الأضلاع الستة',
+      completeCall: 'ادخلوا السماء المفتوحة',
+      altPartial: 'يقف جسر النور وبستان الإشارة المكتملان أسفل نافذة السماء وقد فُتح {current} من ستة أضلاع.',
+      altComplete: 'يتصل جسر النور وبستان الإشارة المكتملان بنافذة السماء المفتوحة بالكامل.',
+    },
+  },
+};
+
+export function getLivingWorldSkywellCopy(locale = 'en') {
+  return copy[locale === 'ar' ? 'ar' : 'en'];
+}
+
+export function formatLivingWorldSkywellCopy(template, values = {}) {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
+    template,
+  );
+}
+
+export function livingWorldSkywellKeyParity() {
+  const flatten = (value, prefix = '') => Object.entries(value).flatMap(([key, entry]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    return entry && typeof entry === 'object' ? flatten(entry, path) : [path];
+  });
+  const en = flatten(copy.en).sort();
+  const ar = flatten(copy.ar).sort();
+  return { en, ar, equal: en.length === ar.length && en.every((key, index) => key === ar[index]) };
+}
