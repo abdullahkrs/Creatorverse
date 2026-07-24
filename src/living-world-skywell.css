@@ -1,0 +1,398 @@
+.living-world-skywell {
+  min-block-size: 100svh;
+  background: var(--cv-world-sky);
+  color: var(--cv-color-text);
+  font-family: var(--cv-font-sans);
+  overflow-x: clip;
+}
+
+.skywell-creator-strip {
+  position: absolute;
+  z-index: 9;
+  inset-block-start: max(var(--cv-space-2), env(safe-area-inset-top));
+  inset-inline: max(var(--cv-space-4), env(safe-area-inset-left)) max(var(--cv-space-4), env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cv-space-2);
+  min-inline-size: 0;
+}
+
+.skywell-creator {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, auto);
+  grid-template-areas: "emblem name" "emblem live";
+  align-items: center;
+  column-gap: var(--cv-space-2);
+  min-inline-size: 0;
+}
+
+.skywell-emblem {
+  grid-area: emblem;
+  inline-size: 2rem;
+  block-size: 2rem;
+  fill: none;
+  stroke: var(--cv-world-thread);
+  stroke-width: 1.7;
+}
+
+.skywell-creator span {
+  grid-area: name;
+  min-inline-size: 0;
+  overflow: hidden;
+  color: var(--cv-color-text);
+  font-size: var(--cv-text-sm);
+  font-weight: 760;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skywell-creator small {
+  grid-area: live;
+  color: var(--cv-color-text-muted);
+  font-size: var(--cv-text-xs);
+}
+
+.skywell-utilities,
+.skywell-language {
+  display: flex;
+  align-items: center;
+  gap: var(--cv-space-1);
+}
+
+.skywell-utilities button,
+.skywell-language button,
+.skywell-sound {
+  min-inline-size: var(--cv-target-min);
+  min-block-size: var(--cv-target-min);
+  border: 1px solid color-mix(in srgb, var(--cv-world-stone-line) 72%, transparent);
+  border-radius: var(--cv-radius-round);
+  background: var(--cv-world-overlay);
+  color: var(--cv-color-text);
+  font: inherit;
+}
+
+.skywell-language button[aria-pressed="true"] {
+  border-color: var(--cv-world-thread);
+  color: var(--cv-world-thread-bright);
+}
+
+.skywell-sound svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.skywell-stage {
+  position: relative;
+  display: grid;
+  min-block-size: 100svh;
+  grid-template-rows: minmax(25rem, 1fr) auto;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.skywell-world {
+  grid-area: 1 / 1 / -1 / -1;
+  align-self: stretch;
+  inline-size: 100%;
+  min-block-size: 35rem;
+  block-size: 100%;
+  background: var(--cv-world-sky);
+}
+
+.skywell-sky-back { fill: var(--cv-world-sky); }
+.skywell-sky-field { fill: var(--cv-world-sky-raised); }
+.skywell-aperture { fill: var(--cv-world-near-stone); stroke: var(--cv-world-stone-line); stroke-width: 3; }
+.skywell-outer-weave { fill: none; stroke: var(--cv-world-cord); stroke-width: 8; stroke-dasharray: 14 10; opacity: 0.76; }
+.skywell-sky-wedge { fill: var(--cv-color-focus); opacity: 0.16; stroke: var(--cv-world-stone-line); stroke-width: 1; }
+.skywell-rib-edge,
+.skywell-rib-cable,
+.skywell-feeder { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.skywell-rib-edge { stroke: var(--cv-world-stone-line); stroke-width: 12; }
+.skywell-rib-cable { stroke: var(--cv-world-cord); stroke-width: 5; }
+.skywell-hinge { fill: var(--cv-world-near-stone); stroke: var(--cv-world-stone-line); stroke-width: 4; }
+.skywell-rib.is-open .skywell-rib-edge { stroke: var(--cv-world-thread); stroke-width: 14; }
+.skywell-rib.is-open .skywell-rib-cable { stroke: var(--cv-world-thread-bright); stroke-dasharray: none; }
+.skywell-rib.is-open .skywell-hinge { fill: var(--cv-world-thread); stroke: var(--cv-world-thread-bright); }
+.skywell-rib.is-target .skywell-rib-edge { stroke: var(--cv-world-thread-muted); stroke-width: 16; }
+.skywell-rib.is-target .skywell-rib-cable { stroke: var(--cv-world-thread-bright); stroke-dasharray: 7 7; }
+.skywell-rib.is-target .skywell-hinge { fill: var(--cv-world-near-stone); stroke: var(--cv-world-thread-bright); stroke-width: 5; }
+.skywell-rib.is-dormant .skywell-rib-cable { stroke-dasharray: 3 10; opacity: 0.72; }
+.skywell-feeder { stroke: var(--cv-world-thread-bright); stroke-width: 4; stroke-dasharray: 9 8; }
+
+.skywell-central-support path:first-child { fill: var(--cv-world-stone-raised); stroke: var(--cv-world-stone-line); stroke-width: 3; }
+.skywell-central-support path:last-child { fill: none; stroke: var(--cv-world-cord); stroke-width: 5; }
+.skywell-history-lantern path:first-child { fill: var(--cv-world-stone-raised); stroke: var(--cv-world-stone-line); stroke-width: 2; }
+.skywell-history-lantern circle { fill: var(--cv-world-thread); stroke: var(--cv-world-thread-bright); stroke-width: 2; }
+.skywell-history-thread { fill: none; stroke: var(--cv-world-thread); stroke-width: 3; }
+.skywell-bridge-cord { fill: none; stroke: var(--cv-world-cord); stroke-width: 5; stroke-linecap: round; }
+.skywell-bridge-slat { fill: var(--cv-world-thread); stroke: var(--cv-world-thread-deep); stroke-width: 1.5; }
+.skywell-near-ground { fill: var(--cv-world-near-stone); stroke: var(--cv-world-stone-line); stroke-width: 2; }
+.skywell-light-column { fill: none; stroke: var(--cv-world-thread-bright); stroke-width: 16; stroke-linecap: round; opacity: 0.75; }
+
+.skywell-energy-route {
+  fill: none;
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-dasharray: 14 12;
+  opacity: 0;
+}
+
+.skywell-energy-pulse {
+  fill: var(--cv-world-thread-bright);
+  stroke: var(--cv-world-thread-deep);
+  stroke-width: 3;
+  opacity: 0;
+}
+
+.skywell-world.is-active .skywell-energy-route,
+.skywell-world.is-active .skywell-energy-pulse,
+.skywell-world.is-impacting .skywell-energy-route {
+  opacity: 1;
+}
+
+.living-world-skywell[data-notch-active="true"] .skywell-energy-pulse {
+  fill: var(--cv-color-success);
+  stroke-width: 5;
+}
+
+.skywell-world.is-impacting .skywell-rib.is-open:last-of-type {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: skywell-seat-rib 520ms var(--cv-ease-standard) both;
+}
+
+.skywell-world.is-complete .skywell-aperture {
+  fill: var(--cv-world-sky-raised);
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 6;
+}
+
+.skywell-title-block {
+  position: absolute;
+  z-index: 5;
+  inset-block-start: clamp(5.5rem, 13svh, 8rem);
+  inset-inline: var(--cv-space-4);
+  max-inline-size: min(31rem, calc(100% - 2 * var(--cv-space-4)));
+  transition: opacity var(--cv-duration-normal) var(--cv-ease-standard);
+}
+
+.skywell-title-block.is-receded { opacity: 0.42; }
+.skywell-title-block h1 {
+  margin: 0 0 var(--cv-space-2);
+  max-inline-size: 18ch;
+  font-size: clamp(1.45rem, 1.2rem + 1.8vw, 2.6rem);
+  line-height: var(--cv-leading-tight);
+}
+
+.skywell-progress {
+  display: flex;
+  align-items: baseline;
+  gap: var(--cv-space-3);
+  max-inline-size: 28rem;
+}
+.skywell-progress strong { color: var(--cv-world-thread-bright); font-size: var(--cv-text-lg); }
+.skywell-progress span { color: var(--cv-color-text-muted); font-size: var(--cv-text-sm); }
+
+.skywell-actions,
+.skywell-active,
+.skywell-result-copy {
+  position: relative;
+  z-index: 7;
+  grid-area: 2 / 1;
+  align-self: end;
+  display: grid;
+  gap: var(--cv-space-2);
+  padding: var(--cv-space-4);
+  padding-block-end: max(var(--cv-space-4), env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--cv-world-near-stone) 92%, transparent);
+}
+
+.skywell-actions { grid-template-columns: 1fr; }
+.skywell-hint,
+.skywell-status { margin: 0; color: var(--cv-color-text-muted); font-size: var(--cv-text-sm); }
+.skywell-active { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.skywell-active .skywell-primary { grid-column: 1 / -1; }
+.skywell-active span { color: var(--cv-world-thread-bright); }
+.skywell-result-copy h1,
+.skywell-result-copy h2,
+.skywell-result-copy p { margin: 0; }
+.skywell-result-copy h1,
+.skywell-result-copy h2 { font-size: var(--cv-text-2xl); }
+.skywell-result-copy p { color: var(--cv-color-text-muted); }
+
+.skywell-primary,
+.skywell-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--cv-target-min);
+  border-radius: var(--cv-radius-round);
+  padding-inline: var(--cv-space-5);
+  font: inherit;
+  font-weight: 780;
+  text-decoration: none;
+}
+.skywell-primary { border: 1px solid var(--cv-world-thread); background: var(--cv-world-thread); color: var(--cv-world-action-text); }
+.skywell-secondary { border: 1px solid var(--cv-world-stone-line); background: var(--cv-world-overlay); color: var(--cv-color-text); }
+.skywell-primary:disabled,
+.skywell-secondary:disabled { opacity: 0.52; }
+
+.skywell-impact-label {
+  position: absolute;
+  z-index: 8;
+  inset-block-end: 7rem;
+  inset-inline: var(--cv-space-4);
+  color: var(--cv-world-thread-bright);
+  font-weight: 760;
+  text-align: center;
+}
+
+.skywell-live {
+  position: fixed;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.skywell-launch-cluster {
+  display: grid;
+  gap: var(--cv-space-1);
+  margin-block-start: var(--cv-space-3);
+  padding-block-start: var(--cv-space-3);
+  border-block-start: 1px solid var(--cv-world-stone-line);
+}
+.skywell-launch-cluster > span,
+.skywell-launch-cluster > p { margin: 0; color: var(--cv-color-text-muted); font-size: var(--cv-text-sm); }
+.skywell-launch-cluster h2 { margin: 0; font-size: var(--cv-text-xl); }
+.skywell-launch-cluster .chapter-primary { inline-size: 100%; }
+
+.skywell-share-dialog {
+  position: fixed;
+  z-index: 110;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--cv-space-3);
+  background: color-mix(in srgb, var(--cv-color-canvas) 88%, transparent);
+}
+.skywell-share-panel {
+  position: relative;
+  display: grid;
+  gap: var(--cv-space-3);
+  inline-size: min(100%, 25rem);
+  max-block-size: calc(100svh - 2 * var(--cv-space-3));
+  overflow: auto;
+  border: 1px solid var(--cv-world-stone-line);
+  border-radius: var(--cv-radius-xl);
+  padding: var(--cv-space-4);
+  background: var(--cv-world-near-stone);
+}
+.skywell-share-panel h2 { margin: 0; padding-inline-end: calc(var(--cv-target-min) + var(--cv-space-2)); font-size: var(--cv-text-xl); }
+.skywell-share-panel img { justify-self: center; inline-size: min(100%, 14rem); block-size: auto; border-radius: var(--cv-radius-md); }
+.skywell-share-close {
+  position: absolute;
+  inset-block-start: var(--cv-space-3);
+  inset-inline-end: var(--cv-space-3);
+  min-inline-size: var(--cv-target-min);
+  min-block-size: var(--cv-target-min);
+  border: 1px solid var(--cv-world-stone-line);
+  border-radius: var(--cv-radius-round);
+  background: var(--cv-world-overlay);
+  color: var(--cv-color-text);
+  font: inherit;
+}
+.skywell-share-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cv-space-2); }
+
+@keyframes skywell-seat-rib {
+  0% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 24.5rem) {
+  .skywell-creator-strip { inset-inline: var(--cv-space-2); }
+  .skywell-creator { grid-template-columns: 1.65rem minmax(0, 1fr); column-gap: var(--cv-space-1); }
+  .skywell-emblem { inline-size: 1.65rem; block-size: 1.65rem; }
+  .skywell-creator span { max-inline-size: 8rem; font-size: var(--cv-text-xs); }
+  .skywell-creator small { display: none; }
+  .skywell-utilities { gap: 0.125rem; }
+  .skywell-utilities button { min-inline-size: 2.75rem; padding: 0; }
+  .skywell-title-block { inset-block-start: 4.5rem; inset-inline: var(--cv-space-3); }
+  .skywell-title-block h1 { max-inline-size: 14ch; font-size: clamp(1.25rem, 7vw, 1.7rem); }
+  .skywell-progress { flex-wrap: wrap; gap: var(--cv-space-1) var(--cv-space-2); }
+  .skywell-stage { grid-template-rows: minmax(22rem, 1fr) auto; }
+  .skywell-world { min-block-size: 31rem; }
+  .skywell-actions,
+  .skywell-active,
+  .skywell-result-copy { padding: var(--cv-space-3); padding-block-end: max(var(--cv-space-3), env(safe-area-inset-bottom)); }
+}
+
+@media (min-width: 40rem) {
+  .skywell-title-block { inset-inline: var(--cv-space-6); }
+  .skywell-actions,
+  .skywell-active,
+  .skywell-result-copy { inline-size: min(32rem, calc(100% - 2 * var(--cv-space-6))); margin-inline: auto; margin-block-end: var(--cv-space-4); border: 1px solid var(--cv-world-stone-line); border-radius: var(--cv-radius-xl); }
+}
+
+@media (min-width: 64rem) {
+  .skywell-world { object-fit: cover; }
+  .skywell-title-block { inset-block-start: 6.5rem; inset-inline-start: max(var(--cv-space-8), calc((100% - 72rem) / 2)); }
+  [dir="rtl"] .skywell-title-block { inset-inline-start: auto; inset-inline-end: max(var(--cv-space-8), calc((100% - 72rem) / 2)); }
+}
+
+@media (max-width: 32rem) and (min-resolution: 1dppx) {
+  html[style*="font-size: 200%"] .skywell-creator-strip,
+  body[data-text-zoom="200"] .skywell-creator-strip { position: relative; inset: auto; padding: var(--cv-space-2); background: var(--cv-world-near-stone); }
+  html[style*="font-size: 200%"] .skywell-stage,
+  body[data-text-zoom="200"] .skywell-stage { min-block-size: calc(100svh - 4rem); grid-template-rows: minmax(15.625rem, 1fr) auto; }
+  html[style*="font-size: 200%"] .skywell-title-block,
+  body[data-text-zoom="200"] .skywell-title-block { inset-block-start: var(--cv-space-2); }
+  html[style*="font-size: 200%"] .skywell-title-block h1,
+  body[data-text-zoom="200"] .skywell-title-block h1 { font-size: 1rem; max-inline-size: 12ch; }
+  html[style*="font-size: 200%"] .skywell-progress,
+  body[data-text-zoom="200"] .skywell-progress { display: grid; gap: 0; font-size: 0.75rem; }
+  html[style*="font-size: 200%"] .skywell-world,
+  body[data-text-zoom="200"] .skywell-world { min-block-size: 15.625rem; }
+  html[style*="font-size: 200%"] .skywell-actions,
+  html[style*="font-size: 200%"] .skywell-active,
+  html[style*="font-size: 200%"] .skywell-result-copy,
+  body[data-text-zoom="200"] .skywell-actions,
+  body[data-text-zoom="200"] .skywell-active,
+  body[data-text-zoom="200"] .skywell-result-copy { gap: var(--cv-space-1); padding: var(--cv-space-2); font-size: 0.75rem; }
+  html[style*="font-size: 200%"] .skywell-primary,
+  html[style*="font-size: 200%"] .skywell-secondary,
+  body[data-text-zoom="200"] .skywell-primary,
+  body[data-text-zoom="200"] .skywell-secondary { min-block-size: 44px; padding-inline: var(--cv-space-2); }
+  html[style*="font-size: 200%"] .skywell-share-panel,
+  body[data-text-zoom="200"] .skywell-share-panel { gap: var(--cv-space-1); padding: var(--cv-space-2); }
+  html[style*="font-size: 200%"] .skywell-share-panel img,
+  body[data-text-zoom="200"] .skywell-share-panel img { max-block-size: 12rem; inline-size: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skywell-world.is-impacting .skywell-rib.is-open:last-of-type { animation: none; }
+  .skywell-energy-pulse { display: none; }
+  .skywell-energy-route { stroke-dasharray: none; }
+}
+
+@media (forced-colors: active) {
+  .skywell-rib-edge,
+  .skywell-rib-cable,
+  .skywell-hinge,
+  .skywell-feeder,
+  .skywell-outer-weave,
+  .skywell-energy-route { forced-color-adjust: none; }
+  .skywell-rib.is-open .skywell-rib-edge { stroke: Highlight; }
+  .skywell-rib.is-open .skywell-hinge { fill: Highlight; stroke: CanvasText; }
+  .skywell-rib.is-target .skywell-rib-edge { stroke: CanvasText; stroke-dasharray: 12 5; }
+  .skywell-rib.is-dormant .skywell-rib-edge { stroke: GrayText; }
+  .skywell-primary { background: Highlight; color: HighlightText; }
+}
