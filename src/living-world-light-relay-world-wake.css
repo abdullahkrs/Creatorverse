@@ -20,8 +20,7 @@
 
 .world-wake-target-span {
   stroke: var(--cv-world-thread);
-  stroke-width: 4;
-  stroke-dasharray: 7 6;
+  stroke-width: 3;
 }
 
 .signal-lantern.is-world-wake-latest {
@@ -68,7 +67,7 @@
 
   .world-wake-target-span {
     stroke: CanvasText;
-    stroke-dasharray: 7 6;
+    stroke-width: 3;
   }
 
   .signal-lantern.is-world-wake-latest .lantern-core {
