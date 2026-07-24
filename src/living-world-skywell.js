@@ -236,7 +236,7 @@ export function isLivingWorldSkywellLaunchEligible(storage, session, predecessor
   try { owner = session?.getItem?.(LIVING_WORLD_CHAPTER_OWNER_KEY) === canonical.chapterId; } catch { return false; }
   if (!owner) return false;
   const state = readLivingWorldChapterState(storage, canonical, { now });
-  return state.status !== 'storage-error' && state.progress === 8;
+  return state.status === 'duplicate' && state.contributed === true && state.progress === 8;
 }
 
 export function createOrResumeLivingWorldSkywell(storage, session, predecessor, options = {}) {
