@@ -1,0 +1,366 @@
+.light-relay-stage {
+  block-size: 100svh;
+  max-block-size: 100svh;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.light-relay-world[data-relay-camera] {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: visible;
+}
+
+.light-relay-title-block {
+  max-inline-size: min(15rem, 48vw);
+}
+
+.living-world-light-relay .light-relay-actions,
+.living-world-light-relay .light-relay-active,
+.living-world-light-relay .light-relay-result {
+  position: fixed;
+  z-index: 8;
+  inset-inline: 0;
+  inset-block-end: 0;
+  grid-area: auto;
+  max-block-size: min(48svh, 22rem);
+  overflow: auto;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--cv-world-near-stone) 95%, transparent) 28%
+  );
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-stem,
+.signal-lantern[data-lantern-state="dormant"] .lantern-shutter,
+.signal-lantern[data-lantern-state="dormant"] .lantern-core {
+  opacity: 0.58;
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-stem {
+  stroke-width: 1;
+}
+
+.signal-lantern[data-lantern-state="dormant"] .lantern-path,
+.signal-lantern[data-lantern-state="dormant"] .lantern-detail,
+.signal-lantern[data-lantern-state="dormant"] .lantern-cradle {
+  opacity: 0;
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-shutter-start {
+  transform: translateX(-2px) rotate(-3deg);
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-shutter-end {
+  transform: translateX(2px) rotate(3deg);
+}
+
+.signal-lantern[data-lantern-state="target"] .lantern-core {
+  fill: var(--cv-world-tower-cut);
+  stroke-width: 2.4;
+}
+
+.lantern-inner-ring {
+  fill: none;
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 1.8;
+  pointer-events: none;
+}
+
+.signal-lantern[data-lantern-state="accepted"] .lantern-core {
+  fill: var(--cv-world-thread-bright);
+}
+
+.signal-lantern[data-lantern-state="accepted"] .lantern-cradle {
+  opacity: 0;
+}
+
+.light-relay-structure.is-unfinished .light-relay-underlay {
+  stroke-dasharray: none;
+}
+
+.light-relay-structure.is-unfinished .light-relay-strand {
+  stroke-dasharray: 11 9;
+}
+
+.light-relay-energy-bead {
+  fill: var(--cv-world-thread-bright);
+  stroke: var(--cv-world-thread-deep);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 4px var(--cv-world-thread));
+  pointer-events: none;
+}
+
+.living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-start {
+  animation: relay-shutter-start var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+.living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-end {
+  animation: relay-shutter-end var(--cv-duration-progress) var(--cv-ease-standard) both;
+}
+
+@keyframes relay-shutter-start {
+  from { transform: translateX(-2px) rotate(-3deg); }
+  to { transform: translateX(-5px) rotate(-8deg); }
+}
+
+@keyframes relay-shutter-end {
+  from { transform: translateX(2px) rotate(3deg); }
+  to { transform: translateX(5px) rotate(8deg); }
+}
+
+@media (max-width: 29.94rem) {
+  .light-relay-title-block {
+    inset-block-start: clamp(4.25rem, 12svh, 5.75rem);
+    inset-inline: var(--cv-space-3);
+    max-inline-size: min(13rem, 52vw);
+  }
+
+  .light-relay-title-block h1 {
+    font-size: clamp(1.25rem, 5.5vw, 1.7rem);
+  }
+
+  .living-world-light-relay .light-relay-actions,
+  .living-world-light-relay .light-relay-active,
+  .living-world-light-relay .light-relay-result {
+    padding-inline: var(--cv-space-3);
+    padding-block-start: var(--cv-space-3);
+  }
+}
+
+@media (max-width: 24.4rem) and (max-height: 52rem) {
+  .light-relay-hint {
+    display: none;
+  }
+
+  .light-relay-title-block {
+    inset-block-start: 4rem;
+    gap: var(--cv-space-1);
+  }
+
+  .light-relay-progress span {
+    max-inline-size: 12ch;
+  }
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] {
+  --relay-large-text-world-start: 196px;
+  --relay-large-text-action-depth: 104px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="active"] {
+  --relay-large-text-action-depth: 136px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="impact"] {
+  --relay-large-text-action-depth: 84px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="failed"],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="storage-error"],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="stale"],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="result"],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="complete"] {
+  --relay-large-text-action-depth: 184px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator-strip {
+  position: fixed;
+  inset-block-start: max(8px, env(safe-area-inset-top));
+  inset-inline: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 4px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator {
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: 6px;
+  min-inline-size: 0;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-emblem {
+  inline-size: 28px;
+  block-size: 28px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator span {
+  max-block-size: 2.15em;
+  overflow: hidden;
+  font-size: 0.8rem;
+  line-height: 1.05;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-creator small {
+  font-size: 0.65rem;
+  line-height: 1.05;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-utilities,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-language {
+  gap: 4px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-utilities button,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-language button,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-sound {
+  inline-size: 44px;
+  min-inline-size: 44px;
+  block-size: 44px;
+  min-block-size: 44px;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-sound svg {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-title-block {
+  inset-block-start: 88px;
+  inset-inline: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: 8px;
+  max-inline-size: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-title-block h1 {
+  max-inline-size: none;
+  font-size: 0.95rem;
+  line-height: 1.05;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-progress {
+  gap: 0;
+  min-inline-size: 0;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-progress strong {
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-progress span,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-hint,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .chapter-status:empty {
+  display: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-world[data-relay-camera] {
+  inset-block-start: var(--relay-large-text-world-start);
+  inset-block-end: var(--relay-large-text-action-depth);
+  block-size: auto;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-actions,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-active,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result {
+  block-size: var(--relay-large-text-action-depth);
+  min-block-size: var(--relay-large-text-action-depth);
+  max-block-size: var(--relay-large-text-action-depth);
+  gap: 6px;
+  overflow: hidden;
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom));
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-actions .chapter-primary,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-active .chapter-primary,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result .chapter-primary {
+  min-block-size: 56px;
+  padding-inline: 16px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-active strong,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-active span,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result p,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result .chapter-status {
+  font-size: 0.7rem;
+  line-height: 1.1;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result h1,
+.living-world-light-relay[data-relay-text-scale="large-phone"] .light-relay-result h2 {
+  font-size: 0.9rem;
+  line-height: 1.05;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="impact"] .light-relay-impact {
+  position: fixed;
+  z-index: 9;
+  inset-inline: 12px;
+  inset-block-start: auto;
+  inset-block-end: max(8px, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  min-block-size: 64px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--cv-world-thread-muted);
+  border-radius: var(--cv-radius-lg);
+  background: var(--cv-world-overlay);
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="failed"] .light-relay-title-block,
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="storage-error"] .light-relay-title-block,
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="stale"] .light-relay-title-block,
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="result"] .light-relay-title-block,
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="complete"] .light-relay-title-block {
+  display: none;
+}
+
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="failed"] .light-relay-world[data-relay-camera],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="storage-error"] .light-relay-world[data-relay-camera],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="stale"] .light-relay-world[data-relay-camera],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="result"] .light-relay-world[data-relay-camera],
+.living-world-light-relay[data-relay-text-scale="large-phone"][data-phase="complete"] .light-relay-world[data-relay-camera] {
+  inset-block-start: 88px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-start,
+  .living-world-light-relay[data-phase="impact"] .signal-lantern[data-lantern-state="accepted"] .lantern-shutter-end {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .signal-lantern[data-lantern-state="dormant"] .lantern-stem,
+  .signal-lantern[data-lantern-state="dormant"] .lantern-shutter,
+  .signal-lantern[data-lantern-state="dormant"] .lantern-core {
+    opacity: 1;
+    stroke: GrayText;
+  }
+
+  .signal-lantern[data-lantern-state="target"] .lantern-core,
+  .signal-lantern[data-lantern-state="target"] .lantern-inner-ring,
+  .signal-lantern[data-lantern-state="target"] .lantern-cradle,
+  .light-relay-clamp {
+    fill: Canvas;
+    stroke: Highlight;
+  }
+
+  .signal-lantern[data-lantern-state="active"] .lantern-core,
+  .signal-lantern[data-lantern-state="accepted"] .lantern-core,
+  .light-relay-energy-bead {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+
+  .light-relay-structure.is-unfinished .light-relay-strand {
+    stroke-dasharray: 11 9;
+  }
+}
