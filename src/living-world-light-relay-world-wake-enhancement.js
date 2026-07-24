@@ -271,6 +271,7 @@ function startFromWorldPointer(event) {
   const action = active.root.querySelector('[data-start-relay]');
   if (!action || action.disabled) return;
   event.preventDefault();
+  event.stopPropagation();
   settle('world-pointer-contribution');
   action.click();
 }
