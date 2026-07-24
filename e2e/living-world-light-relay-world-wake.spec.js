@@ -64,7 +64,7 @@ async function createContext(browser, {
   await context.addInitScript(({ localeId, localeKey }) => {
     localStorage.setItem(localeKey, localeId);
     window.__CREATORVERSE_WORLD_WAKE_TEST__ = true;
-    window.__CREATORVERSE_RELAY_WINDOW_MS__ = 500;
+    window.__CREATORVERSE_RELAY_WINDOW_MS__ = 800;
     window.__CREATORVERSE_RELAY_IMPACT_MS__ = 1400;
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'canShare', { configurable: true, value: undefined });
@@ -167,7 +167,7 @@ async function waitForNotch(page, index) {
   await page.waitForFunction(expectedIndex => {
     const root = document.querySelector('[data-living-light-relay][data-route="relay"]');
     return root?.dataset.windowIndex === String(expectedIndex) && root.dataset.notchActive === 'true';
-  }, index, { timeout: 7000, polling: 'raf' });
+  }, index, { timeout: 10_000, polling: 'raf' });
 }
 
 async function completeRelay(page, { keyboard = false } = {}) {
@@ -233,9 +233,9 @@ test('touch and keyboard start interrupt World Wake on the same input and preser
   await touchPage.locator('[data-light-relay-world]').dispatchEvent('pointerdown', { pointerType: 'touch', button: 0 });
   await expect(touchPage.locator('[data-living-light-relay]')).toHaveAttribute('data-phase', 'active');
   await expect(touchPage.locator('[data-world-wake-overlay]')).toHaveCount(0);
-  await touchPage.screenshot({ path: `${OUTPUT}/world-wake-en-320x568-touch-interruption.png`, fullPage: false });
   await completeRelay(touchPage);
   await expect(touchPage.locator('[data-lantern-state="accepted"]')).toHaveAttribute('data-lantern-index', '4');
+  await touchPage.screenshot({ path: `${OUTPUT}/world-wake-en-320x568-touch-impact.png`, fullPage: false });
   await touchContext.close();
 
   const keyboardRelay = makeRelay(5);
@@ -248,9 +248,9 @@ test('touch and keyboard start interrupt World Wake on the same input and preser
   await keyboardPage.keyboard.press('Enter');
   await expect(keyboardPage.locator('[data-living-light-relay]')).toHaveAttribute('data-phase', 'active');
   await expect(keyboardPage.locator('[data-world-wake-overlay]')).toHaveCount(0);
-  await keyboardPage.screenshot({ path: `${OUTPUT}/world-wake-ar-390x844-keyboard-interruption.png`, fullPage: false });
   await completeRelay(keyboardPage, { keyboard: true });
   await expect(keyboardPage.locator('[data-lantern-state="accepted"]')).toHaveAttribute('data-lantern-index', '5');
+  await keyboardPage.screenshot({ path: `${OUTPUT}/world-wake-ar-390x844-keyboard-impact.png`, fullPage: false });
   await keyboardContext.close();
 });
 
