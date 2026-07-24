@@ -245,6 +245,9 @@ export function readLivingWorldSkywellState(storage, skywell, options = {}) {
     if (record.predecessorChapterId !== boundPredecessorId || record.target !== TARGET) {
       return { status: 'storage-error', progress: validated.progress, contributed: false };
     }
+    if (record.contributed && record.progress === validated.progress + 1) {
+      return { status: 'duplicate', progress: record.progress, contributed: true };
+    }
     if (record.progress > validated.progress) {
       return { status: 'stale', progress: record.progress, contributed: record.contributed };
     }
@@ -273,6 +276,9 @@ export function commitLivingWorldSkywellContribution(storage, skywell, options =
   const existing = store.data.skywells.find(record => record.skywellId === validated.skywellId);
   if (existing && (existing.predecessorChapterId !== boundPredecessorId || existing.target !== TARGET)) {
     return { status: 'storage-error', progress: validated.progress };
+  }
+  if (existing?.contributed && existing.progress === validated.progress + 1) {
+    return { status: 'duplicate', progress: existing.progress, completed: existing.progress === TARGET };
   }
   if (existing?.progress > validated.progress) {
     return { status: 'stale', progress: existing.progress, completed: existing.progress === TARGET };
