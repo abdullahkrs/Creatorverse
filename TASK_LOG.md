@@ -4,6 +4,35 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-through-CV-PIVOT-004.md`](docs/archive/TASK_LOG-through-CV-PIVOT-004.md).
 
+## 2026-07-24 — CV-PIVOT-007 truthful world wake
+
+**Outcome:** Let one fresh valid Signal Grove relay briefly emphasize the latest already-accepted structural change and then the exact next lantern without changing the authoritative world state, contribution, transport, sharing, or recovery contracts.
+
+### Implemented
+
+- Added one deterministic `1.9s` presentation model derived only from validated current relay progress: latest active lantern, exact next target, and optional later dormant context.
+- Added one structural overlay that retraces only the final already-connected authored span, seats into the already-active lantern, and then emphasizes the existing unfinished strand toward the exact next target.
+- Kept the authoritative ready world fully rendered throughout; active lanterns, progress, target binding, route geometry, camera, contribution readiness, portrait media, share payload, and creator launch remain unchanged.
+- Added synchronous interruption for the existing start action, keyboard activation, and direct world pointer input so contribution starts on the same input without a skip screen or second press.
+- Added a strict opaque session-scoped presentation marker derived from the validated fragment so refresh, locale switching, Back/Forward restoration, and duplicate opens do not create a replay loop; raw relay values are not persisted.
+- Added a silent reduced-motion equivalent that shows the connected and unfinished structural meaning without travel and settles within `80ms` outside deterministic test mode.
+- Added complete teardown for temporary SVG, classes, inline presentation state, animation frames, timers, motion listeners, route changes, locale changes, contribution start, and navigation.
+- Added no visible copy, sound, vibration, progress mutation, new transport field, media change, creator setting, dependency, account, credential, backend, analytics, external participant, manual evidence, or Production mutation.
+- Added focused unit tests for eligibility, ineligible/stale/completed neutrality, deterministic phases, canonical path binding, and opaque presentation markers.
+- Added deterministic Arabic/English Playwright and axe evidence for authored frames at `320×568`, `390×844`, `768×1024`, `1024×768`, and `1440×900`, plus `320×568` at 200% text, touch/keyboard interruption, reduced motion, refresh/history/locale neutrality, invalid recovery, completed state, and stale current-world recovery.
+
+### Validation
+
+- Issue #61 is the single active cycle and branch `feature/cv-pivot-007-world-wake` is dedicated to it.
+- Local dependency-free syntax checks passed for the new presentation, enhancement, unit, and Playwright modules; the focused pure unit suite passed `4/4` before repository submission.
+- Locked `npm ci`, complete unit/localization/build checks, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, full Playwright/axe evidence, browser-report integrity, and exact-head artifacts remain authoritative in GitHub CI.
+- Automated scenarios and screenshots are reproducible engineering and visual-regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, sharing behavior, virality, demand, retention, preference, creator adoption, audience growth, or market validation.
+- Rollback is limited to reverting the linked pull request; existing relay, chapter, event, progress, Returning Thread, media, dependencies, Railway configuration, and Production remain unchanged.
+
+### Next best task
+
+Run the complete repository and isolated Railway PR Preview gates on the unchanged implementation head. Move Issue #61 to `stage:release` only after every required check passes; the Engineer must not merge.
+
 ## 2026-07-23 — CV-PIVOT-006 relay world focus
 
 **Outcome:** Give the existing one-step Signal Grove relay an authored responsive camera and structural state language so the completed Loombridge, unfinished route, exact next lantern, and one dominant contribution action are immediately visible without changing transport, progress, interaction, sharing, or recovery behavior.

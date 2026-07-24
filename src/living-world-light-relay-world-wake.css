@@ -1,0 +1,84 @@
+.world-wake-overlay {
+  pointer-events: none;
+}
+
+.world-wake-connected-span,
+.world-wake-target-span {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.world-wake-connected-span {
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 5;
+}
+
+.world-wake-target-span {
+  stroke: var(--cv-world-thread);
+  stroke-width: 3;
+}
+
+.signal-lantern.is-world-wake-latest {
+  --world-wake-latest-emphasis: 1;
+}
+
+.signal-lantern.is-world-wake-latest .lantern-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: calc(2px + var(--world-wake-latest-emphasis, 0) * 1px);
+}
+
+.signal-lantern.is-world-wake-latest .lantern-cradle,
+.signal-lantern.is-world-wake-latest .lantern-detail {
+  opacity: calc(0.72 + var(--world-wake-latest-emphasis, 0) * 0.28);
+}
+
+.living-world-light-relay[data-world-wake-phase="target"] .signal-lantern.is-world-wake-next .lantern-inner-ring,
+.living-world-light-relay[data-world-wake-phase="reduced"] .signal-lantern.is-world-wake-next .lantern-inner-ring {
+  stroke-width: 2.5;
+}
+
+.living-world-light-relay[data-world-wake-phase="target"] .signal-lantern.is-world-wake-next .lantern-cradle,
+.living-world-light-relay[data-world-wake-phase="reduced"] .signal-lantern.is-world-wake-next .lantern-cradle {
+  stroke: var(--cv-world-thread-bright);
+  stroke-width: 2.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-wake-connected-span,
+  .world-wake-target-span,
+  .signal-lantern.is-world-wake-latest .lantern-core {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .world-wake-connected-span {
+    stroke: Highlight;
+    stroke-width: 5;
+  }
+
+  .world-wake-target-span {
+    stroke: CanvasText;
+    stroke-width: 3;
+  }
+
+  .signal-lantern.is-world-wake-latest .lantern-core {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+
+  .signal-lantern.is-world-wake-next .lantern-core,
+  .signal-lantern.is-world-wake-next .lantern-inner-ring,
+  .signal-lantern.is-world-wake-next .lantern-cradle {
+    fill: Canvas;
+    stroke: Highlight;
+  }
+}
