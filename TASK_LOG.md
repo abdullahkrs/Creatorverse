@@ -4,6 +4,37 @@ Facts only. GitHub issues and labels remain the workflow source of truth.
 
 Completed entries through CV-PIVOT-004 are preserved in [`docs/archive/TASK_LOG-through-CV-PIVOT-004.md`](docs/archive/TASK_LOG-through-CV-PIVOT-004.md).
 
+## 2026-07-24 — CV-PIVOT-008 Skywell continuation
+
+**Outcome:** Open one bounded Skywell event above the completed Signal Grove so a fresh follower enters the evolved world directly, carries light through the existing short signal interaction, opens exactly one authored rib, and can share the next truthful world update.
+
+### Implemented
+
+- Added one strict versioned fragment-only `world-skywell` event bound to an exact completed `light-far-shore` chapter with all eight Signal Grove lanterns active.
+- Added exact allowlists, canonical predecessor binding, bounded size and expiry, duplicate/unknown-key rejection, control and bidi rejection, escaped rendering, immediate visible transport cleanup, and strict recovery.
+- Added one full-screen Folded Horizon continuation retaining the completed Loombridge and Signal Grove below one six-rib Skywell with structural open, target, and dormant states that do not rely on hue alone.
+- Added one compact creator continuation cluster inside the completed world with a single fixed six-hour target and one launch action; followers and incomplete predecessor contexts receive no launch control.
+- Reused the existing three-pass, twelve-second signal model for **Carry light / احمل النور** with touch, scene pointer, Enter, and Space input, two-of-three acceptance, failure and retry, and no score, rank, reward, streak, or second progress system.
+- Made one accepted contribution open exactly the next rib through one verified local atomic record; duplicate, stale, malformed, failed-write, refresh, locale, and history paths remain mutation-neutral.
+- Added bounded impact and completion transformations: a structural trace rises from the completed grove into the target hinge; six ribs reveal the full aperture and one vertical light column.
+- Added deterministic `1080×1920` partial and complete Skywell media with independent Arabic and English composition, safe filename, strict link payload, native file share, save-image/copy-link fallback, and no identifiers, timestamps, tracking, QR codes, or text metadata.
+- Added synchronized Arabic/English localization, intentional RTL/LTR composition, isolated numeric progress, visible focus, 44 px targets, optional post-interaction audio, muted and unsupported equivalents, reduced motion, loading, failure, stale, duplicate, storage, completed, and recovery states.
+- Added focused unit coverage for strict schemas, completed predecessor eligibility, create/resume, exact-once mutation, stale and malformed storage, six-rib projection, two-of-three acceptance, localization parity, copy budgets, safe media, and strict share transport.
+- Added deterministic Playwright and axe coverage for creator launch, direct raw-link entry with visible URL cleanup, Arabic/English, required responsive sizes, structural progress at one/three/five ribs, touch and keyboard completion, impact, full opening, failure/retry, duplicate refresh, stale current world, reduced motion, portrait media, invalid recovery, and `320×568` at 200% text.
+- Added no dependency, account, profile, dashboard, analytics, backend, database, credential, paid service, upload, contact, social integration, external participant, manual evidence, human-only gate, or Production mutation.
+
+### Validation
+
+- Issue #63 is the single active cycle and branch `feature/cv-pivot-008-skywell` is dedicated to it.
+- Local dependency-free syntax checks passed for the Skywell domain, localization, media, enhancement, unit, and Playwright modules before repository submission.
+- Locked `npm ci`, complete unit/localization/build checks, exact isolated Railway PR Preview `/health` and `/version`, malformed-path liveness, full Playwright/axe evidence, PNG integrity, browser-report integrity, and exact-head artifacts remain authoritative in GitHub CI.
+- Automated scenarios, screenshots, and generated media are engineering and visual-regression evidence only; they are not evidence of identity, human comprehension, enjoyment, community attachment, creator adoption, sharing behavior, virality, demand, retention, preference, audience growth, or market fit.
+- Rollback is limited to reverting the linked pull request and removing only the bounded Skywell local/session/history keys; existing event, chapter, relay, Returning Thread, media, dependencies, Railway configuration, and Production remain unchanged.
+
+### Next best task
+
+Run the complete repository and exact isolated Railway PR Preview gates on the unchanged implementation head. Move Issue #63 to `stage:release` only after every required check passes; the Engineer must not merge.
+
 ## 2026-07-24 — CV-PIVOT-007 truthful world wake
 
 **Outcome:** Let one fresh valid Signal Grove relay briefly emphasize the latest already-accepted structural change and then the exact next lantern without changing the authoritative world state, contribution, transport, sharing, or recovery contracts.
